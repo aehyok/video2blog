@@ -9,6 +9,8 @@
     "python": "python ./python/main.py"
   },
   "dependencies": {
+    "fs-extra": "^11.2.0",
+    "naive-ui": "^2.38.1",
     "python-shell": "^5.0.0",
     "vue": "^3.3.4"
   },

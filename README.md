@@ -31,6 +31,11 @@ yt-dlp --version
 ffmpeg -version
 ```
 
+## Menu菜单的设置
+```
+https://www.electronjs.org/zh/docs/latest/api/menu
+```
+
 
 
 ## python
