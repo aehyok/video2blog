@@ -115,18 +115,6 @@ function createMenu() {
           label: '配置',
           submenu: [
               {
-                  label: '配置',
-                  click() {
-                      // createConfigWindow()
-                  }
-              },
-              {
-                  label: '刷新', // 刷新页面
-                  click() {
-                      // refreshWindows()
-                  }
-              },
-              {
                   label: '打开调试窗口',
                   click(menuItem:any, targetWindow: any) {
                        targetWindow.openDevTools()
@@ -143,30 +131,6 @@ function createMenu() {
       {
           label: '编辑',
           role: 'editMenu'
-      },
-      {
-          label: '文件夹',
-          submenu: [
-              // {label: '打开 Rime 配置文件夹', click() {shell.openPath(getRimeConfigDir())}},
-              // {label: '打开 Rime 程序文件夹', click() {shell.openPath(getRimeExecDir())}},
-              // {
-              //     label: '打开工具配置文件夹', click() {
-              //         let configDir = path.join(os.homedir(), CONFIG_FILE_PATH)
-              //         shell.openPath(configDir)
-              //     }
-              // },
-          ]
-      },
-      {
-          label: '码表处理工具',
-          submenu: [
-              {
-                  label: '码表处理工具',
-                  click() {
-                      // showToolWindow()
-                  }
-              },
-          ]
       },
       {
           label: '关于',

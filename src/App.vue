@@ -1,35 +1,34 @@
 <template>
-    <div class="container">
-      <n-input type="text" v-model:value="input" class="input" placeholder="请输入视频地址"></n-input>
-      <n-switch v-model:value="checkedValue"/>
-        <span class="right">同时下载视频</span>
-      <n-button @click="SubtitleClick" type="primary">获取视频字幕文件</n-button>
-    </div>
-    <div class="subtitle">
-      <n-input
-      v-model:value="outputSource"
-      type="textarea"
-      class="textarea"
-      placeholder="基本的 Textarea"
-    />
+  <div class="container">
+    <n-input type="text" v-model:value="input" class="input" placeholder="请输入视频地址"></n-input>
+    <n-switch v-model:value="checkedValue"/>
+      <span class="right">同时下载视频</span>
+    <n-button @click="SubtitleClick" type="primary">获取视频字幕文件</n-button>
+  </div>
+  <div class="subtitle">
     <n-input
-      v-model:value="outputTarget"
-      type="textarea"
-      class="textarea"
-      placeholder="基本的 Textarea"
-    />
-    </div>
-
+    v-model:value="outputSource"
+    type="textarea"
+    class="textarea"
+    placeholder="基本的 Textarea"
+  />
+  <n-input
+    v-model:value="outputTarget"
+    type="textarea"
+    class="textarea"
+    placeholder="基本的 Textarea"
+  />
+  </div>
 </template>
 <script setup lang="ts">
   import { ref } from 'vue'
   import { NButton, NInput, NSwitch } from 'naive-ui';
+
   const input = ref("https://youtu.be/dIyQl99oxlg?si=fwfuC2lLkxG_Fgpd");
 
   const outputSource= ref("")
   const outputTarget = ref("")
   const checkedValue = ref(false)
-
   const callCmd = () => {
     console.log("渲染进程中的按钮事件message");
     // window.ipcRenderer.send('call-main-cmd', 'message')
