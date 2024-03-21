@@ -1,24 +1,26 @@
 <template>
-  <div class="container">
-    <n-input type="text" v-model:value="input" class="input" placeholder="请输入视频地址"></n-input>
-    <n-switch v-model:value="checkedValue"/>
-      <span class="right">同时下载视频</span>
-    <n-button @click="SubtitleClick" type="primary">获取视频字幕文件</n-button>
-  </div>
-  <div class="subtitle">
+  <n-spin :show="show" description="正在下载请稍后......">
+    <div class="container">
+      <n-input type="text" v-model:value="input" class="input" placeholder="请输入视频地址"></n-input>
+      <n-switch v-model:value="checkedValue"/>
+        <span class="right">同时下载视频</span>
+      <n-button @click="SubtitleClick" type="primary">获取视频字幕文件</n-button>
+    </div>
+    <div class="subtitle">
+      <n-input
+      v-model:value="outputSource"
+      type="textarea"
+      class="textarea"
+      placeholder="基本的 Textarea"
+    />
     <n-input
-    v-model:value="outputSource"
-    type="textarea"
-    class="textarea"
-    placeholder="基本的 Textarea"
-  />
-  <n-input
-    v-model:value="outputTarget"
-    type="textarea"
-    class="textarea"
-    placeholder="基本的 Textarea"
-  />
-  </div>
+      v-model:value="outputTarget"
+      type="textarea"
+      class="textarea"
+      placeholder="基本的 Textarea"
+    />
+    </div>
+  </n-spin>
 </template>
 <script setup lang="ts">
   import { ref } from 'vue'
@@ -26,6 +28,7 @@
 
   const input = ref("https://youtu.be/dIyQl99oxlg?si=fwfuC2lLkxG_Fgpd");
 
+  const show = ref(false)
   const outputSource= ref("")
   const outputTarget = ref("")
   const checkedValue = ref(false)
@@ -44,15 +47,16 @@
       window.alert("请输入视频链接")
       return;
     }
+    show.value = true
     window.ipcRenderer.send('call-yt-dlp', input.value, checkedValue.value)
   }
 
   // 子进程定义方法
-  window.ipcRenderer.on("call-output", (event, args) => {
+  window.ipcRenderer.on("call-output", (event:any, args) => {
     console.log("子进程接收到主进程的数据",args);
     outputSource.value = args;
+    show.value = false;
     console.log("子进程接收到主进程的数据",outputSource.value);
-    window.alert(args);
   });
 </script>
 <style scoped>

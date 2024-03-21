@@ -84,7 +84,7 @@ ipcMain.on("call-yt-dlp", (event, args,isDownloadVideo) => {
     info = stdout;
     console.log(`输出: ${info}`);
 
-    const vttPath = `${locationPath}dIyQl99oxlg.zh-Hans.vtt`
+    const vttPath = `${locationPath}mAUpxN-EIgU.en.vtt`
     const packageString = fs.readFileSync(vttPath).toString();
     event.reply("call-output",packageString);
   });

@@ -4,7 +4,7 @@ export const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
     name: "/",
-    redirect: "/mine",
+    redirect: "/home",
   },
   {
     path: "/home",
