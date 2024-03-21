@@ -1,7 +1,9 @@
 <template>
     <div class="container">
       <n-input type="text" v-model:value="input" class="input" placeholder="请输入视频地址"></n-input>
-      <n-button @click="SubtitleClick" color="#8a2be2" >获取视频字幕文件</n-button>
+      <n-switch v-model:value="checkedValue"/>
+        <span class="right">同时下载视频</span>
+      <n-button @click="SubtitleClick" type="primary">获取视频字幕文件</n-button>
     </div>
     <div class="subtitle">
       <n-input
@@ -21,11 +23,12 @@
 </template>
 <script setup lang="ts">
   import { ref } from 'vue'
-  import { NButton, NInput } from 'naive-ui';
+  import { NButton, NInput, NSwitch } from 'naive-ui';
   const input = ref("https://youtu.be/dIyQl99oxlg?si=fwfuC2lLkxG_Fgpd");
 
   const outputSource= ref("")
   const outputTarget = ref("")
+  const checkedValue = ref(false)
 
   const callCmd = () => {
     console.log("渲染进程中的按钮事件message");
@@ -42,7 +45,7 @@
       window.alert("请输入视频链接")
       return;
     }
-    window.ipcRenderer.send('call-yt-dlp', input.value)
+    window.ipcRenderer.send('call-yt-dlp', input.value, checkedValue.value)
   }
 
   // 子进程定义方法
@@ -66,14 +69,21 @@
 .logo.vue:hover {
   filter: drop-shadow(0 0 2em #42b883aa);
 }
+
+.right {
+  margin-right: 20px;
+}
+
 .input {
   margin-right: 20px;
   width: 400px;
+  text-align: left;
 }
 
 .container {
   display: flex;
   justify-content: flex-start;
+  align-items: center;
   margin-bottom: 20px;
 }
 .textarea{

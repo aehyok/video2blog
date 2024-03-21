@@ -36,6 +36,3 @@ ffmpeg -version
 https://www.electronjs.org/zh/docs/latest/api/menu
 ```
 
-
-
-## python

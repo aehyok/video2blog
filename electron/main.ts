@@ -63,15 +63,17 @@ app.on('activate', () => {
 })
 
 // 主进程定义方法
-ipcMain.on("call-yt-dlp", (event, args) => {
-  console.log("主进程接收到子进程的数据",args);
+ipcMain.on("call-yt-dlp", (event, args,isDownloadVideo) => {
+  console.log("主进程接收到子进程的数据",args,isDownloadVideo);
 
   let info = "";
   // ffmpeg -version
   console.log(process.cwd(), "process.cwd")
 
   const locationPath = `${process.cwd()}\\command\\`
-  let cmd = `chcp 65001 && ${process.cwd()}\\command\\yt-dlp -P ${locationPath} ${args} -o "%(id)s.%(ext)s" --skip-download --write-subs`;
+
+  let cmd = "";
+  cmd = isDownloadVideo ? `chcp 65001 && ${process.cwd()}\\command\\yt-dlp -P ${locationPath} ${args} -o "%(id)s.%(ext)s" --write-subs`: `chcp 65001 && ${process.cwd()}\\command\\yt-dlp -P ${locationPath} ${args} -o "%(id)s.%(ext)s" --skip-download --write-subs`;
   process.env.NODE_STDOUT_ENCODING = 'utf-8';
 
   exec(cmd, {encoding: "utf8"}, (error, stdout, stderr) => {
@@ -85,7 +87,6 @@ ipcMain.on("call-yt-dlp", (event, args) => {
     const vttPath = `${locationPath}dIyQl99oxlg.zh-Hans.vtt`
     const packageString = fs.readFileSync(vttPath).toString();
     event.reply("call-output",packageString);
-    console.log(packageString,"packageString");
   });
 });
 
