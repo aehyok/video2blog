@@ -12,7 +12,8 @@
     "fs-extra": "^11.2.0",
     "naive-ui": "^2.38.1",
     "python-shell": "^5.0.0",
-    "vue": "^3.3.4"
+    "vue": "^3.3.4",
+    "vue-router": "4"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.3.4",
