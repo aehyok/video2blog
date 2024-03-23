@@ -33,6 +33,15 @@
   const outputSource= ref("")
   const outputTarget = ref("")
   const checkedValue = ref(false)
+
+
+  window.database.serialize(() => {
+    window.database.each("SELECT id, name, age FROM user", (err, row: any) => {
+          console.log(row.id + ": " + row.name + " - " + row.age, 'home页面获取数据');
+      });
+    });
+
+
   const callCmd = () => {
     console.log("渲染进程中的按钮事件message");
     // window.ipcRenderer.send('call-main-cmd', 'message')

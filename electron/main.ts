@@ -26,7 +26,11 @@ if (!app.requestSingleInstanceLock()) {
 
 // 主进程初始化sqlite3数据库存放路径
 // app.getPath('userData') 
-ipcMain.handle('local-sqlite3-db', () => path.join(app.getPath('userData'), 'database.sqlite3'))
+ipcMain.handle('local-sqlite3-db', () => {
+  let sqlite3Path = path.join(app.getPath('userData'), 'database.sqlite3');
+  console.log(sqlite3Path, "主进程获取到数据库路径")
+  return sqlite3Path;
+})
 
 let win: BrowserWindow | null
 
