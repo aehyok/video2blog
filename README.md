@@ -1,6 +1,9 @@
 ## 项目使用
 pnpm electron vite vue3
-
+- 可参考项目
+  - https://github.com/caoxiemeihao/electron-vite-samples（问题处理模板）
+  - https://github.com/1111mp/electron_client
+  - https://github.com/fanchenio/DawnLauncher
 ## 参考文档
 - https://www.electronjs.org/zh/docs/latest/tutorial/quick-start
 
@@ -36,3 +39,15 @@ ffmpeg -version
 https://www.electronjs.org/zh/docs/latest/api/menu
 ```
 
+## 引入node原生模块
+```
+https://www.electronjs.org/zh/docs/latest/tutorial/using-native-node-modules
+```
+
+## Electron 获取当前用户data存放目录
+- https://segmentfault.com/a/1190000044417762
+
+## npm build 报错 node-gyp
+
+- https://github.com/caoxiemeihao/electron-vite-samples/issues/9
+- https://www.cnblogs.com/RaySirBlog/p/17337079.html

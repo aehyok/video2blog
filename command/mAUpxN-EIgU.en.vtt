@@ -1,0 +1,816 @@
+WEBVTT
+Kind: captions
+Language: en
+
+00:00:00.090 --> 00:00:03.090
+- The video captures sort
+of the detail of the prompt
+
+00:00:03.090 --> 00:00:06.060
+when it comes to the hair and you know,
+
+00:00:06.060 --> 00:00:10.110
+sort of like professionally-styled women.
+
+00:00:10.110 --> 00:00:12.240
+- But you can also see some issues.
+
+00:00:12.240 --> 00:00:15.450
+- Certainly, especially
+when it comes to the hands.
+
+00:00:15.450 --> 00:00:17.850
+- [Joanna] These two women, not real.
+
+00:00:17.850 --> 00:00:19.440
+They were created by Sora,
+
+00:00:19.440 --> 00:00:21.960
+OpenAI's text-to-video AI model.
+
+00:00:21.960 --> 00:00:24.720
+But these two women, very real.
+
+00:00:24.720 --> 00:00:25.777
+- I'm Mira Murati,
+
+00:00:25.777 --> 00:00:27.360
+CTO of OpenAI.
+
+00:00:27.360 --> 00:00:29.490
+- And former CEO.
+
+00:00:29.490 --> 00:00:30.573
+- Yes, for two days.
+
+00:00:31.410 --> 00:00:34.170
+- [Joanna] In November when
+OpenAI CEO, Sam Altman,
+
+00:00:34.170 --> 00:00:36.090
+was momentarily ousted,
+
+00:00:36.090 --> 00:00:37.560
+Murati stepped in.
+
+00:00:37.560 --> 00:00:39.570
+Now she's back to her previous job
+
+00:00:39.570 --> 00:00:42.660
+running all the tech at
+the company including...
+
+00:00:42.660 --> 00:00:45.810
+- Sora is our video generation model.
+
+00:00:45.810 --> 00:00:48.900
+It is just based on a text prompt
+
+00:00:48.900 --> 00:00:52.170
+and it creates this hyper
+realistic, beautiful,
+
+00:00:52.170 --> 00:00:56.130
+highly-detailed videos
+of one-minute length.
+
+00:00:56.130 --> 00:00:59.340
+- [Joanna] I've been blown away
+by the AI-generated videos,
+
+00:00:59.340 --> 00:01:02.220
+yet also concerned about their impact.
+
+00:01:02.220 --> 00:01:05.520
+So I asked OpenAI to generate
+some new videos for me
+
+00:01:05.520 --> 00:01:08.490
+and sat down with Murati
+to get some answers.
+
+00:01:08.490 --> 00:01:09.660
+How does Sora work?
+
+00:01:09.660 --> 00:01:12.330
+- It's fundamentally a diffusion model
+
+00:01:12.330 --> 00:01:14.670
+which is a type of generative model.
+
+00:01:14.670 --> 00:01:17.700
+It creates a more distilled image
+
+00:01:17.700 --> 00:01:19.560
+starting from random noise.
+
+00:01:19.560 --> 00:01:21.090
+- [Joanna] Okay, here are the basics.
+
+00:01:21.090 --> 00:01:23.790
+The AI model analyzed lots of videos
+
+00:01:23.790 --> 00:01:26.730
+and learned to identify
+objects and actions.
+
+00:01:26.730 --> 00:01:28.200
+When given a text prompt,
+
+00:01:28.200 --> 00:01:30.780
+it creates a scene by
+defining the timeline
+
+00:01:30.780 --> 00:01:33.000
+and adding detail to each frame.
+
+00:01:33.000 --> 00:01:35.850
+What makes this AI video
+special compared to others
+
+00:01:35.850 --> 00:01:38.490
+is how smooth and realistic it looks.
+
+00:01:38.490 --> 00:01:40.860
+- If you think about filmmaking,
+
+00:01:40.860 --> 00:01:44.640
+people have to make sure
+that each frame continues
+
+00:01:44.640 --> 00:01:48.180
+into the next frame with
+the sense of consistency
+
+00:01:48.180 --> 00:01:50.220
+between objects and people.
+
+00:01:50.220 --> 00:01:53.070
+And that's what gives
+you a sense of realism
+
+00:01:53.070 --> 00:01:54.510
+and a sense of presence.
+
+00:01:54.510 --> 00:01:56.850
+And if you break that between frames,
+
+00:01:56.850 --> 00:01:59.460
+then you get this disconnected sense
+
+00:01:59.460 --> 00:02:01.650
+and reality is no longer there.
+
+00:02:01.650 --> 00:02:04.260
+And so this is what Sora does really well.
+
+00:02:04.260 --> 00:02:06.060
+- You can see lots of that smoothness
+
+00:02:06.060 --> 00:02:09.450
+in the videos OpenAI generated
+from the prompts I provided.
+
+00:02:09.450 --> 00:02:12.180
+But you can also see flaws and glitches.
+
+00:02:12.180 --> 00:02:15.810
+A female video producer on
+a sidewalk in New York City
+
+00:02:15.810 --> 00:02:17.550
+holding a high-end cinema camera.
+
+00:02:17.550 --> 00:02:20.940
+Suddenly, a robot yanks
+the camera out of her hand.
+
+00:02:20.940 --> 00:02:22.650
+- So in this one,
+
+00:02:22.650 --> 00:02:25.170
+you can see the model doesn't follow
+
+00:02:25.170 --> 00:02:27.150
+the prompt very closely.
+
+00:02:27.150 --> 00:02:31.350
+The robot doesn't quite yank
+the camera out of her hand,
+
+00:02:31.350 --> 00:02:34.503
+but the person sort of
+morphs into the robot.
+
+00:02:36.390 --> 00:02:38.880
+Yeah, a lot of imperfections still.
+
+00:02:38.880 --> 00:02:40.080
+- One thing I noticed there too
+
+00:02:40.080 --> 00:02:41.670
+is when the cars are going by,
+
+00:02:41.670 --> 00:02:43.233
+they change colors.
+
+00:02:44.400 --> 00:02:48.300
+- Yeah, so while the model
+is quite good at continuity,
+
+00:02:48.300 --> 00:02:49.860
+it's not perfect.
+
+00:02:49.860 --> 00:02:52.560
+So you kind of see the
+yellow cab disappearing
+
+00:02:52.560 --> 00:02:54.570
+from the frame there for a while
+
+00:02:54.570 --> 00:02:56.250
+and then it comes back
+in a different frame.
+
+00:02:56.250 --> 00:02:58.417
+- Would there be a way
+after the fact to say,
+
+00:02:58.417 --> 00:03:00.870
+"Fix the taxi cabs in the back?"
+
+00:03:00.870 --> 00:03:02.340
+- Yeah, so eventually.
+
+00:03:02.340 --> 00:03:04.530
+That's what we're trying to figure out,
+
+00:03:04.530 --> 00:03:07.260
+how to use this technology as a tool
+
+00:03:07.260 --> 00:03:09.660
+that people can edit and create with.
+
+00:03:09.660 --> 00:03:11.790
+- I wanted to go through one other...
+
+00:03:11.790 --> 00:03:13.500
+What do you think the prompt was?
+
+00:03:13.500 --> 00:03:15.540
+- It looks like the bull in a China shop.
+
+00:03:15.540 --> 00:03:17.580
+Yeah, metaphorically,
+
+00:03:17.580 --> 00:03:21.270
+you'd imagine everything
+breaking in the scene, right?
+
+00:03:21.270 --> 00:03:25.058
+And you see in some cases
+that the bull is stomping
+
+00:03:25.058 --> 00:03:28.320
+on things and they're still perfect.
+
+00:03:28.320 --> 00:03:29.640
+They're not breaking.
+
+00:03:29.640 --> 00:03:31.800
+So that's to be expected this early on.
+
+00:03:31.800 --> 00:03:34.410
+And eventually, there's
+gonna be more steerability
+
+00:03:34.410 --> 00:03:36.480
+and control and more accuracy
+
+00:03:36.480 --> 00:03:39.030
+in reflecting the intent of what you want.
+
+00:03:39.030 --> 00:03:41.490
+- And then there was
+that video of, well, us.
+
+00:03:41.490 --> 00:03:42.720
+The woman on the left looks like
+
+00:03:42.720 --> 00:03:46.410
+she has maybe like 15
+fingers in one of the shots.
+
+00:03:46.410 --> 00:03:49.590
+- [Mira] Hands actually
+have their own way of motion
+
+00:03:49.590 --> 00:03:53.760
+and it's very difficult to
+simulate the motion of hands.
+
+00:03:53.760 --> 00:03:56.790
+- In the clip, the mouths
+move but there's no sound.
+
+00:03:56.790 --> 00:03:58.777
+So is audio something
+you're working on with Sora?
+
+00:03:58.777 --> 00:04:00.450
+- With Sora specifically,
+
+00:04:00.450 --> 00:04:01.590
+not in this moment.
+
+00:04:01.590 --> 00:04:03.210
+But we will eventually.
+
+00:04:03.210 --> 00:04:04.800
+- [Joanna] Every time I watch a Sora clip,
+
+00:04:04.800 --> 00:04:08.250
+I wonder what videos did
+this AI model learn from?
+
+00:04:08.250 --> 00:04:10.560
+Did the model see any clips of Ferdinand
+
+00:04:10.560 --> 00:04:13.620
+to know what a bull in a
+China shop should look like?
+
+00:04:13.620 --> 00:04:15.660
+Was it a fan of SpongeBob?
+
+00:04:15.660 --> 00:04:16.860
+- Wow!
+
+00:04:16.860 --> 00:04:19.260
+You look real good with
+a mustache, Mr. Crab.
+
+00:04:19.260 --> 00:04:20.093
+- By the way,
+
+00:04:20.093 --> 00:04:23.640
+my prompt for this crab said
+nothing about a mustache.
+
+00:04:23.640 --> 00:04:26.520
+What data was used to train Sora?
+
+00:04:26.520 --> 00:04:31.520
+- We used publicly available
+data and licensed data.
+
+00:04:31.530 --> 00:04:33.633
+- So, videos on YouTube.
+
+00:04:36.540 --> 00:04:38.130
+- I'm actually not sure about that.
+
+00:04:38.130 --> 00:04:39.060
+- Okay.
+
+00:04:39.060 --> 00:04:42.903
+Videos from Facebook, Instagram.
+
+00:04:44.100 --> 00:04:47.313
+- You know, if they
+were publicly available,
+
+00:04:48.870 --> 00:04:50.793
+publicly available to use,
+
+00:04:51.840 --> 00:04:53.880
+there might be the data,
+
+00:04:53.880 --> 00:04:55.830
+but I'm not sure.
+
+00:04:55.830 --> 00:04:57.060
+I'm not confident about it.
+
+00:04:57.060 --> 00:04:58.290
+- What about Shutterstock?
+
+00:04:58.290 --> 00:05:00.190
+I know you guys have a deal with them.
+
+00:05:01.677 --> 00:05:04.409
+- I'm just not gonna go
+into the details of the data
+
+00:05:04.409 --> 00:05:06.360
+that was used,
+
+00:05:06.360 --> 00:05:09.180
+but it was publicly
+available or licensed data.
+
+00:05:09.180 --> 00:05:10.200
+- [Joanna] After the interview,
+
+00:05:10.200 --> 00:05:12.120
+Murati confirmed that the licensed data
+
+00:05:12.120 --> 00:05:14.310
+does include content from Shutterstock.
+
+00:05:14.310 --> 00:05:17.850
+Those videos are 720p, 20 seconds long.
+
+00:05:17.850 --> 00:05:19.860
+How long does it take to generate those?
+
+00:05:19.860 --> 00:05:21.510
+- It could take a few minutes
+
+00:05:21.510 --> 00:05:24.180
+depending on the complexity of the prompt.
+
+00:05:24.180 --> 00:05:26.070
+Our goal was to really focus
+
+00:05:26.070 --> 00:05:29.640
+on developing the best capability
+
+00:05:29.640 --> 00:05:33.240
+and now we will start looking
+into optimizing the technology
+
+00:05:33.240 --> 00:05:37.080
+so people can use it at low
+cost and make it easy to use.
+
+00:05:37.080 --> 00:05:37.913
+- To create these,
+
+00:05:37.913 --> 00:05:40.260
+you must be using a
+lot of computing power.
+
+00:05:40.260 --> 00:05:42.990
+Can you give me a sense of
+how much computing power
+
+00:05:42.990 --> 00:05:44.940
+to create something like that
+
+00:05:44.940 --> 00:05:49.020
+versus a ChatGPT response
+or a DALL-E image?
+
+00:05:49.020 --> 00:05:51.870
+- ChatGPT and DALL-E are optimized
+
+00:05:51.870 --> 00:05:54.600
+for the public to be using them,
+
+00:05:54.600 --> 00:05:58.350
+whereas Sora is really a research output.
+
+00:05:58.350 --> 00:06:00.330
+It's much, much more expensive.
+
+00:06:00.330 --> 00:06:02.370
+We don't know what it's
+going to look like exactly
+
+00:06:02.370 --> 00:06:05.730
+when we make it available
+eventually to the public,
+
+00:06:05.730 --> 00:06:08.640
+but we're trying to make it available
+
+00:06:08.640 --> 00:06:13.290
+at similar cost eventually
+to what we saw with DALL-E.
+
+00:06:13.290 --> 00:06:14.550
+- You said eventually.
+
+00:06:14.550 --> 00:06:15.630
+When is eventually?
+
+00:06:15.630 --> 00:06:17.970
+- I'm hoping definitely this year,
+
+00:06:17.970 --> 00:06:19.680
+but could be a few months.
+
+00:06:19.680 --> 00:06:21.180
+- There's an election in November.
+
+00:06:21.180 --> 00:06:22.620
+You think before or after that?
+
+00:06:22.620 --> 00:06:25.110
+- You know, that's
+certainly a consideration
+
+00:06:25.110 --> 00:06:29.070
+dealing with the issues of misinformation
+
+00:06:29.070 --> 00:06:30.690
+and harmful bias.
+
+00:06:30.690 --> 00:06:32.850
+And we will not be releasing anything
+
+00:06:32.850 --> 00:06:35.460
+that we don't feel confident on
+
+00:06:35.460 --> 00:06:39.910
+when it comes to how it
+might affect global elections
+
+00:06:40.770 --> 00:06:43.200
+or other issues.
+
+00:06:43.200 --> 00:06:45.750
+- Right now Sora is going
+through red teaming,
+
+00:06:45.750 --> 00:06:48.090
+AKA the process where people test the tool
+
+00:06:48.090 --> 00:06:51.150
+to make sure it's safe,
+secure, and reliable.
+
+00:06:51.150 --> 00:06:53.880
+The goal is to identify
+vulnerabilities, biases,
+
+00:06:53.880 --> 00:06:55.770
+and other harmful issues.
+
+00:06:55.770 --> 00:06:58.080
+What are things that
+just you won't be able
+
+00:06:58.080 --> 00:06:59.310
+to generate with this?
+
+00:06:59.310 --> 00:07:01.200
+- Well, we haven't made
+those decisions yet,
+
+00:07:01.200 --> 00:07:03.690
+but I think there will be
+consistency on our platform.
+
+00:07:03.690 --> 00:07:05.280
+So similarly to DALL-E
+
+00:07:05.280 --> 00:07:10.280
+where you can't generate
+images of public figures,
+
+00:07:10.830 --> 00:07:14.460
+I expect that we'll have
+a similar policy for Sora.
+
+00:07:14.460 --> 00:07:16.500
+And right now we're in discovery mode
+
+00:07:16.500 --> 00:07:19.650
+and we haven't figured out exactly
+
+00:07:19.650 --> 00:07:21.930
+where all the limitations are
+
+00:07:21.930 --> 00:07:24.570
+and how we'll navigate
+our way around them.
+
+00:07:24.570 --> 00:07:25.650
+- What about nudity?
+
+00:07:25.650 --> 00:07:26.483
+- I'm not sure.
+
+00:07:26.483 --> 00:07:28.140
+You can imagine that...
+
+00:07:28.140 --> 00:07:30.450
+You know, there are creative settings
+
+00:07:30.450 --> 00:07:35.450
+in which artists might want to
+have more control over that.
+
+00:07:35.580 --> 00:07:37.699
+And right now, we are working with artists
+
+00:07:37.699 --> 00:07:40.320
+and creators from different fields
+
+00:07:40.320 --> 00:07:42.870
+to figure out exactly what's useful,
+
+00:07:42.870 --> 00:07:46.530
+what level of flexibility
+should the tool provide.
+
+00:07:46.530 --> 00:07:47.850
+- How do you make sure that people
+
+00:07:47.850 --> 00:07:52.440
+who are testing these products
+aren't being inundated
+
+00:07:52.440 --> 00:07:54.870
+with illicit or harmful content?
+
+00:07:54.870 --> 00:07:58.110
+- That's certainly difficult.
+
+00:07:58.110 --> 00:08:00.660
+And in the very early stages,
+
+00:08:00.660 --> 00:08:03.450
+it is part of red teaming.
+
+00:08:03.450 --> 00:08:07.020
+Something that you have
+to take into account
+
+00:08:07.020 --> 00:08:12.020
+and make sure that people are
+willing and able to do it.
+
+00:08:12.210 --> 00:08:14.670
+When we work with contractors,
+
+00:08:14.670 --> 00:08:17.580
+we go much further into that process,
+
+00:08:17.580 --> 00:08:19.620
+but that is certainly something difficult.
+
+00:08:19.620 --> 00:08:22.410
+- We're laughing at some
+of these videos right now.
+
+00:08:22.410 --> 00:08:26.130
+But people in the video
+industry may not be laughing
+
+00:08:26.130 --> 00:08:28.470
+in a few years when
+this type of technology
+
+00:08:28.470 --> 00:08:30.330
+is impacting their jobs.
+
+00:08:30.330 --> 00:08:34.020
+- You know, the way that
+I see it is this is a tool
+
+00:08:34.020 --> 00:08:36.420
+for extending creativity
+
+00:08:36.420 --> 00:08:40.140
+and we want people in the film industry,
+
+00:08:40.140 --> 00:08:41.460
+creators everywhere,
+
+00:08:41.460 --> 00:08:46.080
+to be a part of informing
+how we develop it further
+
+00:08:46.080 --> 00:08:47.790
+and also how we deploy it.
+
+00:08:47.790 --> 00:08:49.830
+And also, you know, what are the economics
+
+00:08:49.830 --> 00:08:52.680
+around using these models
+
+00:08:52.680 --> 00:08:55.500
+when people are
+contributing data and such.
+
+00:08:55.500 --> 00:08:57.600
+- One thing was clear from all this.
+
+00:08:57.600 --> 00:09:00.690
+This tech is going to
+quickly get faster, better,
+
+00:09:00.690 --> 00:09:02.400
+and become widely available.
+
+00:09:02.400 --> 00:09:04.230
+How are we going to tell the difference
+
+00:09:04.230 --> 00:09:07.770
+between what is real video
+and what is AI video?
+
+00:09:07.770 --> 00:09:10.260
+- We're doing research and
+watermarking the videos,
+
+00:09:10.260 --> 00:09:13.230
+but really figuring out content provenance
+
+00:09:13.230 --> 00:09:16.320
+and how do you trust what is real content
+
+00:09:16.320 --> 00:09:18.720
+versus something that happened in reality
+
+00:09:18.720 --> 00:09:22.230
+versus content created for misinformation.
+
+00:09:22.230 --> 00:09:23.280
+And this is the reason
+
+00:09:23.280 --> 00:09:26.070
+why we're actually not
+deploying the systems yet
+
+00:09:26.070 --> 00:09:28.170
+because we need to figure out these issues
+
+00:09:28.170 --> 00:09:30.960
+before we can confidently
+deploy them broadly.
+
+00:09:30.960 --> 00:09:32.640
+- [Joanna] That was reassuring to hear.
+
+00:09:32.640 --> 00:09:34.470
+But there are still big concerns
+
+00:09:34.470 --> 00:09:37.830
+about Silicon Valley's
+race to create AI tools
+
+00:09:37.830 --> 00:09:41.460
+and its ambition for power
+and money versus our safety.
+
+00:09:41.460 --> 00:09:46.460
+- It's not really a difficult
+demand or a difficult balance
+
+00:09:46.920 --> 00:09:50.370
+between profit and safety guardrails.
+
+00:09:50.370 --> 00:09:54.090
+I'd say the hard part
+is really figuring out
+
+00:09:54.090 --> 00:09:58.650
+the safety questions and
+the societal questions.
+
+00:09:58.650 --> 00:10:01.470
+That's really what keeps me up at night.
+
+00:10:01.470 --> 00:10:03.720
+- There's this amazement
+about the product,
+
+00:10:03.720 --> 00:10:08.220
+but then we've also talked
+about all of these concerns.
+
+00:10:08.220 --> 00:10:09.240
+Is it worth it?
+
+00:10:09.240 --> 00:10:10.710
+- It's definitely worth it.
+
+00:10:10.710 --> 00:10:15.710
+AI tools will extend our
+creativity and knowledge,
+
+00:10:17.040 --> 00:10:18.600
+collective imagination,
+
+00:10:18.600 --> 00:10:20.610
+ability to do anything.
+
+00:10:20.610 --> 00:10:22.620
+It's going to be extremely
+hard along the way
+
+00:10:22.620 --> 00:10:27.390
+to figure out the right
+path to bring AI tools
+
+00:10:27.390 --> 00:10:29.340
+into our day-to-day reality.
+
+00:10:29.340 --> 00:10:31.983
+But I think it's definitely worth trying.
+

@@ -1,66 +1,68 @@
-import { app, BrowserWindow, ipcMain, Menu } from 'electron'
-import path from 'node:path'
+import path from 'path'
 import { exec } from 'child_process'
 import {PythonShell} from 'python-shell';
 import fs from "fs-extra"
+import { app, BrowserWindow, ipcMain } from 'electron'
+
+process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 // The built directory structure
 //
-// ├─┬─┬ dist
-// │ │ └── index.html
-// │ │
-// │ ├─┬ dist-electron
+// ├─┬ dist
+// │ ├─┬ electron
 // │ │ ├── main.js
 // │ │ └── preload.js
+// │ ├── index.html
+// │ ├── ...other-static-files-from-public
 // │
 process.env.DIST = path.join(__dirname, '../dist')
-process.env.VITE_PUBLIC = app.isPackaged ? process.env.DIST : path.join(process.env.DIST, '../public')
+process.env.VITE_PUBLIC = app.isPackaged
+  ? process.env.DIST
+  : path.join(process.env.DIST, '../public')
 
+if (!app.requestSingleInstanceLock()) {
+  app.quit()
+  process.exit(0)
+}
+
+// 主进程初始化sqlite3数据库存放路径
+// app.getPath('userData') 
+ipcMain.handle('local-sqlite3-db', () => path.join(app.getPath('userData'), 'database.sqlite3'))
 
 let win: BrowserWindow | null
-// 🚧 Use ['ENV_NAME'] avoid vite:define plugin - Vite@2.x
-const VITE_DEV_SERVER_URL = process.env['VITE_DEV_SERVER_URL']
 
 function createWindow() {
   win = new BrowserWindow({
-    icon: path.join(process.env.VITE_PUBLIC, 'electron-vite.svg'),
+    icon: path.join(process.env.VITE_PUBLIC, 'logo.svg'),
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(__dirname, './preload.js'),
+      nodeIntegrationInWorker: true,
+      contextIsolation: false,
+      nodeIntegration: true,
+      webSecurity: false, // Allow Ajax cross
     },
   })
-
-  // win.setMenu(null);
 
   // Test active push message to Renderer-process.
   win.webContents.on('did-finish-load', () => {
     win?.webContents.send('main-process-message', (new Date).toLocaleString())
   })
 
-  if (VITE_DEV_SERVER_URL) {
-    win.loadURL(VITE_DEV_SERVER_URL)
+  if (process.env.VITE_DEV_SERVER_URL) {
+    win.loadURL(process.env.VITE_DEV_SERVER_URL)
+    win.webContents.openDevTools()
   } else {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(process.env.DIST, 'index.html'))
   }
 }
 
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
-    win = null
-  }
+  app.quit()
+  win = null
 })
 
-app.on('activate', () => {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow();
-    createMenu();
-  }
-})
+app.whenReady().then(createWindow)
+
 
 // 主进程定义方法
 ipcMain.on("call-yt-dlp", (event, args,isDownloadVideo) => {
@@ -84,64 +86,8 @@ ipcMain.on("call-yt-dlp", (event, args,isDownloadVideo) => {
     info = stdout;
     console.log(`输出: ${info}`);
 
-    const vttPath = `${locationPath}mAUpxN-EIgU.en.vtt`
+    const vttPath = `${locationPath}dIyQl99oxlg.zh-Hans.vtt`
     const packageString = fs.readFileSync(vttPath).toString();
     event.reply("call-output",packageString);
   });
 });
-
-ipcMain.on("exec-python", (event, args) => {
-  PythonShell.runString('x=4+1;print(x)', undefined).then((messages)=>{
-    console.log('finished',messages);
-  });
-});
-
-ipcMain.on("./electron/exec-python-file", (event, args) => {
-  PythonShell.run('main.py', undefined).then((messages)=>{
-    console.log('finished',messages);
-  });
-});
-
-app.whenReady().then(() => {
-  createWindow();
-  createMenu();
-})
-
-
-// 创建 menu
-function createMenu() {
-  let menuStructure = [
-      {
-          label: '配置',
-          submenu: [
-              {
-                  label: '打开调试窗口',
-                  click(menuItem:any, targetWindow: any) {
-                       targetWindow.openDevTools()
-                  }
-              },
-              {
-                  label: '关闭调试窗口',
-                  click(menuItem: any, targetWindow: any) {
-                      targetWindow.closeDevTools()
-                  }
-              },
-          ]
-      },
-      {
-          label: '编辑',
-          role: 'editMenu'
-      },
-      {
-          label: '关于',
-          submenu: [
-              {label: '最小化', role: 'minimize'},
-              {label: '关于', role: 'about'},
-              {type: 'separator'},
-              {label: '退出', role: 'quit'},
-          ]
-      },
-  ]
-  let menu = Menu.buildFromTemplate(menuStructure)
-  Menu.setApplicationMenu(menu)
-}

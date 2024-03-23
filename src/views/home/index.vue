@@ -24,6 +24,7 @@
 </template>
 <script setup lang="ts">
   import { ref } from 'vue'
+  import { ipcRenderer } from 'electron'
   import { NButton, NInput, NSwitch } from 'naive-ui';
 
   const input = ref("https://youtu.be/dIyQl99oxlg?si=fwfuC2lLkxG_Fgpd");
@@ -36,7 +37,7 @@
     console.log("渲染进程中的按钮事件message");
     // window.ipcRenderer.send('call-main-cmd', 'message')
     
-    window.ipcRenderer.send('call-yt-dlp', 'message')
+    ipcRenderer.send('call-yt-dlp', 'message')
   }
 
   // 点击获取字幕
@@ -48,11 +49,11 @@
       return;
     }
     show.value = true
-    window.ipcRenderer.send('call-yt-dlp', input.value, checkedValue.value)
+    ipcRenderer.send('call-yt-dlp', input.value, checkedValue.value)
   }
 
   // 子进程定义方法
-  window.ipcRenderer.on("call-output", (event:any, args) => {
+  ipcRenderer.on("call-output", (event:any, args) => {
     console.log("子进程接收到主进程的数据",args);
     outputSource.value = args;
     show.value = false;
@@ -75,6 +76,7 @@
 
 .right {
   margin-right: 20px;
+  font-size: 12px;
 }
 
 .input {

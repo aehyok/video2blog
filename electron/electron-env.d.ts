@@ -6,12 +6,12 @@ declare namespace NodeJS {
      * The built directory structure
      *
      * ```tree
-     * ├─┬─┬ dist
-     * │ │ └── index.html
-     * │ │
-     * │ ├─┬ dist-electron
+     * ├─┬ dist
+     * │ ├─┬ electron
      * │ │ ├── main.js
      * │ │ └── preload.js
+     * │ ├── index.html
+     * │ ├── ...other-static-files-from-public
      * │
      * ```
      */
@@ -21,7 +21,7 @@ declare namespace NodeJS {
   }
 }
 
-// Used in Renderer process, expose in `preload.ts`
+
 interface Window {
   ipcRenderer: import('electron').IpcRenderer
 }
