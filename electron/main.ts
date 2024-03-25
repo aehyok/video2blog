@@ -14,6 +14,9 @@ process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 // │ ├── index.html
 // │ ├── ...other-static-files-from-public
 // │
+console.log(__dirname, "main.ts")
+
+const dbPath = path.join(__dirname, '../command')
 process.env.DIST = path.join(__dirname, '../dist')
 process.env.VITE_PUBLIC = app.isPackaged
   ? process.env.DIST
@@ -23,11 +26,10 @@ if (!app.requestSingleInstanceLock()) {
   app.quit()
   process.exit(0)
 }
-
 // 主进程初始化sqlite3数据库存放路径
 // app.getPath('userData') 
 ipcMain.handle('local-sqlite3-db', () => {
-  let sqlite3Path = path.join(app.getPath('userData'), 'database.sqlite3');
+  let sqlite3Path = path.join(dbPath, 'database.sqlite3');
   console.log(sqlite3Path, "主进程获取到数据库路径")
   return sqlite3Path;
 })

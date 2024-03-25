@@ -7,9 +7,11 @@
   "private": true,
   "scripts": {
     "start": "chcp 65001 && vite",
-    "build": "chcp 65001 && vite build && electron-builder"
+    "build": "chcp 65001 && vite build && electron-builder",
+    "chroma": "chroma run --path ./chroma"
   },
   "dependencies": {
+    "chromadb": "^1.8.1",
     "fs-extra": "^11.2.0",
     "naive-ui": "^2.38.1",
     "python-shell": "^5.0.0",
