@@ -1,34 +1,110 @@
 <template>
   <n-spin :show="show" description="正在下载请稍后......">
-    <div class="container">
-      <n-input type="text" v-model:value="input" class="input" placeholder="请输入视频地址"></n-input>
-      <n-switch v-model:value="checkedValue"/>
-        <span class="right">同时下载视频</span>
-      <n-button @click="SubtitleClick" type="primary">获取视频字幕文件</n-button>
-    </div>
-    <div class="subtitle">
-      <n-input
-      v-model:value="outputSource"
-      type="textarea"
-      class="textarea"
-      placeholder="基本的 Textarea"
-    />
-    <n-input
-      v-model:value="outputTarget"
-      type="textarea"
-      class="textarea"
-      placeholder="基本的 Textarea"
-    />
-    </div>
+      <n-layout>
+        <n-layout-header class="header">
+          <n-input type="text" v-model:value="input" class="input" placeholder="请输入视频地址"></n-input>
+          <n-switch v-model:value="checkedValue"/>
+            <span class="right">同时下载视频</span>
+          <n-button @click="SubtitleClick" type="primary">获取视频字幕文件</n-button>
+        </n-layout-header>
+        <n-layout has-sider>
+          <n-layout-sider
+            show-trigger
+            collapse-mode="width"
+            :collapsed-width="64"
+            :width="240"
+            :native-scrollbar="false"
+            :inverted="inverted"
+            class="menu-sider"
+          >
+          <n-menu
+            :inverted="inverted"
+            :collapsed-width="64"
+            :collapsed-icon-size="22"
+            :options="menuOptions"
+            class="menu-border"
+          />
+          </n-layout-sider>
+          <n-layout-content content-style="padding: 24px;">
+            <n-input
+            v-model:value="outputSource"
+            type="textarea"
+            class="textarea"
+            placeholder="基本的 Textarea"
+          />
+          <n-input
+            v-model:value="outputTarget"
+            type="textarea"
+            class="textarea"
+            placeholder="基本的 Textarea"
+          />
+          </n-layout-content>
+        </n-layout>
+        <n-layout-footer :inverted="inverted" bordered class="footer">
+            Powered by aehyok v0.0.1 Copyright © 2024 -  All right reserved.
+        </n-layout-footer>
+    </n-layout>
   </n-spin>
 </template>
 <script setup lang="ts">
-  import { ref } from 'vue'
+  import { ref , h } from 'vue'
   import { ipcRenderer } from 'electron'
-  import { NButton, NInput, NSwitch } from 'naive-ui';
+  import { NButton, NInput, NSwitch, NLayout, NLayoutSider, NLayoutContent, NMenu, NIcon } from 'naive-ui'
+  import {
+    VideocamOutline as BookIcon
+} from '@vicons/ionicons5'
 
   const input = ref("https://youtu.be/dIyQl99oxlg?si=fwfuC2lLkxG_Fgpd");
 
+  function renderIcon (icon: any) {
+    return () => h(NIcon, null, { default: () => h(icon) })
+  }
+
+  const menuOptions = [
+    {
+      label: '且听风吟',
+      key: 'hear-the-wind-sing',
+      icon: renderIcon(BookIcon)
+    },
+    {
+      label: '1973年的弹珠玩具',
+      key: 'pinball-1973',
+      icon: renderIcon(BookIcon),
+    },
+    {
+      label: '寻羊冒险记',
+      key: 'a-wild-sheep-chase',
+      icon: renderIcon(BookIcon)
+    },
+    {
+      label: '舞，舞，舞',
+      key: 'dance-dance-dance',
+      icon: renderIcon(BookIcon),
+    },
+    {
+      label: '且听风吟',
+      key: 'hear-the-wind-sing',
+      icon: renderIcon(BookIcon)
+    },
+    {
+      label: '1973年的弹珠玩具',
+      key: 'pinball-1973',
+      icon: renderIcon(BookIcon),
+    },
+    {
+      label: '寻羊冒险记',
+      key: 'a-wild-sheep-chase',
+      icon: renderIcon(BookIcon)
+    },
+    {
+      label: '舞，舞，舞',
+      key: 'dance-dance-dance',
+      icon: renderIcon(BookIcon),
+    },
+  ]
+
+
+  const inverted = ref(false)
   const show = ref(false)
   const outputSource= ref("")
   const outputTarget = ref("")
@@ -79,6 +155,11 @@
   filter: drop-shadow(0 0 2em #42b883aa);
 }
 
+.header {
+  padding-left: 20px;
+  padding-top: 10px;
+}
+
 .right {
   margin-right: 20px;
   font-size: 12px;
@@ -96,15 +177,30 @@
   align-items: center;
   margin-bottom: 20px;
 }
-.textarea{
-  height:calc(100vh - 180px);
-  width: 50vw;
-  text-align: left;
-  margin-right: 10px;
+
+.textarea {
+  height:calc(100vh - 120px);
+  width: 45%;
+  margin-right: 40px;
 }
 
-.subtitle {
+.list-height {
+  margin-top: 30px;
+}
+
+.menu-border {
+  border: 1px solid #f0f0f0;
+  height: calc(100vh - 120px);
+}
+
+.menu-sider {
+  height:calc(100vh - 70px);
+  padding-top: 25px; 
+}
+
+.footer {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  align-items: center;
 }
 </style>
