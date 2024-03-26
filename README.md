@@ -79,3 +79,6 @@ https://www.electronjs.org/zh/docs/latest/tutorial/using-native-node-modules
 // 提取视频中的音频文件
 ffmpeg -i input.mp4 -vn -c:a copy output.aac
 ```
+
+## electron-build 打包添加静态资源
+- https://www.cnblogs.com/mrwh/p/12961446.html?ivk_sa=1024320u

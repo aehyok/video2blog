@@ -13,11 +13,11 @@ ipcRenderer.invoke('local-sqlite3-db').then(dbpath => {
   getSqlite3(dbpath).then(db => {
     console.log(db, "渲染进程获取到数据库")
     window.database = db;
-    db.serialize(() => {
-      db.each("SELECT id, name, age FROM user", (err, row: any) => {
-          console.log(row.id + ": " + row.name + " - " + row.age);
-      });
-    });
+    // db.serialize(() => {
+    //   db.each("SELECT id, name, age FROM user", (err, row: any) => {
+    //       console.log(row.id + ": " + row.name + " - " + row.age);
+    //   });
+    // });
   })
 })
 

@@ -1,48 +1,48 @@
 <template>
   <n-spin :show="show" description="正在下载请稍后......">
-      <n-layout>
-        <n-layout-header class="header">
-          <n-input type="text" v-model:value="input" class="input" placeholder="请输入视频地址"></n-input>
-          <n-switch v-model:value="checkedValue"/>
-            <span class="right">同时下载视频</span>
-          <n-button @click="SubtitleClick" type="primary">获取视频字幕文件</n-button>
-        </n-layout-header>
-        <n-layout has-sider>
-          <n-layout-sider
-            show-trigger
-            collapse-mode="width"
-            :collapsed-width="64"
-            :width="240"
-            :native-scrollbar="false"
-            :inverted="inverted"
-            class="menu-sider"
-          >
-          <n-menu
-            :inverted="inverted"
-            :collapsed-width="64"
-            :collapsed-icon-size="22"
-            :options="menuOptions"
-            class="menu-border"
-          />
-          </n-layout-sider>
-          <n-layout-content content-style="padding: 24px;">
-            <n-input
-            v-model:value="outputSource"
-            type="textarea"
-            class="textarea"
-            placeholder="基本的 Textarea"
-          />
+    <n-layout>
+      <n-layout-header class="header">
+        <n-input type="text" v-model:value="input" class="input" placeholder="请输入视频地址"></n-input>
+        <n-switch v-model:value="checkedValue"/>
+          <span class="right">同时下载视频</span>
+        <n-button @click="SubtitleClick" type="primary">获取视频字幕文件</n-button>
+      </n-layout-header>
+      <n-layout has-sider>
+        <n-layout-sider
+          show-trigger
+          collapse-mode="width"
+          :collapsed-width="64"
+          :width="240"
+          :native-scrollbar="false"
+          :inverted="inverted"
+          class="menu-sider"
+        >
+        <n-menu
+          :inverted="inverted"
+          :collapsed-width="64"
+          :collapsed-icon-size="22"
+          :options="menuOptions"
+          class="menu-border"
+        />
+        </n-layout-sider>
+        <n-layout-content content-style="padding: 24px;">
           <n-input
-            v-model:value="outputTarget"
-            type="textarea"
-            class="textarea"
-            placeholder="基本的 Textarea"
-          />
-          </n-layout-content>
-        </n-layout>
-        <n-layout-footer :inverted="inverted" bordered class="footer">
-            Powered by aehyok v0.0.1 Copyright © 2024 -  All right reserved.
-        </n-layout-footer>
+          v-model:value="outputSource"
+          type="textarea"
+          class="textarea"
+          placeholder="基本的 Textarea"
+        />
+        <n-input
+          v-model:value="outputTarget"
+          type="textarea"
+          class="textarea"
+          placeholder="基本的 Textarea"
+        />
+        </n-layout-content>
+      </n-layout>
+      <n-layout-footer :inverted="inverted" bordered class="footer">
+          Powered by aehyok v0.0.1 Copyright © 2024 -  All right reserved.
+      </n-layout-footer>
     </n-layout>
   </n-spin>
 </template>
@@ -103,14 +103,20 @@
     },
   ]
 
-
   const inverted = ref(false)
   const show = ref(false)
   const outputSource= ref("")
   const outputTarget = ref("")
   const checkedValue = ref(false)
 
-  window.database.get("select Id, Path, Type, SourceSubtitles, TargetSubtitles, CreateTime, LocationVideoPath From ParsingVideo where Id = 1", (err: any, row: any) => {
+  // get获取单条记录
+  // window.database.get 
+
+  // 获取的是一个数组
+  // window.database.all
+
+
+  window.database.all("select Id, Path, Type, SourceSubtitles, TargetSubtitles, CreateTime, LocationVideoPath From ParsingVideo where Id <?", 2, (err: any, row: any) => {
     console.log(err, row, 'home页面获取数据')
   });
 
@@ -121,6 +127,16 @@
     ipcRenderer.send('call-yt-dlp', 'message')
   }
 
+  /**
+   * 检查url是否有效
+   * @param url 
+   */
+  const isValidURL = (url: string) => {
+    // 匹配协议（http或https）://域名.域名后缀/可选路径
+    var pattern = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w.-]*)*\/?$/;
+    return pattern.test(url);
+  }
+
   // 点击获取字幕
   const SubtitleClick = () => {
     //先检查一下url是否为空
@@ -128,9 +144,15 @@
     if (input.value === "" || input.value === null) {
       window.alert("请输入视频链接")
       return;
-    }
-    show.value = true
-    ipcRenderer.send('call-yt-dlp', input.value, checkedValue.value)
+    } 
+    // else  {
+    //   const isValid = isValidURL(input.value)
+    //   if(!isValid) {
+    //     window.alert("请输入正确的视频链接")
+    //     return;
+    //   }
+      show.value = true
+      ipcRenderer.send('call-yt-dlp', input.value, checkedValue.value)
   }
 
   // 子进程定义方法
@@ -188,6 +210,10 @@
   margin-top: 30px;
 }
 
+:deep(.n-menu .n-menu-item) {
+  margin-top: 3px;
+}
+
 .menu-border {
   border: 1px solid #f0f0f0;
   height: calc(100vh - 120px);
@@ -202,5 +228,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  padding-top: 2px;
 }
 </style>
