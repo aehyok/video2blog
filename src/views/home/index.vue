@@ -11,7 +11,7 @@
         <n-layout-sider
           show-trigger
           collapse-mode="width"
-          :collapsed-width="64"
+          :collapsed-width="80"
           :width="240"
           :native-scrollbar="false"
           :inverted="inverted"
@@ -222,6 +222,7 @@
 .menu-sider {
   height:calc(100vh - 70px);
   padding-top: 25px; 
+  padding-left: 20px;
 }
 
 .footer {

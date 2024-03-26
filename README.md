@@ -10,6 +10,10 @@ npm i
 
 // 本地运行项目
 npm run start
+
+// 本地编译打包（目前测试的是window的exe可以运行）
+// 同时可嵌入静态资源 exe可执行文件供给外部主进程使用
+npm run build
 ```
 ## 数据存储使用sqlite3
 ```
@@ -82,3 +86,4 @@ ffmpeg -i input.mp4 -vn -c:a copy output.aac
 
 ## electron-build 打包添加静态资源
 - https://www.cnblogs.com/mrwh/p/12961446.html?ivk_sa=1024320u
+  区分开发环境和打包后的环境进行处理
