@@ -88,11 +88,13 @@ ipcMain.on("call-yt-dlp", async(event, args,isDownloadVideo) => {
   // ffmpeg -version
   console.log(process.cwd(), "process.cwd")
 
-  let record = await findRecord(args)
+  // let record = await findRecord(args)
+  let record = null;
 
   // 通过url判断该记录是否存在
   if(record) {
     // 修改
+
   } else {
     const createInfo = createMetadata(args)
     const dateTime = format(new Date(), "yyyy-MM-dd HH:mm:ss")
