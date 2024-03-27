@@ -98,7 +98,7 @@ ipcMain.on("call-yt-dlp", async(event, args,isDownloadVideo) => {
   } else {
     const createInfo = createMetadata(args)
     const dateTime = format(new Date(), "yyyy-MM-dd HH:mm:ss")
-    record = {$Id: createInfo.id, $Path: args, $Type: "1", $SourceSubtitles: "", $TargetSubtitles: "", $CreateTime: dateTime, $LocationVideoPath: "", $FolderDate: createInfo.folderDate }
+    record = {$Id: createInfo.id, $Title: createInfo.title, $Path: args, $Type: "1", $SourceSubtitles: "", $TargetSubtitles: "", $CreateTime: dateTime, $LocationVideoPath: "", $FolderDate: createInfo.folderDate }
     await insertRecord(record)
 
     console.log(record, "record----record")
@@ -159,8 +159,8 @@ const findRecord = async (url: string) => {
 }
 
 const insertRecord = async (data: any) => {
-  const insertSql = `insert into ParsingVideo (Id, Path, Type, SourceSubtitles, TargetSubtitles, CreateTime, LocationVideoPath, FolderDate) 
-                     values ($Id, $Path, $Type, $SourceSubtitles, $TargetSubtitles, $CreateTime, $LocationVideoPath, $FolderDate)`
+  const insertSql = `insert into ParsingVideo (Id, Title, Path, Type, SourceSubtitles, TargetSubtitles, CreateTime, LocationVideoPath, FolderDate) 
+                     values ($Id, $Title, $Path, $Type, $SourceSubtitles, $TargetSubtitles, $CreateTime, $LocationVideoPath, $FolderDate)`
   return await run(insertSql, data);
 }
 
@@ -183,13 +183,19 @@ const createMetadata = (url: string) => {
   // 只下载元数据信息
   cmd = `chcp 65001 && ${process.cwd()}\\command\\yt-dlp ${url}  -P ${locationPath} --write-info-json --skip-download  -o "%(id)s.%(ext)s"`
 
-  execSync(cmd);
+  execSync(cmd)
   const jsonFile: string| undefined = findJsonFilesInDirectorySync(locationPath)
+
+  const jsonPath = path.join(locationPath, jsonFile)
+  const packageJson = fs.readJsonSync(jsonPath)
+  const title = packageJson.title
+  console.log(title, "title")
   console.log('JSON files found:', jsonFile)
   console.log(cmd, "cmd-metadata")
   
   return {
     folderDate,
+    title: title,
     id: jsonFile.split('.')[0]
   };
 }

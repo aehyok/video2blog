@@ -60,48 +60,7 @@
     return () => h(NIcon, null, { default: () => h(icon) })
   }
 
-  const menuOptions = [
-    {
-      label: '且听风吟',
-      key: 'hear-the-wind-sing',
-      icon: renderIcon(BookIcon)
-    },
-    {
-      label: '1973年的弹珠玩具',
-      key: 'pinball-1973',
-      icon: renderIcon(BookIcon),
-    },
-    {
-      label: '寻羊冒险记',
-      key: 'a-wild-sheep-chase',
-      icon: renderIcon(BookIcon)
-    },
-    {
-      label: '舞，舞，舞',
-      key: 'dance-dance-dance',
-      icon: renderIcon(BookIcon),
-    },
-    {
-      label: '且听风吟',
-      key: 'hear-the-wind-sing',
-      icon: renderIcon(BookIcon)
-    },
-    {
-      label: '1973年的弹珠玩具',
-      key: 'pinball-1973',
-      icon: renderIcon(BookIcon),
-    },
-    {
-      label: '寻羊冒险记',
-      key: 'a-wild-sheep-chase',
-      icon: renderIcon(BookIcon)
-    },
-    {
-      label: '舞，舞，舞',
-      key: 'dance-dance-dance',
-      icon: renderIcon(BookIcon),
-    },
-  ]
+  const menuOptions = ref<any[]>([]);
 
   const inverted = ref(false)
   const show = ref(false)
@@ -115,10 +74,19 @@
   // 获取的是一个数组
   // window.database.all
 
-
-  window.database.all("select Id, Path, Type, SourceSubtitles, TargetSubtitles, CreateTime, LocationVideoPath From ParsingVideo where Id <?", 2, (err: any, row: any) => {
-    console.log(err, row, 'home页面获取数据')
-  });
+  window.database.all("select Id, Title, Path, Type, SourceSubtitles, TargetSubtitles, CreateTime, LocationVideoPath From ParsingVideo ", (err: any, rows: any) => {
+    console.log(rows, 'home页面获取数据')
+    rows.forEach((item: any) => {
+      const data = {
+        key: item.Id,
+        label: item.Title,
+        icon: renderIcon(BookIcon)
+      }
+      console.log(data, 'data')
+      menuOptions.value.push(data)
+      console.log(menuOptions.value, "menuOptions.value")
+    })
+  })
 
   const callCmd = () => {
     console.log("渲染进程中的按钮事件message");
