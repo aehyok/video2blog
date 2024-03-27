@@ -74,20 +74,24 @@
   // 获取的是一个数组
   // window.database.all
 
-  window.database.all("select Id, Title, Path, Type, SourceSubtitles, TargetSubtitles, CreateTime, LocationVideoPath From ParsingVideo ", (err: any, rows: any) => {
-    console.log(rows, 'home页面获取数据')
-    rows.forEach((item: any) => {
-      const data = {
-        key: item.Id,
-        label: item.Title,
-        icon: renderIcon(BookIcon)
-      }
-      console.log(data, 'data')
-      menuOptions.value.push(data)
-      console.log(menuOptions.value, "menuOptions.value")
+  const getAll = () => {
+    menuOptions.value = []
+    window.database.all("select Id, Title, Path, Type, SourceSubtitles, TargetSubtitles, CreateTime, LocationVideoPath From ParsingVideo ", (err: any, rows: any) => {
+      console.log(rows, 'home页面获取数据')
+      rows.forEach((item: any) => {
+        const data = {
+          key: item.Id,
+          label: item.Title,
+          icon: renderIcon(BookIcon)
+        }
+        console.log(data, 'data')
+        menuOptions.value.push(data)
+        console.log(menuOptions.value, "menuOptions.value")
+      })
     })
-  })
+  }
 
+  getAll();
   const callCmd = () => {
     console.log("渲染进程中的按钮事件message");
     // window.ipcRenderer.send('call-main-cmd', 'message')
@@ -130,6 +134,7 @@
     outputSource.value = args;
     show.value = false;
     console.log("子进程接收到主进程的数据",outputSource.value);
+    getAll();
   });
 </script>
 <style scoped>
