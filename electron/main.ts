@@ -1,11 +1,10 @@
 import path from 'path'
 import { exec, execSync } from 'child_process'
-import { getSqlite3 } from './sqlite3'
+import { connect, get, run } from './sqlite3'
 // import {PythonShell} from 'python-shell';
 import fs from "fs-extra"
 import { app, BrowserWindow, ipcMain } from 'electron'
 import { format } from "date-fns"
-import { Database } from 'sqlite3';
 
 process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 // The built directory structure
@@ -38,12 +37,10 @@ if (!app.requestSingleInstanceLock()) {
 // 主进程初始化sqlite3数据库存放路径
 // app.getPath('userData') 
 let database: any = undefined;
-ipcMain.handle('local-sqlite3-db', () => {
+ipcMain.handle('local-sqlite3-db', async() => {
   let sqlite3Path = path.join(dbPath, 'database.sqlite3');
   console.log(sqlite3Path, "主进程获取到数据库路径")
-  getSqlite3(sqlite3Path).then(db => {
-    database = db;
-  });
+  database = await connect(sqlite3Path)
   return sqlite3Path;
 
 })
@@ -83,66 +80,67 @@ app.on('window-all-closed', () => {
 
 app.whenReady().then(createWindow)
 
-
 // 主进程定义方法
-ipcMain.on("call-yt-dlp", (event, args,isDownloadVideo) => {
+ipcMain.on("call-yt-dlp", async(event, args,isDownloadVideo) => {
   console.log("主进程接收到子进程的数据",args,isDownloadVideo)
 
   let info = "";
   // ffmpeg -version
   console.log(process.cwd(), "process.cwd")
 
-  const date = '2024-03-26-16-40-21' //format(new Date(), "yyyy-MM-dd-HH-mm-ss");
-  console.log(date, "date-date")
+  let record = await findRecord(args)
 
-  const record = findRecord(args)
-  console.log(record, "record----record")
+  // 通过url判断该记录是否存在
+  if(record) {
+    // 修改
+  } else {
+    const createInfo = createMetadata(args)
+    const dateTime = format(new Date(), "yyyy-MM-dd HH:mm:ss")
+    record = {$Id: createInfo.id, $Path: args, $Type: "1", $SourceSubtitles: "", $TargetSubtitles: "", $CreateTime: dateTime, $LocationVideoPath: "", $FolderDate: createInfo.folderDate }
+    await insertRecord(record)
 
-  let templateFilePath = path.join(process.cwd(), '/resources/command')
-  if (import.meta.env.DEV) {
-    templateFilePath = path.join(process.cwd(), '/command')
+    console.log(record, "record----record")
+  
+    let templateFilePath = path.join(process.cwd(), '/resources/command')
+    if (import.meta.env.DEV) {
+      templateFilePath = path.join(process.cwd(), '/command')
+    }
+
+    const locationPath =  path.join(templateFilePath, createInfo.folderDate); // `${process.cwd()}\\command\\${date}`
+    
+    const cmd = isDownloadVideo ? `chcp 65001 && ${process.cwd()}\\command\\yt-dlp --dump-json -P ${locationPath} ${args} -o "%(id)s.%(ext)s" --write-subs`: `chcp 65001 && ${process.cwd()}\\command\\yt-dlp -P ${locationPath} ${args} -o "%(id)s.%(ext)s" --skip-download --write-subs`;
+    process.env.NODE_STDOUT_ENCODING = 'utf-8'
+
+    exec(cmd, {encoding: "utf8"}, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`执行出错: ${error}`);
+        return;
+      }
+      info = stdout;
+      console.log(`输出: ${info}`);
+
+      var vttFileName = findJsonFilesInDirectorySync(locationPath, ".vtt")
+      const vttPath = path.join(locationPath, vttFileName);
+      console.log(vttPath, "vttPath=========")
+      const packageString = fs.readFileSync(vttPath).toString();
+      event.reply("call-output",packageString);
+    });
   }
-
-  const locationPath =  path.join(templateFilePath, date); // `${process.cwd()}\\command\\${date}`
-  const jsonFile = findJsonFilesInDirectorySync(locationPath)
-  console.log('JSON files found:', jsonFile)
-  let cmd = "";
-  // 只下载元数据信息
-  cmd = `chcp 65001 && ${process.cwd()}\\command\\yt-dlp ${args}  -P ${locationPath} --write-info-json --skip-download  -o "%(id)s.%(ext)s"`
-
-  execSync(cmd);
-  console.log(cmd, "cmd-cmd")
-  // cmd = isDownloadVideo ? `chcp 65001 && ${process.cwd()}\\command\\yt-dlp --dump-json -P ${locationPath} ${args} -o "%(id)s.%(ext)s" --write-subs`: `chcp 65001 && ${process.cwd()}\\command\\yt-dlp -P ${locationPath} ${args} -o "%(id)s.%(ext)s" --skip-download --write-subs`;
-  process.env.NODE_STDOUT_ENCODING = 'utf-8'
-
-  // exec(cmd, {encoding: "utf8"}, (error, stdout, stderr) => {
-  //   if (error) {
-  //     console.error(`执行出错: ${error}`);
-  //     return;
-  //   }
-  //   info = stdout;
-  //   console.log(`输出: ${info}`);
-
-  //   const vttPath = `${locationPath}dIyQl99oxlg.zh-Hans.vtt`
-  //   const packageString = fs.readFileSync(vttPath).toString();
-  //   event.reply("call-output",packageString);
-  // });
-});
-
+})
 
 /**
  * 在指定目录下查找元数据json文件
  * @param directoryPath 
  * @returns 
  */
-const findJsonFilesInDirectorySync = (directoryPath: string) => {
+const findJsonFilesInDirectorySync = (directoryPath: string, type: string = '.json') => {
   try {
       const files = fs.readdirSync(directoryPath)
-      const jsonFile = files.find(file => path.extname(file) === '.json')
-      return jsonFile
+      const jsonFile = files.find(file => path.extname(file) === type)
+      return jsonFile ?? ""
   } catch (err) {
       console.error('Error:', err)
-      return [];
+      return "";
   }
 }
 
@@ -150,11 +148,46 @@ const findJsonFilesInDirectorySync = (directoryPath: string) => {
  * 通过url查找数据库记录
  * @param url 
  */
-const findRecord = (url: string) => {
+const findRecord = async (url: string) => {
 
   console.log(database, "DATABASE")
 
-  database.get(`select id from ParsingVideo s where s.Path = ?`, url, (err: any, row: any) => {
-    console.log(url, err, row, 'error=row')
-  });
+  const record = await get(`select * from ParsingVideo s where s.Path = ?`, url)
+  return record
+}
+
+const insertRecord = async (data: any) => {
+  const insertSql = `insert into ParsingVideo (Id, Path, Type, SourceSubtitles, TargetSubtitles, CreateTime, LocationVideoPath, FolderDate) 
+                     values ($Id, $Path, $Type, $SourceSubtitles, $TargetSubtitles, $CreateTime, $LocationVideoPath, $FolderDate)`
+  return await run(insertSql, data);
+}
+
+/**
+ * 根据视频url创建本地文件夹和生成元数据json文件
+ * @param url 
+ * @returns
+ */
+const createMetadata = (url: string) => {
+  const folderDate = format(new Date(), "yyyy-MM-dd-HH-mm-ss");
+  console.log(folderDate, "date-folderDate")
+  
+  let templateFilePath = path.join(process.cwd(), '/resources/command')
+  if (import.meta.env.DEV) {
+    templateFilePath = path.join(process.cwd(), '/command')
+  }
+
+  const locationPath =  path.join(templateFilePath, folderDate); // `${process.cwd()}\\command\\${date}`
+  let cmd = "";
+  // 只下载元数据信息
+  cmd = `chcp 65001 && ${process.cwd()}\\command\\yt-dlp ${url}  -P ${locationPath} --write-info-json --skip-download  -o "%(id)s.%(ext)s"`
+
+  execSync(cmd);
+  const jsonFile: string| undefined = findJsonFilesInDirectorySync(locationPath)
+  console.log('JSON files found:', jsonFile)
+  console.log(cmd, "cmd-metadata")
+  
+  return {
+    folderDate,
+    id: jsonFile.split('.')[0]
+  };
 }

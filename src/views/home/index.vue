@@ -157,6 +157,7 @@
 
   // 子进程定义方法
   ipcRenderer.on("call-output", (event:any, args) => {
+    console.log(event,  "回调");
     console.log("子进程接收到主进程的数据",args);
     outputSource.value = args;
     show.value = false;
