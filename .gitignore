@@ -6,3 +6,4 @@ dist-electron
 release
 *.json
 *.vtt
+*.xml

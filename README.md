@@ -87,15 +87,16 @@ ffmpeg -i input.mp4 -vn -c:a copy output.aac
 ## electron-build 打包添加静态资源
 - https://www.cnblogs.com/mrwh/p/12961446.html?ivk_sa=1024320u
   区分开发环境和打包后的环境进行处理
-
-
-
 ## electron-builder编译时报错
 ```
   reason=prebuild-install failed with error (run with env DEBUG=electron-builder to get more information)
                                             error=prebuild-install info begin Prebuild-install version 7.1.2
       prebuild-install warn This package does not support N-API version 36
-```  
+```
 
 解决的办法是因为sqlite3的版本问题 
 npm install -E sqlite3@5.1.6
+
+## ass字幕文件
+- https://www.ottoli.org/howto/assfonts
+- https://github.com/kira-96/ASS-file

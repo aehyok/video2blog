@@ -128,10 +128,15 @@
   }
 
   // 子进程定义方法
-  ipcRenderer.on("call-output", (event:any, args) => {
+  ipcRenderer.on("call-output", (event:any, isSupport: boolean ,text) => {
+    if(!isSupport) {
+      window.alert("不支持的视频链接")
+      show.value = false
+      return;
+    }
     console.log(event,  "回调");
-    console.log("子进程接收到主进程的数据",args);
-    outputSource.value = args;
+    console.log("子进程接收到主进程的数据",text);
+    outputSource.value = text;
     show.value = false;
     console.log("子进程接收到主进程的数据",outputSource.value);
     getAll();

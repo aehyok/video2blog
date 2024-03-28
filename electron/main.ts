@@ -7,6 +7,11 @@ import { app, BrowserWindow, ipcMain } from 'electron'
 import { format } from "date-fns"
 
 process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
+let templateFilePath = path.join(process.cwd(), '/resources/command')
+if (import.meta.env.DEV) {
+  templateFilePath = path.join(process.cwd(), '/command')
+}
+
 // The built directory structure
 //
 // ├─┬ dist
@@ -80,6 +85,8 @@ app.on('window-all-closed', () => {
 
 app.whenReady().then(createWindow)
 
+
+
 // 主进程定义方法
 ipcMain.on("call-yt-dlp", async(event, args,isDownloadVideo) => {
   console.log("主进程接收到子进程的数据",args,isDownloadVideo)
@@ -88,25 +95,38 @@ ipcMain.on("call-yt-dlp", async(event, args,isDownloadVideo) => {
   // ffmpeg -version
   console.log(process.cwd(), "process.cwd")
 
-  // let record = await findRecord(args)
-  let record = null;
+  let record: any = await findRecord(args)
 
   // 通过url判断该记录是否存在
   if(record) {
-    // 修改
+    const locationPath =  path.join(templateFilePath, record.FolderDate);
 
+    var vttFileName = findJsonFilesInDirectorySync(locationPath, ".vtt")
+    const vttPath = path.join(locationPath, vttFileName);
+    console.log(vttPath, "vttPath=========")
+    const packageString = fs.readFileSync(vttPath).toString();
+    event.reply("call-output", true, packageString);
   } else {
+    // 通过url判断视频类型
+    const type = args.includes("youtu.be") ? "youtube" : ""
+    console.log(type, "type", type == '', type == "")
+    if(type == "") {
+      // false则不支持该视频链接的转换
+      event.reply("call-output", false, "");
+      return;
+    }
+
     const createInfo = createMetadata(args)
     const dateTime = format(new Date(), "yyyy-MM-dd HH:mm:ss")
-    record = {$Id: createInfo.id, $Title: createInfo.title, $Path: args, $Type: "1", $SourceSubtitles: "", $TargetSubtitles: "", $CreateTime: dateTime, $LocationVideoPath: "", $FolderDate: createInfo.folderDate }
+    record = {$Id: createInfo.id, $Title: createInfo.title, $Path: args, $Type: type, $SourceSubtitles: "", $TargetSubtitles: "", $CreateTime: dateTime, $LocationVideoPath: "", $FolderDate: createInfo.folderDate }
     await insertRecord(record)
 
     console.log(record, "record----record")
   
-    let templateFilePath = path.join(process.cwd(), '/resources/command')
-    if (import.meta.env.DEV) {
-      templateFilePath = path.join(process.cwd(), '/command')
-    }
+    // let templateFilePath = path.join(process.cwd(), '/resources/command')
+    // if (import.meta.env.DEV) {
+    //   templateFilePath = path.join(process.cwd(), '/command')
+    // }
 
     const locationPath =  path.join(templateFilePath, createInfo.folderDate); // `${process.cwd()}\\command\\${date}`
     
@@ -123,9 +143,9 @@ ipcMain.on("call-yt-dlp", async(event, args,isDownloadVideo) => {
 
       var vttFileName = findJsonFilesInDirectorySync(locationPath, ".vtt")
       const vttPath = path.join(locationPath, vttFileName);
-      console.log(vttPath, "vttPath=========")
+
       const packageString = fs.readFileSync(vttPath).toString();
-      event.reply("call-output",packageString);
+      event.reply("call-output", true, packageString);
     });
   }
 })
@@ -151,9 +171,6 @@ const findJsonFilesInDirectorySync = (directoryPath: string, type: string = '.js
  * @param url 
  */
 const findRecord = async (url: string) => {
-
-  console.log(database, "DATABASE")
-
   const record = await get(`select * from ParsingVideo s where s.Path = ?`, url)
   return record
 }
@@ -173,10 +190,10 @@ const createMetadata = (url: string) => {
   const folderDate = format(new Date(), "yyyy-MM-dd-HH-mm-ss");
   console.log(folderDate, "date-folderDate")
   
-  let templateFilePath = path.join(process.cwd(), '/resources/command')
-  if (import.meta.env.DEV) {
-    templateFilePath = path.join(process.cwd(), '/command')
-  }
+  // let templateFilePath = path.join(process.cwd(), '/resources/command')
+  // if (import.meta.env.DEV) {
+  //   templateFilePath = path.join(process.cwd(), '/command')
+  // }
 
   const locationPath =  path.join(templateFilePath, folderDate); // `${process.cwd()}\\command\\${date}`
   let cmd = "";
