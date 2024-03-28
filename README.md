@@ -100,3 +100,15 @@ npm install -E sqlite3@5.1.6
 ## ass字幕文件
 - https://www.ottoli.org/howto/assfonts
 - https://github.com/kira-96/ASS-file
+
+## whisper 模型
+```
+//https://www.bilibili.com/read/cv23285680/
+//https://blog.csdn.net/a71468293a/article/details/135995878
+
+// 下载模型
+model_size_or_path="指定模型位置"
+如果不指定下载模型的位置，则下载到默认的路径 C:\Users\Administrator\.cache\whisper
+
+
+```

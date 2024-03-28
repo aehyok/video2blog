@@ -7,3 +7,4 @@ release
 *.json
 *.vtt
 *.xml
+python/command/model/*
