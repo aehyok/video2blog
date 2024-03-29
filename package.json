@@ -8,7 +8,8 @@
   "scripts": {
     "start": "chcp 65001 && vite",
     "build": "chcp 65001 && vite build && electron-builder",
-    "chroma": "chroma run --path ./chroma"
+    "chroma": "chroma run --path ./chroma",
+    "rebuild------": "electron-rebuild -f -w sqlite3"
   },
   "dependencies": {
     "@vicons/ionicons5": "^0.12.0",
@@ -27,6 +28,7 @@
     "@vitejs/plugin-vue": "^4.3.4",
     "electron": "^26.1.0",
     "electron-builder": "^24.6.3",
+    "electron-rebuild": "^3.2.9",
     "typescript": "^5.2.2",
     "vite": "^4.4.9",
     "vite-plugin-electron": "^0.14.0",

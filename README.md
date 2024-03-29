@@ -112,3 +112,9 @@ model_size_or_path="指定模型位置"
 
 
 ```
+
+
+## 暂时没用使用到 rebuild 
+```
+    "rebuild------": "electron-rebuild -f -w sqlite3"
+```

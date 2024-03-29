@@ -24,8 +24,7 @@ export default defineConfig({
       },
       renderer: {
         resolve: {
-          sqlite3: { type: 'cjs' },
-          chromadb: {type: 'cjs'}
+          sqlite3: { type: 'cjs' }
         },
       },
     }),
