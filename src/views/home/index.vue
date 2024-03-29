@@ -22,6 +22,7 @@
           :collapsed-width="64"
           :collapsed-icon-size="22"
           :options="menuOptions"
+          @update:value = "onMenuChange"
           class="menu-border"
         />
         </n-layout-sider>
@@ -95,7 +96,6 @@
   const callCmd = () => {
     console.log("渲染进程中的按钮事件message");
     // window.ipcRenderer.send('call-main-cmd', 'message')
-    
     ipcRenderer.send('call-yt-dlp', 'message')
   }
 
@@ -107,6 +107,17 @@
     // 匹配协议（http或https）://域名.域名后缀/可选路径
     var pattern = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w.-]*)*\/?$/;
     return pattern.test(url);
+  }
+
+  const onMenuChange = (key: string, item: any) => {
+    console.log("onMenuChange", key, item)
+    window.database.get(`select * from ParsingVideo where Id = ?`, key, (err: any, row: any) => {
+      console.log(row, 'row', row.FolderDate)
+
+      ipcRenderer.send('call-file-json', row.FolderDate)
+      // outputSource.value = row.SourceSubtitles
+      // outputTarget.value = row.TargetSubtitles
+    })
   }
 
   // 点击获取字幕
@@ -141,6 +152,11 @@
     console.log("子进程接收到主进程的数据",outputSource.value);
     getAll();
   });
+
+  ipcRenderer.on("reply-json", (event: any, text: string) => {
+    console.log(text, 'text-text')
+    outputSource.value = text
+  })
 </script>
 <style scoped>
 .logo {

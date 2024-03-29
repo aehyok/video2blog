@@ -85,10 +85,8 @@ app.on('window-all-closed', () => {
 
 app.whenReady().then(createWindow)
 
-
-
 // 主进程定义方法
-ipcMain.on("call-yt-dlp", async(event, args,isDownloadVideo) => {
+ipcMain.on("call-yt-dlp", async(event, args, isDownloadVideo) => {
   console.log("主进程接收到子进程的数据",args,isDownloadVideo)
 
   let info = "";
@@ -99,12 +97,13 @@ ipcMain.on("call-yt-dlp", async(event, args,isDownloadVideo) => {
 
   // 通过url判断该记录是否存在
   if(record) {
-    const locationPath =  path.join(templateFilePath, record.FolderDate);
+    // const locationPath =  path.join(templateFilePath, record.FolderDate);
 
-    var vttFileName = findJsonFilesInDirectorySync(locationPath, ".vtt")
-    const vttPath = path.join(locationPath, vttFileName);
-    console.log(vttPath, "vttPath=========")
-    const packageString = fs.readFileSync(vttPath).toString();
+    // var vttFileName = findJsonFilesInDirectorySync(locationPath, ".vtt")
+    // const vttPath = path.join(locationPath, vttFileName);
+    // console.log(vttPath, "vttPath=========")
+    // const packageString = fs.readFileSync(vttPath).toString();
+    const packageString = getFolderDateJson(record.FolderDate)
     event.reply("call-output", true, packageString);
   } else {
     // 通过url判断视频类型
@@ -148,6 +147,13 @@ ipcMain.on("call-yt-dlp", async(event, args,isDownloadVideo) => {
       event.reply("call-output", true, packageString);
     });
   }
+})
+
+ipcMain.on("call-file-json", async(event, folderDate) => {
+  console.log(folderDate, "json-------------------------")
+  const json = getFolderDateJson(folderDate)
+  event.reply("reply-json", json);
+  
 })
 
 /**
@@ -215,4 +221,18 @@ const createMetadata = (url: string) => {
     title: title,
     id: jsonFile.split('.')[0]
   };
+}
+
+
+/**
+ * 根据folderDate来获取文件夹中的jsons字幕
+ */
+const getFolderDateJson = (folderDate: string) => {
+  const locationPath =  path.join(templateFilePath, folderDate);
+
+  var vttFileName = findJsonFilesInDirectorySync(locationPath, ".vtt")
+  const vttPath = path.join(locationPath, vttFileName);
+  console.log(vttPath, "vttPath=========")
+  const packageString = fs.readFileSync(vttPath).toString();
+  return packageString;
 }
