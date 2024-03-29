@@ -5,7 +5,7 @@
         <n-input type="text" v-model:value="input" class="input" placeholder="请输入视频地址"></n-input>
         <n-switch v-model:value="checkedValue"/>
           <span class="right">同时下载视频</span>
-        <n-button @click="SubtitleClick" type="primary">获取视频字幕文件</n-button>
+        <n-button @click="SubtitleClick" size="small" type="primary">获取视频字幕文件</n-button>
       </n-layout-header>
       <n-layout has-sider content-style="padding: 24px;">
         <n-layout-sider
@@ -56,11 +56,13 @@
 <script setup lang="ts">
   import { ref , h } from 'vue'
   import { ipcRenderer } from 'electron'
-  import { NButton, NInput, NSwitch, NLayout, NLayoutSider, NLayoutContent, NMenu, NIcon } from 'naive-ui'
+  import { NButton, NInput, NSwitch, NLayout, NLayoutSider, NLayoutContent, NMenu, NIcon, useMessage  } from 'naive-ui'
   import {
     VideocamOutline as BookIcon
 } from '@vicons/ionicons5'
 
+  const message = useMessage();
+  message.success("欢迎使用aehyok字幕下载器")
   const input = ref("https://youtu.be/dIyQl99oxlg?si=fwfuC2lLkxG_Fgpd");
 
   function renderIcon (icon: any) {
@@ -131,7 +133,8 @@
     //先检查一下url是否为空
     console.log(input.value, 'inputValue')
     if (input.value === "" || input.value === null) {
-      window.alert("请输入视频链接")
+      // window.alert("请输入视频链接")
+      message.warning("请输入视频链接")
       return;
     } 
     // else  {
@@ -147,7 +150,8 @@
   // 子进程定义方法
   ipcRenderer.on("call-output", (event:any, isSupport: boolean ,text) => {
     if(!isSupport) {
-      window.alert("不支持的视频链接")
+      // window.alert("不支持的视频链接")
+      message.warning("不支持的视频链接")
       show.value = false
       return;
     }
