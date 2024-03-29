@@ -7,11 +7,11 @@
           <span class="right">同时下载视频</span>
         <n-button @click="SubtitleClick" type="primary">获取视频字幕文件</n-button>
       </n-layout-header>
-      <n-layout has-sider>
+      <n-layout has-sider content-style="padding: 24px;">
         <n-layout-sider
           show-trigger
           collapse-mode="width"
-          :collapsed-width="80"
+          :collapsed-width="60"
           :width="240"
           :native-scrollbar="false"
           :inverted="inverted"
@@ -19,26 +19,32 @@
         >
         <n-menu
           :inverted="inverted"
-          :collapsed-width="64"
-          :collapsed-icon-size="22"
+          :collapsed-width="60"
+          :collapsed-icon-size="20"
           :options="menuOptions"
           @update:value = "onMenuChange"
           class="menu-border"
         />
         </n-layout-sider>
-        <n-layout-content content-style="padding: 24px;">
-          <n-input
-          v-model:value="outputSource"
-          type="textarea"
-          class="textarea"
-          placeholder="基本的 Textarea"
-        />
-        <n-input
-          v-model:value="outputTarget"
-          type="textarea"
-          class="textarea"
-          placeholder="基本的 Textarea"
-        />
+        <n-layout-content content-style="margin-left:20px">
+          <n-grid :cols="2" x-gap="12">
+            <n-gi>
+              <n-input
+                v-model:value="outputSource"
+                type="textarea"
+                class="textarea"
+                placeholder="这里是原始字幕..."
+              />
+            </n-gi>
+            <n-gi>
+              <n-input
+                v-model:value="outputTarget"
+                type="textarea"
+                class="textarea"
+                placeholder="这里是翻译后的字幕..."
+              />
+            </n-gi>
+          </n-grid>
         </n-layout-content>
       </n-layout>
       <n-layout-footer :inverted="inverted" bordered class="footer">
@@ -188,16 +194,8 @@
   text-align: left;
 }
 
-.container {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
 .textarea {
   height:calc(100vh - 120px);
-  width: 45%;
   margin-right: 40px;
 }
 
@@ -210,20 +208,24 @@
 }
 
 .menu-border {
-  border: 1px solid #f0f0f0;
   height: calc(100vh - 120px);
+  border: 1 solid;
+  padding-top: 10px;
+  overflow-x: auto; 
 }
 
 .menu-sider {
-  height:calc(100vh - 70px);
-  padding-top: 25px; 
-  padding-left: 20px;
+  height:calc(100vh - 120px);
+}
+
+.menu-sider:hover {
+  background-color: #243737;
 }
 
 .footer {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding-top: 2px;
+  padding-top: 4px;
 }
 </style>
