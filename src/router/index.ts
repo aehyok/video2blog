@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory,RouteRecordRaw } from "vue-router";
+import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
 
 export const routes: Array<RouteRecordRaw> = [
   {
@@ -13,6 +13,14 @@ export const routes: Array<RouteRecordRaw> = [
       name: "首页",
     },
     component: () => import("../views/home/index.vue"),
+  },
+  {
+    path: "/short",
+    name: "short",
+    meta: {
+      name: "短视频",
+    },
+    component: () => import("../views/short/index.vue"),
   },
   {
     path: "/mine",

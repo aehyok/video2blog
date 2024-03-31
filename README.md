@@ -118,3 +118,8 @@ model_size_or_path="指定模型位置"
 ```
     "rebuild------": "electron-rebuild -f -w sqlite3"
 ```
+
+## mac下编译报错（sh: electron-builder: command not found）
+```
+npm i electron-builder
+```
