@@ -60,7 +60,7 @@
   import {
     VideocamOutline as BookIcon
 } from '@vicons/ionicons5'
-
+import { get, all } from "../../sqlite3"
   const message = useMessage();
   message.success("欢迎使用aehyok字幕下载器")
   const input = ref("https://youtu.be/dIyQl99oxlg?si=fwfuC2lLkxG_Fgpd");
@@ -77,26 +77,21 @@
   const outputTarget = ref("")
   const checkedValue = ref(false)
 
-  // get获取单条记录
-  // window.database.get 
-
-  // 获取的是一个数组
-  // window.database.all
-
-  const getAll = () => {
+  const getAll = async() => {
     menuOptions.value = []
-    window.database.all("select Id, Title, Path, Type, SourceSubtitles, TargetSubtitles, CreateTime, LocationVideoPath From ParsingVideo ", (err: any, rows: any) => {
-      console.log(rows, 'home页面获取数据')
-      rows.forEach((item: any) => {
-        const data = {
-          key: item.Id,
-          label: item.Title,
-          icon: renderIcon(BookIcon)
-        }
-        console.log(data, 'data')
-        menuOptions.value.push(data)
-        console.log(menuOptions.value, "menuOptions.value")
-      })
+    const rows = await all("select Id, Title, Path, Type, SourceSubtitles, TargetSubtitles, CreateTime, LocationVideoPath From ParsingVideo ", []);
+
+    console.log(rows, 'home页面获取数据')
+    
+    rows.forEach((item: any) => {
+      const data = {
+        key: item.Id,
+        label: item.Title,
+        icon: renderIcon(BookIcon)
+      }
+      console.log(data, 'data')
+      menuOptions.value.push(data)
+      console.log(menuOptions.value, "menuOptions.value")
     })
   }
 
@@ -117,15 +112,12 @@
     return pattern.test(url);
   }
 
-  const onMenuChange = (key: string, item: any) => {
+  const onMenuChange = async(key: string, item: any) => {
     console.log("onMenuChange", key, item)
-    window.database.get(`select * from ParsingVideo where Id = ?`, key, (err: any, row: any) => {
-      console.log(row, 'row', row.FolderDate)
+    const row: any = await get(`select * from ParsingVideo where Id = ?`, key);
+    console.log(row, 'row', row.FolderDate)
 
-      ipcRenderer.send('call-file-json', row.FolderDate)
-      // outputSource.value = row.SourceSubtitles
-      // outputTarget.value = row.TargetSubtitles
-    })
+    ipcRenderer.send('call-file-json', row.FolderDate)
   }
 
   // 点击获取字幕
