@@ -6,6 +6,7 @@
         <n-switch v-model:value="checkedValue"/>
           <span class="right">同时下载视频</span>
         <n-button @click="SubtitleClick" size="small" type="primary">获取视频字幕文件</n-button>
+        <n-button @click="modalClick" size="small" type="primary" style="margin-left:10px;">下载模型</n-button>
       </n-layout-header>
       <n-layout has-sider content-style="padding: 24px;">
         <n-layout-sider
@@ -52,16 +53,74 @@
       </n-layout-footer>
     </n-layout>
   </n-spin>
+  <n-modal :show="showModal" >
+    <n-card
+      style="width: 600px"
+      title="模态框"
+      size="huge"
+      :bordered="false"
+      role="dialog"
+      aria-modal="true"
+    >
+      倒计时 {{ timeout / 1000 }} 秒
+      多语言通用模型；
+      <n-grid :cols="2" x-gap="12">
+        <n-gi>
+          <div>基础模型</div>
+          <div class="download-modal">
+            <div>ggml-base.en.bin(148MB)</div>
+            <div>下载模型</div>
+          </div>
+        </n-gi>
+        <n-gi>2</n-gi>
+        <n-gi>3</n-gi>
+        <n-gi>4</n-gi>
+      </n-grid>
+      英文专用模型：
+      <n-grid :cols="2" x-gap="12">
+        <n-gi>11</n-gi>
+        <n-gi>22</n-gi>
+        <n-gi>33</n-gi>
+        <n-gi>44</n-gi>
+      </n-grid>
+
+    </n-card>
+  </n-modal>
 </template>
 <script setup lang="ts">
   import { ref , h } from 'vue'
   import { ipcRenderer } from 'electron'
-  import { NButton, NInput, NSwitch, NLayout, NLayoutSider, NLayoutContent, NMenu, NIcon, useMessage  } from 'naive-ui'
+  import { NButton, NInput, NSwitch, NLayout, NLayoutSider, NLayoutContent, NMenu, NIcon, useMessage, useModal, NModal, NCard } from 'naive-ui'
   import {
     VideocamOutline as BookIcon
 } from '@vicons/ionicons5'
 import { get, all } from "../../sqlite3"
   const message = useMessage();
+  const modal = useModal();
+
+  const showModal =ref(false)
+  const timeout = ref(6000)
+
+  const countdown = () => {
+      if (timeout.value <= 0) {
+        showModal.value = false
+      } else {
+        timeout.value -= 1000
+        setTimeout(countdown, 1000)
+      }
+    }
+
+  const modalClick = () => {
+    showModal.value = true
+    countdown()
+    modal.create({
+      title: '模态框',
+      content: '内容',
+      preset: 'dialog'
+    });
+  }
+
+
   message.success("欢迎使用aehyok字幕下载器")
   const input = ref("https://youtu.be/dIyQl99oxlg?si=fwfuC2lLkxG_Fgpd");
 
@@ -183,6 +242,7 @@ import { get, all } from "../../sqlite3"
 
 .input {
   margin-right: 20px;
+  margin-left:5px;
   width: 400px;
   text-align: left;
 }
@@ -220,5 +280,9 @@ import { get, all } from "../../sqlite3"
   justify-content: center;
   align-items: center;
   padding-top: 4px;
+}
+.download-modal {
+  display: flex;
+  justify-content: space-between;
 }
 </style>
