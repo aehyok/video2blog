@@ -154,12 +154,7 @@ import { get, all } from "../../sqlite3"
     })
   }
 
-  getAll();
-  const callCmd = () => {
-    console.log("渲染进程中的按钮事件message");
-    // window.ipcRenderer.send('call-main-cmd', 'message')
-    ipcRenderer.send('call-yt-dlp', 'message')
-  }
+  getAll()
 
   /**
    * 检查url是否有效
@@ -236,12 +231,12 @@ import { get, all } from "../../sqlite3"
 }
 
 .right {
-  margin-right: 20px;
+  margin-right: 10px;
   font-size: 12px;
 }
 
 .input {
-  margin-right: 20px;
+  margin-right: 10px;
   margin-left:5px;
   width: 400px;
   text-align: left;
