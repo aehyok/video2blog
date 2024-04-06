@@ -1,4 +1,5 @@
 import { type Database, verbose } from "sqlite3";
+import * as sqlite_vss from "sqlite-vss";
 
 const sqlite = verbose();
 
@@ -14,6 +15,9 @@ export function connect(path: string) {
         reject(err);
       }
     });
+
+    // database.loadExtension(sqlite_vss.getVectorLoadablePath());
+    // database.loadExtension(sqlite_vss.getVssLoadablePath());
   });
 }
 
