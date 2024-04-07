@@ -2,11 +2,14 @@
   <n-spin :show="show" description="正在下载请稍后......">
     <n-layout>
       <n-layout-header class="header">
-        <n-input type="text" v-model:value="input" class="input" placeholder="请输入视频地址"></n-input>
-        <n-switch v-model:value="checkedValue"/>
+        <div>
+          <n-input type="text" v-model:value="input" class="input" placeholder="请输入视频地址"></n-input>
+          <n-switch v-model:value="checkedValue"/>
           <span class="right">同时下载视频</span>
-        <n-button @click="SubtitleClick" size="small" type="primary">获取视频字幕文件</n-button>
-        <n-button @click="modalClick" size="small" type="primary" style="margin-left:10px;">下载模型</n-button>
+          <n-button @click="SubtitleClick" size="small" type="primary">获取视频字幕文件</n-button>
+          <n-button @click="modalClick" size="small" type="primary" style="margin-left:10px;">下载模型</n-button>
+        </div>
+        <div style="margin-right:25px;"><n-button @click="setClick" size="small" type="info" style="margin-left:10px;">设置</n-button></div>
       </n-layout-header>
       <n-layout has-sider content-style="padding: 24px;">
         <n-layout-sider
@@ -55,35 +58,32 @@
   </n-spin>
   <n-modal :show="showModal" >
     <n-card
-      style="width: 600px"
+      style="width: 700px"
       title="模态框"
       size="huge"
-      :bordered="false"
+      :bordered="true"
       role="dialog"
       aria-modal="true"
     >
-      倒计时 {{ timeout / 1000 }} 秒
-      多语言通用模型；
-      <n-grid :cols="2" x-gap="12">
-        <n-gi>
-          <div>基础模型</div>
-          <div class="download-modal">
-            <div>ggml-base.en.bin(148MB)</div>
-            <div>下载模型</div>
-          </div>
-        </n-gi>
-        <n-gi>2</n-gi>
-        <n-gi>3</n-gi>
-        <n-gi>4</n-gi>
-      </n-grid>
-      英文专用模型：
-      <n-grid :cols="2" x-gap="12">
-        <n-gi>11</n-gi>
-        <n-gi>22</n-gi>
-        <n-gi>33</n-gi>
-        <n-gi>44</n-gi>
+      <n-grid :cols="2" x-gap="24" style="margin-left:10px;">
+        <n-gi>多语言通用模型；</n-gi>
+        <n-gi>多语言通用模型；</n-gi>
       </n-grid>
 
+      <n-grid :cols="2" x-gap="24">
+        <n-gi v-for="item in modelList" border>
+          <div style="border: 1px solid grey; border-radius: 6px; padding:10px;margin: 10px;">
+            <div style="font-size: 16px; font-weight: 800;">{{ item.Title }}</div>
+            <div class="download-modal">
+              <div style="display: flex; align-items: center;">
+                <div style="color:gray;">{{ item.Name }}</div>
+                <div style="color: red;font-size:10px;">({{ item.Size }})</div>
+              </div>
+              <div :class="item.IsDownLoad? 'font-downloaded': 'font-download'">{{ item.IsDownLoad ? '已下载': '下载模型' }}</div>
+            </div>
+          </div>
+        </n-gi>
+      </n-grid>
     </n-card>
   </n-modal>
 </template>
@@ -99,7 +99,7 @@ import { get, all } from "../../sqlite3"
   const modal = useModal();
 
   const showModal =ref(false)
-  const timeout = ref(6000)
+  const timeout = ref(60000)
 
   const countdown = () => {
       if (timeout.value <= 0) {
@@ -110,7 +110,12 @@ import { get, all } from "../../sqlite3"
       }
     }
 
-  const modalClick = () => {
+  const setClick = () => {
+    window.alert("alert");
+  }  
+
+  const modalClick = async() => {
+    await getWhisperModelList()
     showModal.value = true
     countdown()
     modal.create({
@@ -129,6 +134,7 @@ import { get, all } from "../../sqlite3"
   }
 
   const menuOptions = ref<any[]>([]);
+  const modelList = ref<any[]>([]);
 
   const inverted = ref(false)
   const show = ref(false)
@@ -152,6 +158,12 @@ import { get, all } from "../../sqlite3"
       menuOptions.value.push(data)
       console.log(menuOptions.value, "menuOptions.value")
     })
+  }
+
+  const getWhisperModelList = async() => {
+    const rows = await all("select Id, Title, Name, Type, Size, IsDownLoad from WhisperModel", []);
+    console.log(rows, 'whisperList')
+    modelList.value = rows;
   }
 
   getAll()
@@ -228,6 +240,8 @@ import { get, all } from "../../sqlite3"
 .header {
   padding-left: 20px;
   padding-top: 10px;
+  display: flex;
+  justify-content: space-between;
 }
 
 .right {
@@ -279,5 +293,14 @@ import { get, all } from "../../sqlite3"
 .download-modal {
   display: flex;
   justify-content: space-between;
+}
+
+.font-downloaded {
+  color: grey;
+}
+
+.font-download {
+  color: green;
+  cursor: pointer;
 }
 </style>
