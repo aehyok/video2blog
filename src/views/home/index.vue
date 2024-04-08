@@ -66,8 +66,8 @@
       aria-modal="true"
     >
       <n-grid :cols="2" x-gap="24" style="margin-left:10px;">
-        <n-gi>多语言通用模型；</n-gi>
-        <n-gi>多语言通用模型；</n-gi>
+        <n-gi>多语言通用模型:</n-gi>
+        <n-gi>多语言通用模型:</n-gi>
       </n-grid>
 
       <n-grid :cols="2" x-gap="24">
@@ -75,7 +75,7 @@
           <div style="border: 1px solid grey; border-radius: 6px; padding:10px;margin: 10px;">
             <div style="font-size: 16px; font-weight: 800;">{{ item.Title }}</div>
             <div class="download-modal">
-              <div style="display: flex; align-items: center;">
+              <div style="display: flex; align-items: center; justify-content: center;">
                 <div style="color:gray;">{{ item.Name }}</div>
                 <div style="color: red;font-size:10px;">({{ item.Size }})</div>
               </div>
@@ -86,12 +86,17 @@
       </n-grid>
     </n-card>
   </n-modal>
+  <n-drawer v-model:show="active" :width="502" :placement="'right'">
+    <n-drawer-content title="系统设置">
+      《斯通纳》是美国作家约翰·威廉姆斯在 1965 年出版的小说。
+    </n-drawer-content>
+  </n-drawer>
 </template>
 <script setup lang="ts">
   import { ref , h } from 'vue'
   import { ipcRenderer } from 'electron'
   import { NButton, NInput, NSwitch, NLayout, NLayoutSider, NLayoutContent, NMenu, NIcon, useMessage, useModal, NModal, NCard } from 'naive-ui'
-  import {
+  import {  
     VideocamOutline as BookIcon
 } from '@vicons/ionicons5'
 import { get, all } from "../../sqlite3"
@@ -100,6 +105,7 @@ import { get, all } from "../../sqlite3"
 
   const showModal =ref(false)
   const timeout = ref(60000)
+  const active = ref(false)
 
   const countdown = () => {
       if (timeout.value <= 0) {
@@ -112,6 +118,7 @@ import { get, all } from "../../sqlite3"
 
   const setClick = () => {
     window.alert("alert");
+    active.value = true
   }  
 
   const modalClick = async() => {
