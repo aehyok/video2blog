@@ -6,17 +6,12 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-<<<<<<< HEAD
-    "start": "chcp 65001 && vite",
-    "build": "chcp 65001 && vite build && electron-builder"
-=======
     "start-win": "chcp 65001 && vite",
     "build-win": "chcp 65001 && vite build && electron-builder",
     "start": "vite",
     "build": "vite build && electron-builder",
     "chroma": "chroma run --path ./chroma",
     "rebuild------": "electron-rebuild -f -w sqlite3"
->>>>>>> 5d683d5eb5014da706d7244294054b67ad5188f2
   },
   "dependencies": {
     "@vicons/ionicons5": "^0.12.0",
