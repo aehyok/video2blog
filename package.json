@@ -6,8 +6,17 @@
   "license": "MIT",
   "private": true,
   "scripts": {
+<<<<<<< HEAD
     "start": "chcp 65001 && vite",
     "build": "chcp 65001 && vite build && electron-builder"
+=======
+    "start-win": "chcp 65001 && vite",
+    "build-win": "chcp 65001 && vite build && electron-builder",
+    "start": "vite",
+    "build": "vite build && electron-builder",
+    "chroma": "chroma run --path ./chroma",
+    "rebuild------": "electron-rebuild -f -w sqlite3"
+>>>>>>> 5d683d5eb5014da706d7244294054b67ad5188f2
   },
   "dependencies": {
     "@vicons/ionicons5": "^0.12.0",
@@ -16,6 +25,7 @@
     "fs-extra": "^11.2.0",
     "naive-ui": "^2.38.1",
     "python-shell": "^5.0.0",
+    "sqlite-vss": "^0.1.2",
     "sqlite3": "5.1.6",
     "uuid": "^9.0.1",
     "vue": "^3.4.21",
@@ -25,7 +35,7 @@
     "@types/node": "^20.5.7",
     "@vitejs/plugin-vue": "^4.3.4",
     "electron": "^26.1.0",
-    "electron-builder": "^24.6.3",
+    "electron-builder": "^24.13.3",
     "typescript": "^5.2.2",
     "vite": "^4.4.9",
     "vite-plugin-electron": "^0.14.0",

@@ -2,10 +2,14 @@
   <n-spin :show="show" description="正在下载请稍后......">
     <n-layout>
       <n-layout-header class="header">
-        <n-input type="text" v-model:value="input" class="input" placeholder="请输入视频地址"></n-input>
-        <n-switch v-model:value="checkedValue"/>
+        <div>
+          <n-input type="text" v-model:value="input" class="input" placeholder="请输入视频地址"></n-input>
+          <n-switch v-model:value="checkedValue"/>
           <span class="right">同时下载视频</span>
-        <n-button @click="SubtitleClick" size="small" type="primary">获取视频字幕文件</n-button>
+          <n-button @click="SubtitleClick" size="small" type="primary">获取视频字幕文件</n-button>
+          <n-button @click="modalClick" size="small" type="primary" style="margin-left:10px;">下载模型</n-button>
+        </div>
+        <div style="margin-right:25px;"><n-button @click="setClick" size="small" type="info" style="margin-left:10px;">设置</n-button></div>
       </n-layout-header>
       <n-layout has-sider content-style="padding: 24px;">
         <n-layout-sider
@@ -52,16 +56,76 @@
       </n-layout-footer>
     </n-layout>
   </n-spin>
+  <n-modal :show="showModal" >
+    <n-card
+      style="width: 700px"
+      title="模态框"
+      size="huge"
+      :bordered="true"
+      role="dialog"
+      aria-modal="true"
+    >
+      <n-grid :cols="2" x-gap="24" style="margin-left:10px;">
+        <n-gi>多语言通用模型；</n-gi>
+        <n-gi>多语言通用模型；</n-gi>
+      </n-grid>
+
+      <n-grid :cols="2" x-gap="24">
+        <n-gi v-for="item in modelList" border>
+          <div style="border: 1px solid grey; border-radius: 6px; padding:10px;margin: 10px;">
+            <div style="font-size: 16px; font-weight: 800;">{{ item.Title }}</div>
+            <div class="download-modal">
+              <div style="display: flex; align-items: center;">
+                <div style="color:gray;">{{ item.Name }}</div>
+                <div style="color: red;font-size:10px;">({{ item.Size }})</div>
+              </div>
+              <div :class="item.IsDownLoad? 'font-downloaded': 'font-download'">{{ item.IsDownLoad ? '已下载': '下载模型' }}</div>
+            </div>
+          </div>
+        </n-gi>
+      </n-grid>
+    </n-card>
+  </n-modal>
 </template>
 <script setup lang="ts">
   import { ref , h } from 'vue'
   import { ipcRenderer } from 'electron'
-  import { NButton, NInput, NSwitch, NLayout, NLayoutSider, NLayoutContent, NMenu, NIcon, useMessage  } from 'naive-ui'
+  import { NButton, NInput, NSwitch, NLayout, NLayoutSider, NLayoutContent, NMenu, NIcon, useMessage, useModal, NModal, NCard } from 'naive-ui'
   import {
     VideocamOutline as BookIcon
 } from '@vicons/ionicons5'
-
+import { get, all } from "../../sqlite3"
   const message = useMessage();
+  const modal = useModal();
+
+  const showModal =ref(false)
+  const timeout = ref(60000)
+
+  const countdown = () => {
+      if (timeout.value <= 0) {
+        showModal.value = false
+      } else {
+        timeout.value -= 1000
+        setTimeout(countdown, 1000)
+      }
+    }
+
+  const setClick = () => {
+    window.alert("alert");
+  }  
+
+  const modalClick = async() => {
+    await getWhisperModelList()
+    showModal.value = true
+    countdown()
+    modal.create({
+      title: '模态框',
+      content: '内容',
+      preset: 'dialog'
+    });
+  }
+
+
   message.success("欢迎使用aehyok字幕下载器")
   const input = ref("https://youtu.be/dIyQl99oxlg?si=fwfuC2lLkxG_Fgpd");
 
@@ -70,6 +134,7 @@
   }
 
   const menuOptions = ref<any[]>([]);
+  const modelList = ref<any[]>([]);
 
   const inverted = ref(false)
   const show = ref(false)
@@ -77,35 +142,31 @@
   const outputTarget = ref("")
   const checkedValue = ref(false)
 
-  // get获取单条记录
-  // window.database.get 
-
-  // 获取的是一个数组
-  // window.database.all
-
-  const getAll = () => {
+  const getAll = async() => {
     menuOptions.value = []
-    window.database.all("select Id, Title, Path, Type, SourceSubtitles, TargetSubtitles, CreateTime, LocationVideoPath From ParsingVideo ", (err: any, rows: any) => {
-      console.log(rows, 'home页面获取数据')
-      rows.forEach((item: any) => {
-        const data = {
-          key: item.Id,
-          label: item.Title,
-          icon: renderIcon(BookIcon)
-        }
-        console.log(data, 'data')
-        menuOptions.value.push(data)
-        console.log(menuOptions.value, "menuOptions.value")
-      })
+    const rows = await all("select Id, Title, Path, Type, SourceSubtitles, TargetSubtitles, CreateTime, LocationVideoPath From ParsingVideo ", []);
+
+    console.log(rows, 'home页面获取数据')
+    
+    rows.forEach((item: any) => {
+      const data = {
+        key: item.Id,
+        label: item.Title,
+        icon: renderIcon(BookIcon)
+      }
+      console.log(data, 'data')
+      menuOptions.value.push(data)
+      console.log(menuOptions.value, "menuOptions.value")
     })
   }
 
-  getAll();
-  const callCmd = () => {
-    console.log("渲染进程中的按钮事件message");
-    // window.ipcRenderer.send('call-main-cmd', 'message')
-    ipcRenderer.send('call-yt-dlp', 'message')
+  const getWhisperModelList = async() => {
+    const rows = await all("select Id, Title, Name, Type, Size, IsDownLoad from WhisperModel", []);
+    console.log(rows, 'whisperList')
+    modelList.value = rows;
   }
+
+  getAll()
 
   /**
    * 检查url是否有效
@@ -117,15 +178,12 @@
     return pattern.test(url);
   }
 
-  const onMenuChange = (key: string, item: any) => {
+  const onMenuChange = async(key: string, item: any) => {
     console.log("onMenuChange", key, item)
-    window.database.get(`select * from ParsingVideo where Id = ?`, key, (err: any, row: any) => {
-      console.log(row, 'row', row.FolderDate)
+    const row: any = await get(`select * from ParsingVideo where Id = ?`, key);
+    console.log(row, 'row', row.FolderDate)
 
-      ipcRenderer.send('call-file-json', row.FolderDate)
-      // outputSource.value = row.SourceSubtitles
-      // outputTarget.value = row.TargetSubtitles
-    })
+    ipcRenderer.send('call-file-json', row.FolderDate)
   }
 
   // 点击获取字幕
@@ -182,15 +240,18 @@
 .header {
   padding-left: 20px;
   padding-top: 10px;
+  display: flex;
+  justify-content: space-between;
 }
 
 .right {
-  margin-right: 20px;
+  margin-right: 10px;
   font-size: 12px;
 }
 
 .input {
-  margin-right: 20px;
+  margin-right: 10px;
+  margin-left:5px;
   width: 400px;
   text-align: left;
 }
@@ -228,5 +289,18 @@
   justify-content: center;
   align-items: center;
   padding-top: 4px;
+}
+.download-modal {
+  display: flex;
+  justify-content: space-between;
+}
+
+.font-downloaded {
+  color: grey;
+}
+
+.font-download {
+  color: green;
+  cursor: pointer;
 }
 </style>

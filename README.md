@@ -119,3 +119,12 @@ model_size_or_path="指定模型位置"
 ```
     "rebuild------": "electron-rebuild -f -w sqlite3"
 ```
+
+## mac下编译报错（sh: electron-builder: command not found）
+```
+npm i electron-builder
+```
+
+## 无法打开“yt-dlp”，因为Apple无法检查其是否包含恶意软件。
+- https://www.jb51.net/os/MAC/881275.html
+- 系统设置=>隐私与安全性=>往下拉可以看到=>安全性  yt-dlp =>点击允许即可
