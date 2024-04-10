@@ -86,28 +86,22 @@ app.on("window-all-closed", () => {
 app.whenReady().then(createWindow);
 
 // 主进程定义方法
-ipcMain.on("call-yt-dlp", async (event, args, isDownloadVideo) => {
-  console.log("主进程接收到子进程的数据", args, isDownloadVideo);
+ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
+  console.log("主进程接收到子进程的数据", videoUrl, isDownloadVideo);
 
   let info = "";
   // ffmpeg -version
   console.log(process.cwd(), "process.cwd");
 
-  let record: any = await findRecord(args);
+  let record: any = await findRecord(videoUrl);
 
   // 通过url判断该记录是否存在
   if (record) {
-    // const locationPath =  path.join(templateFilePath, record.FolderDate);
-
-    // var vttFileName = findJsonFilesInDirectorySync(locationPath, ".vtt")
-    // const vttPath = path.join(locationPath, vttFileName);
-    // console.log(vttPath, "vttPath=========")
-    // const packageString = fs.readFileSync(vttPath).toString();
     const packageString = getFolderDateJson(record.FolderDate);
     event.reply("call-output", true, packageString);
   } else {
     // 通过url判断视频类型
-    const type = args.includes("youtu.be") ? "youtube" : "";
+    const type = videoUrl.includes("youtu.be") ? "youtube" : "";
     console.log(type, "type", type == "", type == "");
     if (type == "") {
       // false则不支持该视频链接的转换
@@ -115,7 +109,7 @@ ipcMain.on("call-yt-dlp", async (event, args, isDownloadVideo) => {
       return;
     }
 
-    const createInfo = createMetadata(args);
+    const createInfo = createMetadata(videoUrl);
 
     const locationPath = path.join(templateFilePath, createInfo.folderDate); // `${process.cwd()}\\command\\${date}`
 
@@ -127,8 +121,8 @@ ipcMain.on("call-yt-dlp", async (event, args, isDownloadVideo) => {
     }
     console.log(authCmd, "authCmd");
     const cmd = isDownloadVideo
-      ? `${authCmd} ${process.cwd()}/command/yt-dlp --dump-json -P ${locationPath} ${args} -o "%(id)s.%(ext)s" --write-subs`
-      : `${authCmd} ${process.cwd()}/command/yt-dlp -P ${locationPath} ${args} -o "%(id)s.%(ext)s" --skip-download --write-subs`;
+      ? `${authCmd} ${process.cwd()}/command/yt-dlp --dump-json -P ${locationPath} ${videoUrl} -o "%(id)s.%(ext)s" --write-subs`
+      : `${authCmd} ${process.cwd()}/command/yt-dlp -P ${locationPath} ${videoUrl} -o "%(id)s.%(ext)s" --skip-download --write-subs`;
     process.env.NODE_STDOUT_ENCODING = "utf-8";
 
     exec(cmd, { encoding: "utf8" }, async (error, stdout, stderr) => {
@@ -148,7 +142,7 @@ ipcMain.on("call-yt-dlp", async (event, args, isDownloadVideo) => {
       record = {
         $Id: createInfo.id,
         $Title: createInfo.title,
-        $Path: args,
+        $Path: videoUrl,
         $Type: type,
         $SourceSubtitles: sourceSubtitles,
         $TargetSubtitles: "",
@@ -161,12 +155,6 @@ ipcMain.on("call-yt-dlp", async (event, args, isDownloadVideo) => {
       event.reply("call-output", true, sourceSubtitles);
     });
   }
-});
-
-ipcMain.on("call-file-json", async (event, folderDate) => {
-  console.log(folderDate, "json-------------------------");
-  const json = getFolderDateJson(folderDate);
-  event.reply("reply-json", json);
 });
 
 /**
@@ -214,11 +202,6 @@ const insertRecord = async (data: any) => {
 const createMetadata = (url: string) => {
   const folderDate = format(new Date(), "yyyy-MM-dd-HH-mm-ss");
   console.log(folderDate, "date-folderDate");
-
-  // let templateFilePath = path.join(process.cwd(), '/resources/command')
-  // if (import.meta.env.DEV) {
-  //   templateFilePath = path.join(process.cwd(), '/command')
-  // }
 
   const locationPath = path.join(templateFilePath, folderDate); // `${process.cwd()}\\command\\${date}`
   let cmd = "";

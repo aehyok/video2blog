@@ -88,7 +88,17 @@
   </n-modal>
   <n-drawer v-model:show="active" :width="502" :placement="'right'">
     <n-drawer-content title="系统设置">
-      《斯通纳》是美国作家约翰·威廉姆斯在 1965 年出版的小说。
+      <n-collapse>
+    <n-collapse-item title="文件下载地址" name="1">
+      <div>文件下载地址</div>
+    </n-collapse-item>
+    <n-collapse-item title="Google Gemini" name="2">
+      <div>Gemini Api</div>
+    </n-collapse-item>
+    <n-collapse-item title="OpenAI ChatGPT" name="3">
+      <div>ChatGPT Api</div>
+    </n-collapse-item>
+  </n-collapse>
     </n-drawer-content>
   </n-drawer>
 </template>
@@ -174,23 +184,11 @@ import { get, all } from "../../sqlite3"
   }
 
   getAll()
-
-  /**
-   * 检查url是否有效
-   * @param url 
-   */
-  const isValidURL = (url: string) => {
-    // 匹配协议（http或https）://域名.域名后缀/可选路径
-    var pattern = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w.-]*)*\/?$/;
-    return pattern.test(url);
-  }
-
   const onMenuChange = async(key: string, item: any) => {
     console.log("onMenuChange", key, item)
     const row: any = await get(`select * from ParsingVideo where Id = ?`, key);
     console.log(row, 'row', row.FolderDate)
-
-    ipcRenderer.send('call-file-json', row.FolderDate)
+    outputSource.value = row.SourceSubtitles
   }
 
   // 点击获取字幕
@@ -198,16 +196,9 @@ import { get, all } from "../../sqlite3"
     //先检查一下url是否为空
     console.log(input.value, 'inputValue')
     if (input.value === "" || input.value === null) {
-      // window.alert("请输入视频链接")
       message.warning("请输入视频链接")
       return;
     } 
-    // else  {
-    //   const isValid = isValidURL(input.value)
-    //   if(!isValid) {
-    //     window.alert("请输入正确的视频链接")
-    //     return;
-    //   }
       show.value = true
       ipcRenderer.send('call-yt-dlp', input.value, checkedValue.value)
   }
