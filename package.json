@@ -8,8 +8,8 @@
   "scripts": {
     "start-win": "chcp 65001 && vite",
     "build-win": "chcp 65001 && vite build && electron-builder",
-    "start": "vite",
-    "build": "vite build && electron-builder",
+    "start-mac": "vite",
+    "build-mac": "vite build && electron-builder",
     "chroma": "chroma run --path ./chroma",
     "rebuild------": "electron-rebuild -f -w sqlite3"
   },
