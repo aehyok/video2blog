@@ -14,6 +14,7 @@
     "rebuild------": "electron-rebuild -f -w sqlite3"
   },
   "dependencies": {
+    "@imengyu/vue3-context-menu": "^1.4.0",
     "@vicons/ionicons5": "^0.12.0",
     "chromadb": "^1.8.1",
     "date-fns": "^2.30.0",

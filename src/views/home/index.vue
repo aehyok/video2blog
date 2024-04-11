@@ -36,9 +36,12 @@
               <n-input
                 v-model:value="outputSource"
                 type="textarea"
+                ref="source"
                 class="textarea"
                 placeholder="这里是原始字幕..."
-              />
+                @contextmenu="onContextMenu($event)"
+              >
+              </n-input>
             </n-gi>
             <n-gi>
               <n-input
@@ -101,21 +104,78 @@
   </n-collapse>
     </n-drawer-content>
   </n-drawer>
+
+  <context-menu
+    v-model:show="state.showMenu"
+    :options="state.menuOptions"
+  >
+    <context-menu-item label="翻译的prompt设置："  />
+    <context-menu-item label="将当前字幕翻译为英文"  />
+    <context-menu-item label="将当前字幕翻译为中文"  />
+    <context-menu-sperator /><!--use this to add sperator-->
+    <context-menu-group label="Menu with child">
+      <context-menu-item label="Item1"  @click="onClick()" />
+      <context-menu-item label="Item2"  />
+    </context-menu-group>
+  </context-menu>
 </template>
+<script lang="ts">
+import { defineComponent } from 'vue'
+
+//导入组件
+import { ContextMenu, ContextMenuGroup, ContextMenuSeparator, ContextMenuItem } from '@imengyu/vue3-context-menu';
+
+export default defineComponent({
+  //注册组件
+  components: {
+    ContextMenu,
+    ContextMenuGroup,
+    ContextMenuSeparator,
+    ContextMenuItem,
+  },
+  //省略其他代码
+});
+</script>
 <script setup lang="ts">
-  import { ref , h } from 'vue'
+  import { ref , h, reactive } from 'vue'
   import { ipcRenderer } from 'electron'
-  import { NButton, NInput, NSwitch, NLayout, NLayoutSider, NLayoutContent, NMenu, NIcon, useMessage, useModal, NModal, NCard } from 'naive-ui'
+  import { NButton, NInput, NSwitch, NLayout, NLayoutSider, NLayoutContent, NMenu, NIcon, useMessage, useModal, NModal, NCard, darkTheme } from 'naive-ui';
   import {  
     VideocamOutline as BookIcon
 } from '@vicons/ionicons5'
+
 import { get, all } from "../../sqlite3"
+
   const message = useMessage();
   const modal = useModal();
 
   const showModal =ref(false)
   const timeout = ref(60000)
   const active = ref(false)
+  const source = ref(null)
+
+  const state = reactive({
+    showMenu: false,
+    menuOptions: {
+      zIndex: 3,
+      minWidth: 230,
+      x: 500,
+      y: 200,
+      theme: 'mac dark'
+    }
+  })
+
+  const onClick = () => {
+    console.log(source.value, "source.value")
+    console.log(source.value.select(), "source.value.selectionStart")
+  }
+
+  const onContextMenu = (e: any) => {
+    e.preventDefault();
+    state.menuOptions.x = e.x
+    state.menuOptions.y = e.y
+    state.showMenu = true
+  }
 
   const countdown = () => {
       if (timeout.value <= 0) {
@@ -127,8 +187,8 @@ import { get, all } from "../../sqlite3"
     }
 
   const setClick = () => {
-    window.alert("alert");
     active.value = true
+    showMenu.value = true
   }  
 
   const modalClick = async() => {
@@ -257,6 +317,7 @@ import { get, all } from "../../sqlite3"
 .textarea {
   height:calc(100vh - 120px);
   margin-right: 40px;
+  position: relative;
 }
 
 .list-height {

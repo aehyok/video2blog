@@ -5,6 +5,8 @@ import naive from "naive-ui";
 import "./style.css";
 import App from "./App.vue";
 import router from "./router";
+import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css'
+import ContextMenu from '@imengyu/vue3-context-menu'
 
 let database: any = undefined;
 
@@ -29,6 +31,7 @@ ipcRenderer.invoke("local-sqlite3-db").then(async (dbPath) => {
 const app = createApp(App);
 app.use(naive);
 app.use(router);
+app.use(ContextMenu);
 app.mount("#app").$nextTick(() => {
   // Remove Preload scripts loading
   postMessage({ payload: "removeLoading" }, "*");
