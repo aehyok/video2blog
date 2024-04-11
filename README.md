@@ -1,3 +1,41 @@
+## 两个目标
+- 一个是对视频字幕进行翻译，并重新生成双语视频文件
+- 另外一个是将视频转换为中文文章
+
+## 流程
+
+- 视频转文章的思路流程
+```
+// 输入视频url之后
+// 先通过yt-dlp解析视频url获取视频信息
+// 通过yt-dlp下载视频
+// 如果存在字幕，则直接进行下载
+//----可能是非中文字幕，则需要进行翻译字幕
+
+// 如果不存在字幕，则通过whisper来生成字幕文件，并翻译为中文
+
+// 然后通过gemini将字幕转换为文章。并将视频中的图片进行提取，手动插入到文章中
+
+```
+
+- 视频转字幕后重新生成双语视频
+```
+// 输入视频url之后
+// 先通过yt-dlp解析视频url获取视频信息
+// 通过yt-dlp下载视频
+// 如果存在字幕，则直接进行下载,下载后进行翻译，并进行微调字幕
+// 如果不存在字幕，则通过whisper来生成字幕文件，并进行翻译字幕
+// 然后通过ffmpeg将字幕文件和视频文件进行合并
+```
+
+- python srt2ass https://github.com/ewwink/python-srt2ass
+- nodejs srt2ass https://github.com/rakuzen25/subsrt-ts
+
+## prompt
+```
+现在你作为一个科技博主，请先精读上面的字幕，然后根据字幕内容再进行分段，分的段落不要太多，尽量保持在4到8段左右，分段后要对分段内容进行整理,注意一定不需要总结也不要进行删减内容，只是进行整理和微调，并标记字幕时间的区间
+```
+
 ## 项目使用重点说明
 pnpm electron vite vue3使用pnpm暂时报错了
 ```
@@ -15,6 +53,8 @@ npm run start
 // 同时可嵌入静态资源 exe可执行文件供给外部主进程使用
 npm run build
 ```
+
+
 ## 数据存储使用sqlite3
 ```
 // 暂时将数据库存放在command目录下了database.sqlite3 相当于本地记录所有的数据
@@ -24,6 +64,12 @@ npm run build
   - https://github.com/caoxiemeihao/electron-vite-samples
   - https://github.com/1111mp/electron_client
   - https://github.com/fanchenio/DawnLauncher
+  - https://summarize.ing/
+  - https://github.com/nashsu/FreeAskInternet
+
+## 技术栈
+- ffmpeg
+  -  https://miaopei.github.io/2019/05/04/FFmpeg/FFmpeg%E5%91%BD%E4%BB%A4%E5%A4%A7%E5%85%A8/#2-FFMPEG-%E7%9B%AE%E5%BD%95%E5%8F%8A%E4%BD%9C%E7%94%A8
 ## 参考文档
 - https://www.electronjs.org/zh/docs/latest/tutorial/quick-start
 
