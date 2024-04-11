@@ -8,6 +8,7 @@
           <span class="right">同时下载视频</span>
           <n-button @click="SubtitleClick" size="small" type="primary">获取视频字幕文件</n-button>
           <n-button @click="modalClick" size="small" type="primary" style="margin-left:10px;">下载模型</n-button>
+          <n-button @click="testApi" size="small" type="primary" style="margin-left: 10px;">gemini</n-button>
         </div>
         <div style="margin-right:25px;"><n-button @click="setClick" size="small" type="info" style="margin-left:10px;">设置</n-button></div>
       </n-layout-header>
@@ -145,6 +146,10 @@ export default defineComponent({
 } from '@vicons/ionicons5'
 
 import { get, all } from "../../sqlite3"
+import { GoogleGenerativeAI } from "@google/generative-ai"
+
+  const apiKey = "AIzaSyDy0GBmhoNogQb6ckOmnIRnL3tWo921Am0";
+
 
   const message = useMessage();
   const modal = useModal();
@@ -164,6 +169,24 @@ import { get, all } from "../../sqlite3"
       theme: 'mac dark'
     }
   })
+
+  const testApi = async() => {
+    console.log('1111')
+
+    const code = "gemini"
+    const geminiInfo = await get(`select apiKey from OpenAPI where code = ?`, code)
+    console.log(geminiInfo, 'geminiInfo')
+    const genAI = new GoogleGenerativeAI(geminiInfo.apiKey);
+
+    const model = genAI.getGenerativeModel({ model: "gemini-pro"});
+
+    const prompt = "请使用中文回答我，中国所有的省份，并列举每个省份至少一个好玩的地方"
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+    console.log(text,"response");
+  }
 
   const onClick = () => {
     console.log(source.value, "source.value")
