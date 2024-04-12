@@ -1,31 +1,28 @@
 ## 两个目标
-- 一个是对视频字幕进行翻译，并重新生成双语视频文件
 - 另外一个是将视频转换为中文文章
+- 一个是对视频字幕进行翻译，并重新生成双语视频文件
 
 ## 流程
 
 - 视频转文章的思路流程
 ```
-// 输入视频url之后
-// 先通过yt-dlp解析视频url获取视频信息
-// 通过yt-dlp下载视频
-// 如果存在字幕，则直接进行下载
-//----可能是非中文字幕，则需要进行翻译字幕
-
-// 如果不存在字幕，则通过whisper来生成字幕文件，并翻译为中文
-
-// 然后通过gemini将字幕转换为文章。并将视频中的图片进行提取，手动插入到文章中
-
+1、输入视频url之后
+2、先通过yt-dlp解析视频url获取视频信息
+3、通过yt-dlp下载视频
+4、如果存在字幕，则直接进行下载
+5、可能是非中文字幕，则需要进行翻译字幕
+6、如果不存在字幕，则通过whisper来生成字幕文件，并翻译为中文
+7、然后通过gemini将字幕转换为文章。并将视频中的图片进行提取，手动插入到文章中
 ```
 
 - 视频转字幕后重新生成双语视频
 ```
-// 输入视频url之后
-// 先通过yt-dlp解析视频url获取视频信息
-// 通过yt-dlp下载视频
-// 如果存在字幕，则直接进行下载,下载后进行翻译，并进行微调字幕
-// 如果不存在字幕，则通过whisper来生成字幕文件，并进行翻译字幕
-// 然后通过ffmpeg将字幕文件和视频文件进行合并
+1、输入视频url之后
+2、先通过yt-dlp解析视频url获取视频信息
+3、通过yt-dlp下载视频
+4、如果存在字幕，则直接进行下载,下载后进行翻译，并进行微调字幕
+5、如果不存在字幕，则通过whisper来生成字幕文件，并进行翻译字幕
+6、然后通过ffmpeg将字幕文件和视频文件进行合并
 ```
 
 - python srt2ass https://github.com/ewwink/python-srt2ass
@@ -174,3 +171,21 @@ npm i electron-builder
 ## 无法打开“yt-dlp”，因为Apple无法检查其是否包含恶意软件。
 - https://www.jb51.net/os/MAC/881275.html
 - 系统设置=>隐私与安全性=>往下拉可以看到=>安全性  yt-dlp =>点击允许即可
+
+
+## opencv 模块安装
+```
+https://juejin.cn/post/7344572677393629222?searchId=20240412093508984473C394A8A2777775#heading-1
+
+// 安装opencv
+https://opencv.org/releases/
+
+// 配置系统环境变量
+OPENCV_DIR D:\opencv\build
+OPENCV_BIN D:\opencv\build\x64\vc16\bin
+OPENCV_INCLUDE_DIR D:\opencv\build\include
+OPENCV_LIB_DIR D:\opencv\build\x64\vc16\bin
+```
+
+## 图片去重
+- https://cloud.tencent.com/developer/article/2336846
