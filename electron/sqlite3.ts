@@ -31,10 +31,10 @@ export function run(sql: string, params: any) {
   return new Promise((resolve, reject) => {
     database.run(sql, params, (err: any) => {
       if (err === null) {
-        console.log(err, "run-resolve-error");
+        console.log(err, "run-resolve-error-main");
         resolve(err);
       } else {
-        console.log(err, "run-reject-error");
+        console.log(err, "run-reject-error-main");
         reject(err);
       }
     });

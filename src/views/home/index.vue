@@ -272,6 +272,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai"
     const row: any = await get(`select * from ParsingVideo where Id = ?`, key);
     console.log(row, 'row', row.FolderDate)
     outputSource.value = row.SourceSubtitles
+    outputTarget.value = row.TargetSubtitles
   }
 
   // 点击获取字幕

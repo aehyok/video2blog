@@ -8,9 +8,11 @@ import { format } from "date-fns";
 
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 let templateFilePath = path.join(process.cwd(), "/resources/command");
+
 if (import.meta.env.DEV) {
   templateFilePath = path.join(process.cwd(), "/command");
 }
+console.log(templateFilePath, "templateFilePath");
 
 // The built directory structure
 //
@@ -111,18 +113,27 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
 
     const createInfo = createMetadata(videoUrl);
 
-    const locationPath = path.join(templateFilePath, createInfo.folderDate); // `${process.cwd()}\\command\\${date}`
-
     const platform = process.platform;
     console.log(platform, "platform");
     let authCmd = `chcp 65001 &&`;
+    let ytdlp = "yt-dlp.exe";
+    let locationPath =  `${process.cwd()}\\command\\${createInfo.folderDate}`
+
+    let cmd = "";
+    cmd = isDownloadVideo ? 
+    `chcp 65001 && ${process.cwd()}\\command\\yt-dlp -P ${ locationPath } ${ videoUrl } -o "%(id)s.%(ext)s" --write-subs`: 
+    `chcp 65001 && ${process.cwd()}\\command\\yt-dlp --dump-json -P ${ locationPath } ${ videoUrl } -o "%(id)s.%(ext)s" --skip-download --write-subs`;
     if (platform !== "win32") {
       authCmd = "";
+      ytdlp = "yt-dlp"
+      locationPath = path.join(templateFilePath, createInfo.folderDate) ;
+
+      cmd = isDownloadVideo
+      ? `${authCmd} ${process.cwd()}/command/${ytdlp} -P ${locationPath} ${videoUrl} -o "%(id)s.%(ext)s" --write-subs`
+      : `${authCmd} ${process.cwd()}/command/${ytdlp} --dump-json -P ${locationPath} ${videoUrl} -o "%(id)s.%(ext)s" --skip-download --write-subs`;
     }
+
     console.log(authCmd, "authCmd");
-    const cmd = isDownloadVideo
-      ? `${authCmd} ${process.cwd()}/command/yt-dlp --dump-json -P ${locationPath} ${videoUrl} -o "%(id)s.%(ext)s" --write-subs`
-      : `${authCmd} ${process.cwd()}/command/yt-dlp -P ${locationPath} ${videoUrl} -o "%(id)s.%(ext)s" --skip-download --write-subs`;
     process.env.NODE_STDOUT_ENCODING = "utf-8";
 
     exec(cmd, { encoding: "utf8" }, async (error, stdout, stderr) => {
@@ -134,6 +145,7 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
       console.log(`输出: ${info}`);
 
       var vttFileName = findJsonFilesInDirectorySync(locationPath, ".vtt");
+      console.log(vttFileName, "vttFileName")
       const vttPath = path.join(locationPath, vttFileName);
 
       const sourceSubtitles = fs.readFileSync(vttPath).toString();
@@ -167,8 +179,11 @@ const findJsonFilesInDirectorySync = (
   type: string = ".json"
 ) => {
   try {
+    console.log("directoryPath", directoryPath);
     const files = fs.readdirSync(directoryPath);
+    console.log(files, "files");
     const jsonFile = files.find((file) => path.extname(file) === type);
+    console.log(jsonFile, "jsonFile");
     return jsonFile ?? "";
   } catch (err) {
     console.error("Error:", err);
@@ -203,7 +218,7 @@ const createMetadata = (url: string) => {
   const folderDate = format(new Date(), "yyyy-MM-dd-HH-mm-ss");
   console.log(folderDate, "date-folderDate");
 
-  const locationPath = path.join(templateFilePath, folderDate); // `${process.cwd()}\\command\\${date}`
+  const locationPath = `${process.cwd()}\\command\\${folderDate}`
   let cmd = "";
   // 只下载元数据信息
 
