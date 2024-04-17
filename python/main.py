@@ -21,7 +21,7 @@ def fast():
 
     # transcribe 语音转文字
     # translate
-    segments, info = model.transcribe("output.aac", beam_size = 5)
+    segments, info = model.transcribe("test.mp3", beam_size = 5)
 
     print("Detected language '%s' with probability %f" % (info.language, info.language_probability))
 
@@ -29,7 +29,7 @@ def fast():
         print("[%.2fs -> %.2fs] %s" % (segment.start, segment.end, segment.text))
 def main():
 
-    filename = "audio.m4a"
+    filename = "test.mp3"
     input_directory = "."
     input_file = "{input_directory}/{filename}"
 

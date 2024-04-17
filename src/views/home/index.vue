@@ -10,7 +10,10 @@
           <n-button @click="modalClick" size="small" type="primary" style="margin-left:10px;">下载模型</n-button>
           <n-button @click="testApi" size="small" type="primary" style="margin-left: 10px;">gemini</n-button>
         </div>
-        <div style="margin-right:25px;"><n-button @click="setClick" size="small" type="info" style="margin-left:10px;">设置</n-button></div>
+        <div style="margin-right:25px;">
+          <n-button @click="setClick" size="small" type="info" style="margin-left:10px;">设置</n-button>
+          <n-button @click="getHtml" size="small" type="info" style="margin-left:10px;">html</n-button>
+        </div>
       </n-layout-header>
       <n-layout has-sider content-style="padding: 24px;">
         <n-layout-sider
@@ -32,8 +35,8 @@
         />
         </n-layout-sider>
         <n-layout-content content-style="margin-left:20px">
-          <n-grid :cols="2" x-gap="12">
-            <n-gi>
+          <n-grid :cols="24" x-gap="12">
+            <n-gi :span="8">
               <n-input
                 v-model:value="outputSource"
                 type="textarea"
@@ -44,13 +47,9 @@
               >
               </n-input>
             </n-gi>
-            <n-gi>
-              <n-input
-                v-model:value="outputTarget"
-                type="textarea"
-                class="textarea"
-                placeholder="这里是翻译后的字幕..."
-              />
+            <n-gi :span="16">
+              <QuillEditor theme="snow" v-model:content="outputTarget" contentType="html" class="editor"  @ready="editor = $event">
+              </QuillEditor>
             </n-gi>
           </n-grid>
         </n-layout-content>
@@ -140,16 +139,13 @@ export default defineComponent({
 <script setup lang="ts">
   import { ref , h, reactive } from 'vue'
   import { ipcRenderer } from 'electron'
-  import { NButton, NInput, NSwitch, NLayout, NLayoutSider, NLayoutContent, NMenu, NIcon, useMessage, useModal, NModal, NCard, darkTheme } from 'naive-ui';
+  import { NButton, NInput, NSwitch, NLayout, NLayoutSider, NLayoutContent, NMenu, NIcon, useMessage, useModal, NModal, NCard } from 'naive-ui';
   import {  
     VideocamOutline as BookIcon
 } from '@vicons/ionicons5'
 
 import { get, all } from "../../sqlite3"
 import { GoogleGenerativeAI } from "@google/generative-ai"
-
-  const apiKey = "AIzaSyDy0GBmhoNogQb6ckOmnIRnL3tWo921Am0";
-
 
   const message = useMessage();
   const modal = useModal();
@@ -158,7 +154,12 @@ import { GoogleGenerativeAI } from "@google/generative-ai"
   const timeout = ref(60000)
   const active = ref(false)
   const source = ref(null)
+  const editor = ref(null)
 
+  const getHtml = () => {
+    const html = editor.value.getHTML();
+    console.log(html, 'html')
+  }
   const state = reactive({
     showMenu: false,
     menuOptions: {
@@ -171,8 +172,6 @@ import { GoogleGenerativeAI } from "@google/generative-ai"
   })
 
   const testApi = async() => {
-    console.log('1111')
-
     const code = "gemini"
     const geminiInfo = await get(`select apiKey from OpenAPI where code = ?`, code)
     console.log(geminiInfo, 'geminiInfo')
@@ -272,7 +271,9 @@ import { GoogleGenerativeAI } from "@google/generative-ai"
     const row: any = await get(`select * from ParsingVideo where Id = ?`, key);
     console.log(row, 'row', row.FolderDate)
     outputSource.value = row.SourceSubtitles
-    outputTarget.value = row.TargetSubtitles
+    editor.value.setContents(JSON.parse(row.TargetSubtitles)) 
+
+    console.log(outputTarget.value, 'outputTarget')
   }
 
   // 点击获取字幕
@@ -344,6 +345,24 @@ import { GoogleGenerativeAI } from "@google/generative-ai"
   position: relative;
 }
 
+:deep(.ql-toolbar.ql-snow){
+  border: 1px solid #28282c;
+}
+:deep(.ql-container) {
+  border:grey;
+  height:calc(100vh - 160px);
+}
+
+:deep(.ql-editor){
+  border: 1px solid #28282c;
+  background-color: #28282c;
+}
+
+:deep(.ql-editor:hover) {
+  background-color: #243737;
+  border: 1px solid #7fe7c4;
+}
+
 .list-height {
   margin-top: 30px;
 }
@@ -353,7 +372,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai"
 }
 
 .menu-border {
-  height: calc(100vh - 120px);
+  height: calc(100vh - 320px);
   border: 1 solid;
   padding-top: 10px;
   overflow-x: auto; 
@@ -365,6 +384,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai"
 
 .menu-sider:hover {
   background-color: #243737;
+  border: 1px solid #7fe7c4;
 }
 
 .footer {
@@ -373,6 +393,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai"
   align-items: center;
   padding-top: 4px;
 }
+
 .download-modal {
   display: flex;
   justify-content: space-between;

@@ -3,6 +3,8 @@ import { connect, get, run } from "./sqlite3";
 import { createApp } from "vue";
 import naive from "naive-ui";
 import "./style.css";
+import { QuillEditor } from '@vueup/vue-quill'
+import '@vueup/vue-quill/dist/vue-quill.snow.css';
 import App from "./App.vue";
 import router from "./router";
 import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css'
@@ -32,6 +34,7 @@ const app = createApp(App);
 app.use(naive);
 app.use(router);
 app.use(ContextMenu);
+app.component('QuillEditor', QuillEditor)
 app.mount("#app").$nextTick(() => {
   // Remove Preload scripts loading
   postMessage({ payload: "removeLoading" }, "*");
