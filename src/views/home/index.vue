@@ -43,13 +43,12 @@
                 ref="source"
                 class="textarea"
                 placeholder="这里是原始字幕..."
-                @contextmenu="onContextMenu($event)"
+                @contextmenu="onContextMenu($event,'textarea')"
               >
               </n-input>
             </n-gi>
             <n-gi :span="16">
-              <QuillEditor theme="snow" v-model:content="outputTarget" contentType="html" class="editor"  @ready="editor = $event">
-              </QuillEditor>
+              <div id="editor" class="editor" @contextmenu="onContextMenu($event,'editor')"></div>
             </n-gi>
           </n-grid>
         </n-layout-content>
@@ -109,14 +108,7 @@
     v-model:show="state.showMenu"
     :options="state.menuOptions"
   >
-    <context-menu-item label="翻译的prompt设置："  />
-    <context-menu-item label="将当前字幕翻译为英文"  />
-    <context-menu-item label="将当前字幕翻译为中文"  />
-    <context-menu-sperator /><!--use this to add sperator-->
-    <context-menu-group label="Menu with child">
-      <context-menu-item label="Item1"  @click="onClick()" />
-      <context-menu-item label="Item2"  />
-    </context-menu-group>
+    <context-menu-item v-for="item in state.rightMenuList" :key="item?.label" :label="item.label"></context-menu-item>
   </context-menu>
 </template>
 <script lang="ts">
@@ -137,15 +129,32 @@ export default defineComponent({
 });
 </script>
 <script setup lang="ts">
-  import { ref , h, reactive } from 'vue'
+  import { ref , h, reactive, onMounted } from 'vue'
   import { ipcRenderer } from 'electron'
   import { NButton, NInput, NSwitch, NLayout, NLayoutSider, NLayoutContent, NMenu, NIcon, useMessage, useModal, NModal, NCard } from 'naive-ui';
   import {  
     VideocamOutline as BookIcon
 } from '@vicons/ionicons5'
 
-import { get, all } from "../../sqlite3"
-import { GoogleGenerativeAI } from "@google/generative-ai"
+  import { get, all } from "../../sqlite3"
+  import { GoogleGenerativeAI } from "@google/generative-ai"
+  import Quill, { QuillOptions } from 'quill';
+  import "quill/dist/quill.core.css";
+  import "quill/dist/quill.snow.css"
+
+  const options: QuillOptions = {
+    debug: 'info',
+    modules: {
+      toolbar: true,
+    },
+    placeholder: 'Compose an epic...',
+    theme: 'snow'
+  };
+  const quill = ref<Quill>()
+
+  onMounted(() => {
+    quill.value = new Quill('#editor',options)
+  })
 
   const message = useMessage();
   const modal = useModal();
@@ -154,13 +163,13 @@ import { GoogleGenerativeAI } from "@google/generative-ai"
   const timeout = ref(60000)
   const active = ref(false)
   const source = ref(null)
-  const editor = ref(null)
 
   const getHtml = () => {
-    const html = editor.value.getHTML();
-    console.log(html, 'html')
-  }
+    // const html = editor.value.getHTML();
+    // console.log(html, 'html')
+  } 
   const state = reactive({
+    rightMenuList: [],
     showMenu: false,
     menuOptions: {
       zIndex: 3,
@@ -173,7 +182,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai"
 
   const testApi = async() => {
     const code = "gemini"
-    const geminiInfo = await get(`select apiKey from OpenAPI where code = ?`, code)
+    const geminiInfo: any = await get(`select apiKey from OpenAPI where code = ?`, code)
     console.log(geminiInfo, 'geminiInfo')
     const genAI = new GoogleGenerativeAI(geminiInfo.apiKey);
 
@@ -187,12 +196,43 @@ import { GoogleGenerativeAI } from "@google/generative-ai"
     console.log(text,"response");
   }
 
+
+  // quill.value?.on("selection-change",(range: any, oldRange: any) => {
+  //   if (range && range.length === 0) {
+  //     const end = quill.value?.selection.getNativeRange().end;
+  //     const node = end.node;
+  //     if (node && node.data?.match(/^\uFEFF$/) && !node.nextSibling && end.offset === 0) {
+  //       quill.value.setSelection(range.index + 1, 0);
+  //     }
+  //   }
+  // })
+
   const onClick = () => {
-    console.log(source.value, "source.value")
-    console.log(source.value.select(), "source.value.selectionStart")
+
   }
 
-  const onContextMenu = (e: any) => {
+  /**
+   * 
+   * @param e 
+   * @param type 类型： textarea（左侧文本域）, editor（右侧富文本） 
+   */
+  const onContextMenu = (e: any, type: string) => {
+    if(type === 'textarea') {
+      state.rightMenuList = [
+        { "label": "翻译的prompt设置"},
+        { "label": "将当前字幕翻译为英文"},
+        { "label": "将当前字幕翻译为中文"}
+      ]
+    }
+
+    if(type === 'editor') {
+      // const selectionText = quill.value?.getSelection()
+      // console.log(selectionText, 'selectionText')
+
+      state.rightMenuList = [
+        { "label": "获取图片"},
+      ]
+    }
     e.preventDefault();
     state.menuOptions.x = e.x
     state.menuOptions.y = e.y
@@ -210,7 +250,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai"
 
   const setClick = () => {
     active.value = true
-    showMenu.value = true
+    state.showMenu = true
   }  
 
   const modalClick = async() => {
@@ -243,7 +283,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai"
 
   const getAll = async() => {
     menuOptions.value = []
-    const rows = await all("select Id, Title, Path, Type, SourceSubtitles, TargetSubtitles, CreateTime, LocationVideoPath From ParsingVideo ", []);
+    const rows: any[] = await all("select Id, Title, Path, Type, SourceSubtitles, TargetSubtitles, CreateTime, LocationVideoPath From ParsingVideo ", []);
 
     console.log(rows, 'home页面获取数据')
     
@@ -271,7 +311,11 @@ import { GoogleGenerativeAI } from "@google/generative-ai"
     const row: any = await get(`select * from ParsingVideo where Id = ?`, key);
     console.log(row, 'row', row.FolderDate)
     outputSource.value = row.SourceSubtitles
-    editor.value.setContents(JSON.parse(row.TargetSubtitles)) 
+    
+    if(quill?.value) {
+      // quill.value.setText((row.TargetSubtitles))
+      // quill.value.setText("hello world \n");
+    }
 
     console.log(outputTarget.value, 'outputTarget')
   }
@@ -290,6 +334,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai"
 
   // 子进程定义方法
   ipcRenderer.on("call-output", (event: any, isSupport: boolean ,text) => {
+    console.log(event, "event-ipcRenderer")
     if(!isSupport) {
       message.warning("不支持的视频链接")
       show.value = false
@@ -349,19 +394,18 @@ import { GoogleGenerativeAI } from "@google/generative-ai"
   border: 1px solid #28282c;
 }
 :deep(.ql-container) {
-  border:grey;
-  height:calc(100vh - 160px);
+  border:1px solid grey;
+  height:calc(100vh - 165px);
 }
 
-:deep(.ql-editor){
-  border: 1px solid #28282c;
-  background-color: #28282c;
+:deep(.ql-editor) {
+  min-width: 400px;
 }
 
-:deep(.ql-editor:hover) {
-  background-color: #243737;
-  border: 1px solid #7fe7c4;
-}
+/* .editor {
+  width: 100%;
+  height:80%;
+} */
 
 .list-height {
   margin-top: 30px;
@@ -373,7 +417,6 @@ import { GoogleGenerativeAI } from "@google/generative-ai"
 
 .menu-border {
   height: calc(100vh - 320px);
-  border: 1 solid;
   padding-top: 10px;
   overflow-x: auto; 
 }
@@ -383,7 +426,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai"
 }
 
 .menu-sider:hover {
-  background-color: #243737;
+  background-color: #182525;
   border: 1px solid #7fe7c4;
 }
 
