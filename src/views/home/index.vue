@@ -57,7 +57,7 @@
                   :mode="'simple'"
                 />
                 <Editor
-                  style="height: 500px; overflow-y: hidden;"
+                  style="height: calc(100vh - 200px); overflow-y: hidden;"
                   v-model="valueHtml"
                   :defaultConfig="editorConfig"
                   :mode="'simple'"
@@ -104,6 +104,19 @@
       </n-grid>
     </n-card>
   </n-modal>
+
+  <n-modal :show="state.showImageModal" >
+    <n-card
+      style="width: 700px"
+      title="区间图片选择"
+      size="huge"
+      :bordered="true"
+      role="dialog"
+      aria-modal="true"
+    >
+      图片列表
+    </n-card>
+  </n-modal>
   <n-drawer v-model:show="active" :width="502" :placement="'right'">
     <n-drawer-content title="系统设置">
       <n-collapse>
@@ -124,7 +137,7 @@
     v-model:show="state.showMenu"
     :options="state.menuOptions"
   >
-    <context-menu-item v-for="item in state.rightMenuList" :key="item?.label" :label="item.label"></context-menu-item>
+    <context-menu-item v-for="item in state.rightMenuList" :key="item?.label" :label="item.label" @click="rightContextMenuClick(item)"></context-menu-item>
   </context-menu>
 </template>
 <script lang="ts">
@@ -215,6 +228,10 @@ export default defineComponent({
   const state = reactive({
     rightMenuList: [],
     showMenu: false,
+    showImageModal: false,
+    currentVideoRow: {},
+    everyStartTime : "",
+    everyEndTime: "",
     menuOptions: {
       zIndex: 3,
       minWidth: 230,
@@ -251,8 +268,13 @@ export default defineComponent({
   //   }
   // })
 
-  const onClick = () => {
+  const rightContextMenuClick = (item: any) => {
+    console.log(item, "item=====item")
+    if(item.label === "获取图片") {
+      state.showImageModal = true
 
+      ipcRenderer.send('call-image-ffmpeg', state.currentVideoRow.FolderDate, state.everyStartTime, state.everyEndTime);
+    }
   }
 
   /**
@@ -273,14 +295,16 @@ export default defineComponent({
       // const selectionText = quill.value?.getSelection()
       // console.log(selectionText, 'selectionText')
       const selectionText = editorRef.value.getSelectionText();
+      editorRef.value.insertText(selectionText)
+      editorRef.value.insertText("\nhello world")
 
       const regExp =   /\((\d{2}:\d{2}:\d{2}\.\d{3}) .* (\d{2}:\d{2}:\d{2}\.\d{3})\)/;
       const match = regExp.exec(selectionText);
       console.log(match, "match");
       if (match) {
-          let firstTime = match[1];
-          let endTime = match[2];
-          console.log(firstTime, endTime)
+          state.everyStartTime = match[1];
+          state.everyEndTime = match[2];
+          console.log(state.everyStartTime, state.everyEndTime)
       } else {
           return;
       }
@@ -369,7 +393,8 @@ export default defineComponent({
     const row: any = await get(`select * from ParsingVideo where Id = ?`, key);
     console.log(row, 'row', row.FolderDate)
     outputSource.value = row.SourceSubtitles
-    
+    state.currentVideoRow = row
+
     if(quill?.value) {
       // quill.value.setText((row.TargetSubtitles))
       // quill.value.setText("hello world \n");
@@ -405,6 +430,10 @@ export default defineComponent({
     console.log("子进程接收到主进程的数据",outputSource.value);
     getAll();
   });
+
+  ipcRenderer.on("call-image-ffmpeg-render", (event: any, cmd: string) => {
+    console.log(cmd, 'cmd')
+  })
 
   ipcRenderer.on("reply-json", (event: any, text: string) => {
     console.log(text, 'text-text', event)

@@ -169,6 +169,31 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
   }
 });
 
+
+// 获取时间区间的视频帧图片列表（先生成再说）
+ipcMain.on("call-image-ffmpeg", async (event, folderDate, everyStartTime, everyEndTime)=> {
+  const platform = process.platform;
+  let authCmd = `chcp 65001 &&`;
+  if (platform !== "win32") {
+    authCmd = "";
+  }
+
+  const videoPath = getFolderDatePath(folderDate, ".webm");
+
+  const startTimeName = everyStartTime.replace(/[:.]/g, "");
+  const imagePath = `${process.cwd()}\\command\\${folderDate}\\${startTimeName}`;
+  console.log('imagePath', imagePath)
+  if(!fs.existsSync(imagePath)) {
+    console.log('imagePath111111111', imagePath)
+    fs.mkdirSync(imagePath); 
+  }
+
+  const cmd = `${authCmd} ${process.cwd()}\\command\\ffmpeg.exe -i ${videoPath} -ss ${everyStartTime} -t ${everyEndTime} -vf "fps=1" ${imagePath}\\output_image%03d.png`;
+  console.log(cmd, 'cmd')
+  execSync(cmd);
+    // event.reply("call-image-ffmpeg-render", cmd);
+});
+
 /**
  * 在指定目录下查找元数据json文件
  * @param directoryPath
@@ -179,11 +204,8 @@ const findJsonFilesInDirectorySync = (
   type: string = ".json"
 ) => {
   try {
-    console.log("directoryPath", directoryPath);
     const files = fs.readdirSync(directoryPath);
-    console.log(files, "files");
     const jsonFile = files.find((file) => path.extname(file) === type);
-    console.log(jsonFile, "jsonFile");
     return jsonFile ?? "";
   } catch (err) {
     console.error("Error:", err);
@@ -252,12 +274,26 @@ const createMetadata = (url: string) => {
 /**
  * 根据folderDate来获取文件夹中的jsons字幕
  */
-const getFolderDateJson = (folderDate: string) => {
+const getFolderDateJson = (folderDate: string, prefix: string = ".vtt") => {
   const locationPath = path.join(templateFilePath, folderDate);
 
-  var vttFileName = findJsonFilesInDirectorySync(locationPath, ".vtt");
+  var vttFileName = findJsonFilesInDirectorySync(locationPath, prefix);
   const vttPath = path.join(locationPath, vttFileName);
   console.log(vttPath, "vttPath=========");
   const packageString = fs.readFileSync(vttPath).toString();
   return packageString;
 };
+
+/**
+ * 根据folderDate来获取文件夹中的jsons字幕
+ */
+const getFolderDatePath = (folderDate: string, prefix: string = ".vtt") => {
+  const locationPath = path.join(templateFilePath, folderDate);
+
+  var fileName = findJsonFilesInDirectorySync(locationPath, prefix);
+  const url = path.join(locationPath, fileName);
+  console.log(url, "url=========");
+  return url;
+};
+
+
