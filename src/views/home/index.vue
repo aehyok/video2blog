@@ -48,7 +48,23 @@
               </n-input>
             </n-gi>
             <n-gi :span="16">
-              <div id="editor" class="editor" @contextmenu="onContextMenu($event,'editor')"></div>
+              <!-- <div id="editor" class="editor" @contextmenu="onContextMenu($event,'editor')"></div> -->
+              <div>
+                <Toolbar
+                  style="border-bottom: 1px solid #ccc"
+                  :editor="editorRef"
+                  :defaultConfig="toolbarConfig"
+                  :mode="'simple'"
+                />
+                <Editor
+                  style="height: 500px; overflow-y: hidden;"
+                  v-model="valueHtml"
+                  :defaultConfig="editorConfig"
+                  :mode="'simple'"
+                  @contextmenu="onContextMenu($event,'editor')"
+                  @onCreated="handleCreated"
+                />
+              </div>
             </n-gi>
           </n-grid>
         </n-layout-content>
@@ -116,7 +132,8 @@ import { defineComponent } from 'vue'
 
 //导入组件
 import { ContextMenu, ContextMenuGroup, ContextMenuSeparator, ContextMenuItem } from '@imengyu/vue3-context-menu';
-
+import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
+import '@wangeditor/editor/dist/css/style.css' // 引入 css
 export default defineComponent({
   //注册组件
   components: {
@@ -124,12 +141,14 @@ export default defineComponent({
     ContextMenuGroup,
     ContextMenuSeparator,
     ContextMenuItem,
+    Editor, 
+    Toolbar
   },
   //省略其他代码
 });
 </script>
 <script setup lang="ts">
-  import { ref , h, reactive, onMounted } from 'vue'
+  import { ref , h, reactive, onMounted, onBeforeUnmount, shallowRef } from 'vue'
   import { ipcRenderer } from 'electron'
   import { NButton, NInput, NSwitch, NLayout, NLayoutSider, NLayoutContent, NMenu, NIcon, useMessage, useModal, NModal, NCard } from 'naive-ui';
   import {  
@@ -140,7 +159,7 @@ export default defineComponent({
   import { GoogleGenerativeAI } from "@google/generative-ai"
   import Quill, { QuillOptions } from 'quill';
   import "quill/dist/quill.core.css";
-  import "quill/dist/quill.snow.css"
+  import "quill/dist/quill.snow.css";
 
   const options: QuillOptions = {
     debug: 'info',
@@ -150,11 +169,33 @@ export default defineComponent({
     placeholder: 'Compose an epic...',
     theme: 'snow'
   };
+
   const quill = ref<Quill>()
 
+  // 内容 HTML
+  const valueHtml = ref('<p>hello</p>')
+
   onMounted(() => {
-    quill.value = new Quill('#editor',options)
+
+    setTimeout(() => {
+          valueHtml.value = '<p>模拟 Ajax 异步设置内容</p>'
+    }, 1500)
+    // quill.value = new Quill('#editor',options)
   })
+
+  const toolbarConfig = {}
+  const editorConfig = { placeholder: '请输入内容...' }
+
+  // 组件销毁时，也及时销毁编辑器
+  onBeforeUnmount(() => {
+      const editor = editorRef.value
+      if (editor == null) return
+      editor.destroy()
+  })
+
+  const handleCreated = (editor) => {
+    editorRef.value = editor // 记录 editor 实例，重要！
+  }
 
   const message = useMessage();
   const modal = useModal();
@@ -164,6 +205,9 @@ export default defineComponent({
   const active = ref(false)
   const source = ref(null)
 
+  // 编辑器实例，必须用 shallowRef
+  const editorRef = shallowRef()
+  
   const getHtml = () => {
     // const html = editor.value.getHTML();
     // console.log(html, 'html')
@@ -228,6 +272,20 @@ export default defineComponent({
     if(type === 'editor') {
       // const selectionText = quill.value?.getSelection()
       // console.log(selectionText, 'selectionText')
+      const selectionText = editorRef.value.getSelectionText();
+
+      const regExp =   /\((\d{2}:\d{2}:\d{2}\.\d{3}) .* (\d{2}:\d{2}:\d{2}\.\d{3})\)/;
+      const match = regExp.exec(selectionText);
+      console.log(match, "match");
+      if (match) {
+          let firstTime = match[1];
+          let endTime = match[2];
+          console.log(firstTime, endTime)
+      } else {
+          return;
+      }
+
+      console.log(selectionText, "selectionText")
 
       state.rightMenuList = [
         { "label": "获取图片"},
@@ -316,6 +374,8 @@ export default defineComponent({
       // quill.value.setText((row.TargetSubtitles))
       // quill.value.setText("hello world \n");
     }
+
+    valueHtml.value = row.TargetSubtitles
 
     console.log(outputTarget.value, 'outputTarget')
   }
@@ -449,5 +509,15 @@ export default defineComponent({
 .font-download {
   color: green;
   cursor: pointer;
+}
+
+:deep(.w-e-bar) {
+  background-color: #28282c;
+  color: white;
+}
+
+:deep(.w-e-text-container) {
+  background-color: #28282c;
+  color: white;
 }
 </style>
