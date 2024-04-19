@@ -1,71 +1,42 @@
 import os
 import cv2
-from PIL import Image
-import imagehash
-import shutil
+import sys
+import numpy as np
 
-# 将图片读取并转换为RGB格式，然后计算其哈希值
 def get_image_hash(image_path):
     img = cv2.imread(image_path)
-    img = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
-    return imagehash.phash(img)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    img = cv2.resize(img, (8, 8), interpolation=cv2.INTER_AREA)
+    mean = np.mean(img)
+    img = img > mean
+    return img.flatten()
 
-# 初始化new文件夹路径和temp文件夹路径
-new_dir = "new"
-temp_dir = "temp"
-# 遍历temp文件夹中的所有图片
-def deleteSimilarImagesInSequence(temp_dir):
-  # 获取temp文件夹中的所有图片
-  images = sorted(os.listdir(temp_dir))
+def hamming_distance(hash1, hash2):
+    return sum(c1 != c2 for c1, c2 in zip(hash1, hash2))
 
-  # 将排序后的第一张图片从temp文件夹移动到new文件夹
-  shutil.copy(os.path.join(temp_dir, images[0]), new_dir)
+def deleteSimilarImagesInSequence(folder_path):
+  images = sorted(os.listdir(folder_path))
 
-  # 获取new文件夹中的最后一张图片的哈希值
-  last_image_in_new = sorted(os.listdir(new_dir))[-1]
-  last_hash = get_image_hash(os.path.join(new_dir, last_image_in_new))
+  for i in range(len(images)):
+    # 如果i大于等于列表的长度，提前终止循环
+    if i >= len(images):
+        break
+    select_image_path = os.path.join(folder_path, images[i])
+    select_image_hash = get_image_hash(select_image_path)
 
-  # 从第二张图片开始遍历temp文件夹中的所有图片
-  for i in range(1, len(images)):
-      image_path = os.path.join(temp_dir, images[i])
-      # 计算当前图片的哈希值
-      current_hash = get_image_hash(image_path)
-      # 比较当前图片的哈希值与new文件夹中的最后一张图片的哈希值
-      if current_hash - last_hash > 10:
-          # 如果哈希值差异大于10，将当前图片复制到new文件夹中
-          shutil.copy(image_path, new_dir)
-          # 更新new文件夹中的最后一张图片的哈希值
-          last_hash = current_hash
+    j = i + 1  # 设置j为i的下一位
+    while j < len(images):  # 使用当前的images列表的长度
+      current_image_path = os.path.join(folder_path, images[j])  # 获取当前列表中的图片路径
+      current_image_hash = get_image_hash(current_image_path)
 
-# 根据选择图片，来移除文件夹下所有的相似图片
-def deleteSimilarImages(select_image_url, new_dir):
-  select_image_hash = get_image_hash(os.path.join(new_dir, select_image_url))
-
-  for image in sorted(os.listdir(new_dir)):
-      image_path = os.path.join(new_dir, image)
-      # 计算当前图片的哈希值
-      current_hash = get_image_hash(image_path)
-      # 比较当前图片的哈希值与编号为0001的图片的哈希值
-      if abs(select_image_hash - current_hash) < 10:
-          # 如果哈希值差异小于10，将当前图片从new文件夹移除
-          os.remove(image_path)
-
-def allImageHashValue():
-  images = sorted(os.listdir(new_dir))
-  # 遍历temp文件夹中的所有图片
-  for i in range(1, len(images)):    
-      image_path = os.path.join(temp_dir, image)
-      # 计算并打印当前图片的哈希值
-      print(f"The hash value of {image} is {get_image_hash(image_path)}")
+      if abs(hamming_distance(select_image_hash, current_image_hash)) < 30:
+        os.remove(current_image_path)  # 删除图片
+        images.remove(images[j])  # 从列表中移除已删除的图片
+      else:
+        j += 1  # 如果图片没有被删除，移动到下一个图片
 
 if __name__ == "__main__":
-  # deleteSimilarImagesInSequence(temp_dir)
-  # url = 'output_images_0007.png'
-  # deleteSimilarImages(url,new_dir)
-
-  image_path1 = os.path.join(temp_dir, 'output_images_0295.png')
-  image_path2 = os.path.join(temp_dir, 'output_images_0290.png')
-  value = abs(get_image_hash(image_path1)-get_image_hash(image_path2))
-  print(value)
-
-  
+  # sys.argv[0] 获取的是脚本的名称
+  folder_path = sys.argv[1]
+  # folder_path = "h:\\github\\electron-vite-tools\\command\\2024-04-17-15-17-44\\000246533"
+  deleteSimilarImagesInSequence(folder_path)
