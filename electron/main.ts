@@ -186,12 +186,22 @@ ipcMain.on("call-image-ffmpeg", async (event, folderDate, everyStartTime, everyE
   if(!fs.existsSync(imagePath)) {
     console.log('imagePath111111111', imagePath)
     fs.mkdirSync(imagePath); 
+    const cmd = `${authCmd} ${process.cwd()}\\command\\ffmpeg.exe -i ${videoPath} -ss ${everyStartTime} -t ${everyEndTime} -vf "fps=1" ${imagePath}\\output_image%03d.png`;
+    console.log(cmd, 'cmd')
+    execSync(cmd);
   }
 
-  const cmd = `${authCmd} ${process.cwd()}\\command\\ffmpeg.exe -i ${videoPath} -ss ${everyStartTime} -t ${everyEndTime} -vf "fps=1" ${imagePath}\\output_image%03d.png`;
-  console.log(cmd, 'cmd')
-  execSync(cmd);
-    // event.reply("call-image-ffmpeg-render", cmd);
+  fs.readdir(imagePath, (err, files) => {
+    if (err) throw err;
+    files.forEach(file => {
+      fs.readFile(path.join(imagePath, file), (err, data) => {
+        if (err) throw err;
+        const base64Image = Buffer.from(data).toString('base64');
+        
+        event.sender.send('call-image-ffmpeg-render', { file, data:base64Image });
+      });
+    });
+  });
 });
 
 /**

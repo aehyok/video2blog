@@ -107,14 +107,18 @@
 
   <n-modal :show="state.showImageModal" >
     <n-card
-      style="width: 700px"
+      style="width: 700px;"
       title="区间图片选择"
       size="huge"
       :bordered="true"
       role="dialog"
       aria-modal="true"
     >
-      图片列表
+      <n-grid x-gap="12" y-gap="12" :cols="3">
+        <n-gi v-for="item in state.imageList" :key="item.file" >
+          <img :src="item.data" :alt="item.file" style="height: 100px;" />
+        </n-gi>
+      </n-grid>
     </n-card>
   </n-modal>
   <n-drawer v-model:show="active" :width="502" :placement="'right'">
@@ -230,6 +234,7 @@ export default defineComponent({
     showMenu: false,
     showImageModal: false,
     currentVideoRow: {},
+    imageList: [],
     everyStartTime : "",
     everyEndTime: "",
     menuOptions: {
@@ -431,8 +436,21 @@ export default defineComponent({
     getAll();
   });
 
-  ipcRenderer.on("call-image-ffmpeg-render", (event: any, cmd: string) => {
-    console.log(cmd, 'cmd')
+  ipcRenderer.on("call-image-ffmpeg-render", (event: any, { file, data }) => {
+    // let node = document.getElementById("imageList"); 
+    // const img = document.createElement('img');
+    // img.src = 'data:image/png;base64,' + data.toString('base64');
+    // img.alt = file;
+    // img.width = 100;
+    // img.height = 100;
+    // node.appendChild(img);
+
+    var image = {
+      file: file,
+      data: 'data:image/png;base64,' + data.toString('base64')
+    }
+
+    state.imageList.push(image);
   })
 
   ipcRenderer.on("reply-json", (event: any, text: string) => {
