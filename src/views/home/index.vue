@@ -105,21 +105,25 @@
     </n-card>
   </n-modal>
 
-  <n-modal :show="state.showImageModal" >
-    <n-card
-      style="width: 700px;"
-      title="区间图片选择"
-      size="huge"
-      :bordered="true"
-      role="dialog"
-      aria-modal="true"
+  <n-modal 
+    style="width:680px;"
+    v-model:show = "state.showImageModal" 
+    preset="dialog" 
+    :showIcon="false"
+    :title="'区间图片选择(' + state.everyStartTime + '-' +  state.everyEndTime + ')'" 
+    @on:update:show="closeImageModalClick"
+    positive-text="确定"
+    negative-text="关闭"
+    @positive-click="submitCallback"
+    @negative-click="cancelCallback"
     >
-      <n-grid x-gap="12" y-gap="12" :cols="3">
-        <n-gi v-for="item in state.imageList" :key="item.file" >
-          <img :src="item.data" :alt="item.file" style="height: 100px;" />
-        </n-gi>
-      </n-grid>
-    </n-card>
+      <n-scrollbar style="max-height: 500px; margin-top: 20px;margin-left:10px;">
+        <n-grid x-gap="12" y-gap="12" :cols="3">
+          <n-gi v-for="item in state.imageList" :key="item.file" >
+            <img :src="item.data" :alt="item.file" style="height: 100px; border-radius: 5px;" />
+          </n-gi>
+        </n-grid>
+      </n-scrollbar>
   </n-modal>
   <n-drawer v-model:show="active" :width="502" :placement="'right'">
     <n-drawer-content title="系统设置">
@@ -189,9 +193,23 @@ export default defineComponent({
 
   const quill = ref<Quill>()
 
+
+  const submitCallback = () => {
+    console.log('submitCallback')
+  }
+
+  const cancelCallback = () => {
+    console.log("cancelCallback")
+    state.showImageModal = false
+  }
+
   // 内容 HTML
   const valueHtml = ref('<p>hello</p>')
 
+  const closeImageModalClick = () => {
+    console.log('closeImageModalClick')
+    state.showImageModal = false
+  }
   onMounted(() => {
 
     setTimeout(() => {
@@ -277,7 +295,7 @@ export default defineComponent({
     console.log(item, "item=====item")
     if(item.label === "获取图片") {
       state.showImageModal = true
-
+      state.imageList = []
       ipcRenderer.send('call-image-ffmpeg', state.currentVideoRow.FolderDate, state.everyStartTime, state.everyEndTime);
     }
   }
@@ -301,7 +319,7 @@ export default defineComponent({
       // console.log(selectionText, 'selectionText')
       const selectionText = editorRef.value.getSelectionText();
       editorRef.value.insertText(selectionText)
-      editorRef.value.insertText("\nhello world")
+      // editorRef.value.insertText("\nhello world")
 
       const regExp =   /\((\d{2}:\d{2}:\d{2}\.\d{3}) .* (\d{2}:\d{2}:\d{2}\.\d{3})\)/;
       const match = regExp.exec(selectionText);
