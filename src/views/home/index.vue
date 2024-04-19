@@ -61,6 +61,7 @@
                   v-model="valueHtml"
                   :defaultConfig="editorConfig"
                   :mode="'simple'"
+                  class="editor"
                   @contextmenu="onContextMenu($event,'editor')"
                   @onCreated="handleCreated"
                 />
@@ -111,7 +112,7 @@
     preset="dialog" 
     :showIcon="false"
     :title="'区间图片选择(' + state.everyStartTime + '-' +  state.everyEndTime + ')'" 
-    @on:update:show="closeImageModalClick"
+    @after-leave="closeImageModalClick"
     positive-text="确定"
     negative-text="关闭"
     @positive-click="submitCallback"
@@ -384,7 +385,7 @@ export default defineComponent({
   const show = ref(false)
   const outputSource= ref("")
   const outputTarget = ref("")
-  const checkedValue = ref(false)
+  const checkedValue = ref(true)
 
   const getAll = async() => {
     menuOptions.value = []
@@ -527,10 +528,9 @@ export default defineComponent({
   min-width: 400px;
 }
 
-/* .editor {
-  width: 100%;
-  height:80%;
-} */
+.editor:hover {
+  background-color: #182525;
+}
 
 .list-height {
   margin-top: 30px;
