@@ -75,6 +75,8 @@
       </n-layout-footer>
     </n-layout>
   </n-spin>
+
+  <!-----whisper模型下载模态框------>
   <n-modal :show="showModal" >
     <n-card
       style="width: 700px"
@@ -106,6 +108,20 @@
     </n-card>
   </n-modal>
 
+  <n-modal
+    style="width: 300px;height: 300px"
+    v-model:show = "state.showQrCodeModal" 
+    preset="dialog"
+    :show-icon="false"
+    :title="'墨滴第三方平台扫码登录'"
+  >
+    <div class="modal-center">
+      <img :src="state.qrCodeUrl" style="width: 200px; height: 200px;" />
+      <div style="margin-top: 10px;">本二维码由墨滴平台生成</div>
+    </div>
+  </n-modal>
+
+  <!---区间图片选择------>
   <n-modal 
     style="width:680px;"
     v-model:show = "state.showImageModal" 
@@ -119,11 +135,14 @@
     @negative-click="cancelCallback"
     >
       <n-scrollbar style="max-height: 500px; margin-top: 20px;margin-left:10px;">
-        <n-grid x-gap="12" y-gap="12" :cols="3">
-          <n-gi v-for="item in state.imageList" :key="item.file" >
-            <img :src="item.data" :alt="item.file" style="height: 100px; border-radius: 5px;" />
-          </n-gi>
-        </n-grid>
+        <n-checkbox-group v-model:value="state.checkImageList">
+          <n-grid x-gap="12" y-gap="12" :cols="3">
+            <n-gi v-for="item in state.imageList" :key="item.file" >
+              <img :src="item.base64" :alt="item.file" style="height: 100px; border-radius: 5px;" />
+              <n-checkbox :value="item.file"  />
+            </n-gi>
+          </n-grid>
+      </n-checkbox-group>
       </n-scrollbar>
   </n-modal>
   <n-drawer v-model:show="active" :width="502" :placement="'right'">
@@ -172,16 +191,21 @@ export default defineComponent({
 <script setup lang="ts">
   import { ref , h, reactive, onMounted, onBeforeUnmount, shallowRef } from 'vue'
   import { ipcRenderer } from 'electron'
-  import { NButton, NInput, NSwitch, NLayout, NLayoutSider, NLayoutContent, NMenu, NIcon, useMessage, useModal, NModal, NCard } from 'naive-ui';
+  import { NButton, NInput, NSwitch, NLayout, NLayoutSider, NLayoutContent, NMenu, NIcon, useMessage, useModal, NModal, NCard, NCheckboxGroup, NCheckbox } from 'naive-ui';
   import {  
     VideocamOutline as BookIcon
 } from '@vicons/ionicons5'
 
-  import { get, all } from "../../sqlite3"
+  import { get, all } from '../../sqlite3';
   import { GoogleGenerativeAI } from "@google/generative-ai"
   import Quill, { QuillOptions } from 'quill';
   import "quill/dist/quill.core.css";
   import "quill/dist/quill.snow.css";
+  import { createQrCode, checkLogin, upload } from '@/utils/request';
+  import { useStorage } from "@vueuse/core";
+  import { getUserSelf } from '../../utils/request';
+
+  const cacheState: any = useStorage("token", {});
 
   const options: QuillOptions = {
     debug: 'info',
@@ -194,8 +218,23 @@ export default defineComponent({
 
   const quill = ref<Quill>()
 
+  const submitCallback = async() => {
+    console.log(state.checkImageList, "checkImageList");
+    state.checkImageList.forEach(async(item: any) => {
+      console.log(item, "item")
 
-  const submitCallback = () => {
+      const data = state.imageList.filter(a => a.file === item);
+      console.log(data, "data")
+      console.log(data[0].data, "data")
+      const response =  await upload(data[0].base64);
+      console.log(response, "response- string")
+      if(response.status == 200) {
+        const selectionText = editorRef.value.getSelectionText();
+        editorRef.value.insertText(selectionText)
+        editorRef.value.insertText(response.data.data)
+      }
+    })
+  
     console.log('submitCallback')
   }
 
@@ -205,17 +244,13 @@ export default defineComponent({
   }
 
   // 内容 HTML
-  const valueHtml = ref('<p>hello</p>')
+  const valueHtml = ref('')
 
   const closeImageModalClick = () => {
     console.log('closeImageModalClick')
     state.showImageModal = false
   }
-  onMounted(() => {
-
-    setTimeout(() => {
-          valueHtml.value = '<p>模拟 Ajax 异步设置内容</p>'
-    }, 1500)
+  onMounted(async() => {
     // quill.value = new Quill('#editor',options)
   })
 
@@ -240,6 +275,7 @@ export default defineComponent({
   const timeout = ref(60000)
   const active = ref(false)
   const source = ref(null)
+  const intervalId = ref<any>();
 
   // 编辑器实例，必须用 shallowRef
   const editorRef = shallowRef()
@@ -252,8 +288,12 @@ export default defineComponent({
     rightMenuList: [],
     showMenu: false,
     showImageModal: false,
+    qrCodeUrl: "",
+    sceneStr: "",
+    showQrCodeModal: false,
     currentVideoRow: {},
     imageList: [],
+    checkImageList: [],
     everyStartTime : "",
     everyEndTime: "",
     menuOptions: {
@@ -292,12 +332,44 @@ export default defineComponent({
   //   }
   // })
 
-  const rightContextMenuClick = (item: any) => {
+  const rightContextMenuClick = async (item: any) => {
     console.log(item, "item=====item")
     if(item.label === "获取图片") {
-      state.showImageModal = true
+      console.log(cacheState, "cacheState")
+      if(!cacheState.value?.token) {
+        const result = await createQrCode();
+        console.log(result, "result")
+        if(result.status === 200) {
+          state.showQrCodeModal = true
+          state.qrCodeUrl = result.data.data.qrCode
+          state.sceneStr = result.data.data.sceneStr
+          console.log(state.qrCodeUrl, state.sceneStr,"state/qrCodeUrl")
+          intervalId.value = setInterval( async() => {
+            await checkLoginApi()
+          }, 2000);
+        }
+      } else {
+        state.showImageModal = true
+      }
+
       state.imageList = []
       ipcRenderer.send('call-image-ffmpeg', state.currentVideoRow.FolderDate, state.everyStartTime, state.everyEndTime);
+    }
+  }
+
+  const checkLoginApi = async() => {
+    if(state.sceneStr) {
+      const response = await checkLogin(state.sceneStr)
+      if(response.data.data) {
+        console.log(response.data.data, 'response.data.data')
+        clearInterval(intervalId.value)
+        state.showQrCodeModal = false
+        state.showImageModal = true
+        // useStorage("token", response.data.data);
+        cacheState.value = response.data.data;
+        const userInfo = await getUserSelf()
+        console.log(userInfo, "userSelf")
+      }
     }
   }
 
@@ -466,7 +538,8 @@ export default defineComponent({
 
     var image = {
       file: file,
-      data: 'data:image/png;base64,' + data.toString('base64')
+      base64: 'data:image/png;base64,' + data.toString('base64'),
+      data: data.toString('base64')
     }
 
     state.imageList.push(image);
@@ -584,5 +657,13 @@ export default defineComponent({
 :deep(.w-e-text-container) {
   background-color: #28282c;
   color: white;
+}
+
+.modal-center {
+  display: flex;
+  margin: 10px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 </style>

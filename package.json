@@ -34,6 +34,8 @@
   "devDependencies": {
     "@types/node": "^20.5.7",
     "@vitejs/plugin-vue": "^4.3.4",
+    "@vueuse/core": "^10.9.0",
+    "axios": "^1.6.8",
     "electron": "^26.1.0",
     "electron-builder": "^24.13.3",
     "quill": "^2.0.0",
