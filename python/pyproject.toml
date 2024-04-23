@@ -1,9 +1,14 @@
 [tool.poetry]
-name = "cv"
+name = "removeduplicateimages"
 version = "0.1.0"
-description = ""
+description = "去除重复图片"
 authors = ["刘启明 <455043818@qq.com>"]
+license = "MIT"
 readme = "README.md"
+
+[[tool.poetry.source]]
+name = "aliyun"
+url = "https://mirrors.aliyun.com/pypi/simple"
 
 [tool.poetry.dependencies]
 python = "^3.11"

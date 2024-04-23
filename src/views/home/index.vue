@@ -1,5 +1,5 @@
 <template>
-  <n-spin :show="show" description="正在下载请稍后......">
+  <n-spin :show="showPin" :description="state.loadingText">
     <n-layout>
       <n-layout-header class="header">
         <div>
@@ -134,6 +134,7 @@
     @positive-click="submitCallback"
     @negative-click="cancelCallback"
     >
+    <n-spin :show="state.showImagePin" :description="state.imageLoadingText">
       <n-scrollbar style="max-height: 500px; margin-top: 20px;margin-left:10px;">
         <n-checkbox-group v-model:value="state.checkImageList">
           <n-grid x-gap="12" y-gap="12" :cols="3">
@@ -144,6 +145,7 @@
           </n-grid>
       </n-checkbox-group>
       </n-scrollbar>
+    </n-spin>
   </n-modal>
   <n-drawer v-model:show="active" :width="502" :placement="'right'">
     <n-drawer-content title="系统设置">
@@ -255,7 +257,7 @@ export default defineComponent({
   })
 
   const toolbarConfig = {}
-  const editorConfig = { placeholder: '请输入内容...' }
+  const editorConfig = { placeholder: '这里是AI通过字幕转换后的文章内容...' }
 
   // 组件销毁时，也及时销毁编辑器
   onBeforeUnmount(() => {
@@ -288,6 +290,8 @@ export default defineComponent({
     rightMenuList: [],
     showMenu: false,
     showImageModal: false,
+    showImagePin: false,
+    imageLoadingText: "正在下载图片，并去除重复图片，请稍后...",
     qrCodeUrl: "",
     sceneStr: "",
     showQrCodeModal: false,
@@ -296,6 +300,7 @@ export default defineComponent({
     checkImageList: [],
     everyStartTime : "",
     everyEndTime: "",
+    loadingText: "",
     menuOptions: {
       zIndex: 3,
       minWidth: 230,
@@ -353,6 +358,8 @@ export default defineComponent({
       }
 
       state.imageList = []
+      state.showImagePin = true;
+      state.loadingText = "正在获取图片，并去除重复图片...";
       ipcRenderer.send('call-image-ffmpeg', state.currentVideoRow.FolderDate, state.everyStartTime, state.everyEndTime);
     }
   }
@@ -454,7 +461,7 @@ export default defineComponent({
   const modelList = ref<any[]>([]);
 
   const inverted = ref(false)
-  const show = ref(false)
+  const showPin = ref(false)
   const outputSource= ref("")
   const outputTarget = ref("")
   const checkedValue = ref(true)
@@ -509,8 +516,9 @@ export default defineComponent({
       message.warning("请输入视频链接")
       return;
     } 
-      show.value = true
-      ipcRenderer.send('call-yt-dlp', input.value, checkedValue.value)
+    showPin.value = true
+    state.loadingText = "正在下载请稍后..."
+    ipcRenderer.send('call-yt-dlp', input.value, checkedValue.value)
   }
 
   // 子进程定义方法
@@ -518,11 +526,11 @@ export default defineComponent({
     console.log(event, "event-ipcRenderer")
     if(!isSupport) {
       message.warning("不支持的视频链接")
-      show.value = false
+      showPin.value = false
       return;
     }
     outputSource.value = text;
-    show.value = false;
+    showPin.value = false;
     console.log("子进程接收到主进程的数据",outputSource.value);
     getAll();
   });
@@ -543,6 +551,7 @@ export default defineComponent({
     }
 
     state.imageList.push(image);
+    state.showImagePin = false;
   })
 
   ipcRenderer.on("reply-json", (event: any, text: string) => {

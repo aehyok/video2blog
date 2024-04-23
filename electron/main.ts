@@ -189,6 +189,11 @@ ipcMain.on("call-image-ffmpeg", async (event, folderDate, everyStartTime, everyE
     const cmd = `${authCmd} ${process.cwd()}\\command\\ffmpeg.exe -i ${videoPath} -ss ${everyStartTime} -t ${everyEndTime} -vf "fps=1" ${imagePath}\\output_image%03d.png`;
     console.log(cmd, 'cmd')
     execSync(cmd);
+
+    // 生成完图片再对图片进行去重复
+
+    const cvString = `${authCmd} ${process.cwd()}\\command\\RemoveDuplicateImages.exe ${imagePath}`;
+    execSync(cvString);
   }
 
   fs.readdir(imagePath, (err, files) => {

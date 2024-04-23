@@ -29,7 +29,7 @@ def deleteSimilarImagesInSequence(folder_path):
       current_image_path = os.path.join(folder_path, images[j])  # 获取当前列表中的图片路径
       current_image_hash = get_image_hash(current_image_path)
 
-      if abs(hamming_distance(select_image_hash, current_image_hash)) < 30:
+      if abs(hamming_distance(select_image_hash, current_image_hash)) < 15:
         os.remove(current_image_path)  # 删除图片
         images.remove(images[j])  # 从列表中移除已删除的图片
       else:

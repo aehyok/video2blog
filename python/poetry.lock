@@ -45,6 +45,11 @@ files = [
     {file = "numpy-1.26.4.tar.gz", hash = "sha256:2a02aba9ed12e4ac4eb3ea9421c420301a0c6460d9830d74a9df87efa4912010"},
 ]
 
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
+
 [[package]]
 name = "opencv-python"
 version = "4.9.0.80"
@@ -67,7 +72,12 @@ numpy = [
     {version = ">=1.23.5", markers = "python_version >= \"3.11\" and python_version < \"3.12\""},
 ]
 
+[package.source]
+type = "legacy"
+url = "https://mirrors.aliyun.com/pypi/simple"
+reference = "aliyun"
+
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "88d305dfd1d9b54934c8f183b14532b9a6ee6a55fa711ae3ad0fa05711c37272"
+content-hash = "2e1b5c23dd515bcad8745e7e3aa6367b7b8ab3dc5bf505c144106d7c2f81635c"
