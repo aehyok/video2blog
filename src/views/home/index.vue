@@ -42,30 +42,23 @@
                 type="textarea"
                 ref="source"
                 class="textarea"
-                placeholder="这里是原始字幕..."
+                placeholder="这里是原始字幕"
                 @contextmenu="onContextMenu($event,'textarea')"
               >
               </n-input>
             </n-gi>
             <n-gi :span="16">
-              <!-- <div id="editor" class="editor" @contextmenu="onContextMenu($event,'editor')"></div> -->
-              <div>
-                <Toolbar
-                  style="border-bottom: 1px solid #ccc"
-                  :editor="editorRef"
-                  :defaultConfig="toolbarConfig"
-                  :mode="'simple'"
-                />
-                <Editor
-                  style="height: calc(100vh - 200px); overflow-y: hidden;"
-                  v-model="valueHtml"
-                  :defaultConfig="editorConfig"
-                  :mode="'simple'"
-                  class="editor"
-                  @contextmenu="onContextMenu($event,'editor')"
-                  @onCreated="handleCreated"
-                />
-              </div>
+              <MdEditor v-model="outputTarget"  theme='dark' ref="target" class="textarea" placeholder="这里将是AI生成的文章..."  @contextmenu="onContextMenu($event,'editor')"/>
+              <!-- <n-input
+                v-model:value="outputTarget"
+                type="textarea"
+                ref="target"
+                class="textarea"
+                @select="onSelect"
+                placeholder="这里将是AI生成的文章..."
+                @contextmenu="onContextMenu($event,'editor')"
+              >
+              </n-input> -->
             </n-gi>
           </n-grid>
         </n-layout-content>
@@ -175,8 +168,6 @@ import { defineComponent } from 'vue'
 
 //导入组件
 import { ContextMenu, ContextMenuGroup, ContextMenuSeparator, ContextMenuItem } from '@imengyu/vue3-context-menu';
-import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
-import '@wangeditor/editor/dist/css/style.css' // 引入 css
 export default defineComponent({
   //注册组件
   components: {
@@ -184,14 +175,12 @@ export default defineComponent({
     ContextMenuGroup,
     ContextMenuSeparator,
     ContextMenuItem,
-    Editor, 
-    Toolbar
   },
   //省略其他代码
 });
 </script>
 <script setup lang="ts">
-  import { ref , h, reactive, onMounted, onBeforeUnmount, shallowRef } from 'vue'
+  import { ref , h, reactive, shallowRef, watch } from 'vue'
   import { ipcRenderer } from 'electron'
   import { NButton, NInput, NSwitch, NLayout, NLayoutSider, NLayoutContent, NMenu, NIcon, useMessage, useModal, NModal, NCard, NCheckboxGroup, NCheckbox } from 'naive-ui';
   import {  
@@ -200,25 +189,16 @@ export default defineComponent({
 
   import { get, all } from '../../sqlite3';
   import { GoogleGenerativeAI } from "@google/generative-ai"
-  import Quill, { QuillOptions } from 'quill';
-  import "quill/dist/quill.core.css";
-  import "quill/dist/quill.snow.css";
   import { createQrCode, checkLogin, upload } from '@/utils/request';
   import { useStorage } from "@vueuse/core";
   import { getUserSelf } from '../../utils/request';
+  import markdownit from "markdown-it"
+  import { MdEditor } from 'md-editor-v3';
+  import 'md-editor-v3/lib/style.css';
+  
+  const md = markdownit();
 
   const cacheState: any = useStorage("token", {});
-
-  const options: QuillOptions = {
-    debug: 'info',
-    modules: {
-      toolbar: true,
-    },
-    placeholder: 'Compose an epic...',
-    theme: 'snow'
-  };
-
-  const quill = ref<Quill>()
 
   const submitCallback = async() => {
     console.log(state.checkImageList, "checkImageList");
@@ -245,29 +225,10 @@ export default defineComponent({
     state.showImageModal = false
   }
 
-  // 内容 HTML
-  const valueHtml = ref('')
 
   const closeImageModalClick = () => {
     console.log('closeImageModalClick')
     state.showImageModal = false
-  }
-  onMounted(async() => {
-    // quill.value = new Quill('#editor',options)
-  })
-
-  const toolbarConfig = {}
-  const editorConfig = { placeholder: '这里是AI通过字幕转换后的文章内容...' }
-
-  // 组件销毁时，也及时销毁编辑器
-  onBeforeUnmount(() => {
-      const editor = editorRef.value
-      if (editor == null) return
-      editor.destroy()
-  })
-
-  const handleCreated = (editor) => {
-    editorRef.value = editor // 记录 editor 实例，重要！
   }
 
   const message = useMessage();
@@ -277,7 +238,12 @@ export default defineComponent({
   const timeout = ref(60000)
   const active = ref(false)
   const source = ref(null)
+  const target = ref(null)
   const intervalId = ref<any>();
+
+  const onSelect = () => {
+    console.log(target.value, "test");
+  } 
 
   // 编辑器实例，必须用 shallowRef
   const editorRef = shallowRef()
@@ -395,14 +361,18 @@ export default defineComponent({
     }
 
     if(type === 'editor') {
+      console.log(e, "dedgfgege")
       // const selectionText = quill.value?.getSelection()
       // console.log(selectionText, 'selectionText')
-      const selectionText = editorRef.value.getSelectionText();
-      editorRef.value.insertText(selectionText)
+      const selectionText = target.value?.getSelectedText()
+      // editorRef.value.insertText(selectionText)
       // editorRef.value.insertText("\nhello world")
 
-      const regExp =   /\((\d{2}:\d{2}:\d{2}\.\d{3}) .* (\d{2}:\d{2}:\d{2}\.\d{3})\)/;
+      // /\[(\d{2}:\d{2}:\d{2}\.\d{3}) .* (\d{2}:\d{2}:\d{2}\.\d{3})\]/
+      const regExp =   /(\d{2}:\d{2}:\d{2}\.\d{3}) .* (\d{2}:\d{2}:\d{2}\.\d{3})/;
       const match = regExp.exec(selectionText);
+
+      target.value.insert("1111111111")
       console.log(match, "match");
       if (match) {
           state.everyStartTime = match[1];
@@ -462,7 +432,7 @@ export default defineComponent({
 
   const inverted = ref(false)
   const showPin = ref(false)
-  const outputSource= ref("")
+  const outputSource = ref("")
   const outputTarget = ref("")
   const checkedValue = ref(true)
 
@@ -496,16 +466,9 @@ export default defineComponent({
     const row: any = await get(`select * from ParsingVideo where Id = ?`, key);
     console.log(row, 'row', row.FolderDate)
     outputSource.value = row.SourceSubtitles
+    outputTarget.value = row.TargetSubtitles
+
     state.currentVideoRow = row
-
-    if(quill?.value) {
-      // quill.value.setText((row.TargetSubtitles))
-      // quill.value.setText("hello world \n");
-    }
-
-    valueHtml.value = row.TargetSubtitles
-
-    console.log(outputTarget.value, 'outputTarget')
   }
 
   // 点击获取字幕
@@ -558,6 +521,20 @@ export default defineComponent({
     console.log(text, 'text-text', event)
     outputSource.value = text
   })
+
+  const renderMarkdown = ref("")
+
+  watch(outputTarget, (newValue: any, oldValue: any) => {
+    console.log("watch----output",newValue)
+    if(newValue){
+      console.log(newValue.value, "newValue.value")
+      renderMarkdown.value = md.render(newValue);
+      console.log(renderMarkdown.value, "renderMarkdown.value")
+    }
+  }, 
+  {
+    immediate: true
+  })
 </script>
 <style scoped>
 .logo {
@@ -596,6 +573,12 @@ export default defineComponent({
   height:calc(100vh - 120px);
   margin-right: 40px;
   position: relative;
+}
+
+.render-html{
+  height:calc(100vh - 120px);
+  position: relative;
+  overflow: auto;
 }
 
 :deep(.ql-toolbar.ql-snow){
@@ -668,6 +651,9 @@ export default defineComponent({
   color: white;
 }
 
+:deep(.md-editor-toolbar-wrapper) {
+  display: none;
+}
 .modal-center {
   display: flex;
   margin: 10px;
