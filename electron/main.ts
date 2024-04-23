@@ -1,7 +1,6 @@
 import path from "path";
 import { exec, execSync } from "child_process";
 import { connect, get, run } from "./sqlite3";
-// import {PythonShell} from 'python-shell';
 import fs from "fs-extra";
 import { app, BrowserWindow, ipcMain } from "electron";
 import { format } from "date-fns";
