@@ -36,7 +36,7 @@
         </n-layout-sider>
         <n-layout-content content-style="margin-left:20px">
           <n-grid :cols="24" x-gap="12">
-            <n-gi :span="8">
+            <n-gi :span="6">
               <n-input
                 v-model:value="outputSource"
                 type="textarea"
@@ -47,18 +47,8 @@
               >
               </n-input>
             </n-gi>
-            <n-gi :span="16">
+            <n-gi :span="18">
               <MdEditor v-model="outputTarget"  theme='dark' ref="target" class="textarea" placeholder="这里将是AI生成的文章..."  @contextmenu="onContextMenu($event,'editor')"/>
-              <!-- <n-input
-                v-model:value="outputTarget"
-                type="textarea"
-                ref="target"
-                class="textarea"
-                @select="onSelect"
-                placeholder="这里将是AI生成的文章..."
-                @contextmenu="onContextMenu($event,'editor')"
-              >
-              </n-input> -->
             </n-gi>
           </n-grid>
         </n-layout-content>
@@ -192,32 +182,31 @@ export default defineComponent({
   import { createQrCode, checkLogin, upload } from '@/utils/request';
   import { useStorage } from "@vueuse/core";
   import { getUserSelf } from '../../utils/request';
-  import markdownit from "markdown-it"
   import { MdEditor } from 'md-editor-v3';
   import 'md-editor-v3/lib/style.css';
-  
-  const md = markdownit();
 
   const cacheState: any = useStorage("token", {});
 
   const submitCallback = async() => {
     console.log(state.checkImageList, "checkImageList");
     state.checkImageList.forEach(async(item: any) => {
-      console.log(item, "item")
-
-      const data = state.imageList.filter(a => a.file === item);
-      console.log(data, "data")
-      console.log(data[0].data, "data")
-      const response =  await upload(data[0].base64);
-      console.log(response, "response- string")
+      const data = state.imageList.find(a => a.file === item);
+      const response =  await upload(data.base64);
       if(response.status == 200) {
-        const selectionText = editorRef.value.getSelectionText();
-        editorRef.value.insertText(selectionText)
-        editorRef.value.insertText(response.data.data)
+        target.value.insert((selectedContent: any) => {
+          const imagenode =  `![](${response.data.data})`;
+          return {
+            // 要插入的文本
+            targetValue: `${selectedContent}\n ${imagenode}`,
+            select: true,
+            deviationStart: 0,
+            deviationEnd: 0
+          };
+        })
+
+        state.checkImageList = []
       }
     })
-  
-    console.log('submitCallback')
   }
 
   const cancelCallback = () => {
@@ -238,7 +227,7 @@ export default defineComponent({
   const timeout = ref(60000)
   const active = ref(false)
   const source = ref(null)
-  const target = ref(null)
+  const target = ref<any>(null)
   const intervalId = ref<any>();
 
   const onSelect = () => {
@@ -361,10 +350,10 @@ export default defineComponent({
     }
 
     if(type === 'editor') {
-      console.log(e, "dedgfgege")
+      console.log(target.value, "dedgfgege")
       // const selectionText = quill.value?.getSelection()
       // console.log(selectionText, 'selectionText')
-      const selectionText = target.value?.getSelectedText()
+      const selectionText = target.value.getSelectedText()
       // editorRef.value.insertText(selectionText)
       // editorRef.value.insertText("\nhello world")
 
@@ -372,7 +361,6 @@ export default defineComponent({
       const regExp =   /(\d{2}:\d{2}:\d{2}\.\d{3}) .* (\d{2}:\d{2}:\d{2}\.\d{3})/;
       const match = regExp.exec(selectionText);
 
-      target.value.insert("1111111111")
       console.log(match, "match");
       if (match) {
           state.everyStartTime = match[1];
@@ -522,19 +510,6 @@ export default defineComponent({
     outputSource.value = text
   })
 
-  const renderMarkdown = ref("")
-
-  watch(outputTarget, (newValue: any, oldValue: any) => {
-    console.log("watch----output",newValue)
-    if(newValue){
-      console.log(newValue.value, "newValue.value")
-      renderMarkdown.value = md.render(newValue);
-      console.log(renderMarkdown.value, "renderMarkdown.value")
-    }
-  }, 
-  {
-    immediate: true
-  })
 </script>
 <style scoped>
 .logo {
