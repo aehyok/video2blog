@@ -3,8 +3,8 @@
  */
 {
   "appId": "aehyok",
-  "asar": false,
-  "productName": "通用小工具",
+  "asar": true,
+  "productName": "Video2Blog",
   "copyright": "Copyright © 2024 ${author}",
   "directories": {
     "output": "release/${version}"
@@ -18,13 +18,12 @@
     "dist-electron"
   ],
   "win": {
-    "target": [
-      {
-        "target": "nsis",
-        "arch": ["x64"]
-      }
-    ],
-    "artifactName": "${productName}-Windows-${version}-Setup.${ext}"
+        "target": [
+            "nsis"
+        ],
+    "verifyUpdateCodeSignature": false,  // 这里如果不设置为false，后续更新的时候会验证签名，所以需要设置为false
+    "artifactName": "${productName}-Windows-${version}-Setup.${ext}",
+    "icon": "public/video2blog.ico"
   },
   "nsis": {
     "oneClick": false,

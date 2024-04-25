@@ -9,9 +9,7 @@
     "start-win": "chcp 65001 && vite",
     "build-win": "chcp 65001 && vite build && electron-builder",
     "start-mac": "vite",
-    "build-mac": "vite build && electron-builder",
-    "chroma": "chroma run --path ./chroma",
-    "rebuild------": "electron-rebuild -f -w sqlite3"
+    "build": "vite build && electron-builder"
   },
   "dependencies": {
     "@google/generative-ai": "^0.1.3",
@@ -32,8 +30,9 @@
     "@vitejs/plugin-vue": "^4.3.4",
     "@vueuse/core": "^10.9.0",
     "axios": "^1.6.8",
-    "electron": "^26.1.0",
+    "electron": "^30.0.1",
     "electron-builder": "^24.13.3",
+    "lodash": "^4.17.21",
     "typescript": "^5.2.2",
     "vite": "^4.4.9",
     "vite-plugin-electron": "^0.14.0",
