@@ -48,5 +48,5 @@ jobs:
         with:
           token: ${{ secrets.RELEASE_TOKEN }}
           files: |
-            ./release/${{ github.ref }}/Video2Blog-Windows-${{ github.ref }}-Setup.exe
-            ./release/${{ github.ref }}/Video2Blog-Mac-${{ github.ref }}-Install.dmg
+            ./release/${{ github.ref#refs/tags/v }}/Video2Blog-Windows-${{ github.ref#refs/tags/v }}-Setup.exe
+            ./release/${{ github.ref#refs/tags/v }}/Video2Blog-Mac-${{ github.ref#refs/tags/v }}-Install.dmg
