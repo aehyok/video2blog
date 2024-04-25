@@ -194,11 +194,5 @@ OPENCV_BIN D:\opencv\build\x64\vc16\bin
 OPENCV_INCLUDE_DIR D:\opencv\build\include
 OPENCV_LIB_DIR D:\opencv\build\x64\vc16\bin
 ```
-
-## 图片去重
-- https://cloud.tencent.com/developer/article/2336846
-
-
-
 ## 安装poetry 来管理python包
 - https://juejin.cn/post/7337964441613287474?searchId=20240419174927096A3DB84F121D75E79C
