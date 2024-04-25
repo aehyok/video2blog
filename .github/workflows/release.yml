@@ -42,15 +42,15 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
 
-      - name: Extract tag name
-        id: tag
-        run: echo "::set-output name=tag_name::${GITHUB_REF#refs/tags/v}"
+      # - name: Extract tag name
+      #   id: tag
+      #   run: echo "::set-output name=tag_name::${GITHUB_REF#refs/tags/v}"
 
-      - name: Create release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          token: ${{ secrets.RELEASE_TOKEN }}
-          files: |
-            ./release/${{ steps.tag.outputs.tag_name }}/Video2Blog-Windows-${{ steps.tag.outputs.tag_name }}-Setup.exe
-            ./release/${{ steps.tag.outputs.tag_name }}/Video2Blog-Mac-${{ steps.tag.outputs.tag_name }}-Install.dmg
+      # - name: Create release
+      #   uses: softprops/action-gh-release@v1
+      #   if: startsWith(github.ref, 'refs/tags/')
+      #   with:
+      #     token: ${{ secrets.RELEASE_TOKEN }}
+      #     files: |
+      #       ./release/${{ steps.tag.outputs.tag_name }}/Video2Blog-Windows-${{ steps.tag.outputs.tag_name }}-Setup.exe
+      #       ./release/${{ steps.tag.outputs.tag_name }}/Video2Blog-Mac-${{ steps.tag.outputs.tag_name }}-Install.dmg
