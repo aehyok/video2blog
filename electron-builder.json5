@@ -36,7 +36,6 @@
   "mac": {
     "target": ["dmg"],
     "artifactName": "${productName}-Mac-${version}-Installer.${ext}",
-    "icon": "public/video2blog.ico",
     "extraResources":  {
       "from": "./command/mac/",
       "to": "command"
