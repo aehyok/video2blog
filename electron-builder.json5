@@ -21,7 +21,7 @@
     "target": ["nsis"],
     "verifyUpdateCodeSignature": false,  // 这里如果不设置为false，后续更新的时候会验证签名，所以需要设置为false
     "artifactName": "${productName}-Windows-${version}-Setup.${ext}",
-    "icon": "public/video2blog.ico"
+    "icon": "public/video2blog.ico",
     "extraResources":  {
       "from": "./command/win/",
       "to": "command"
@@ -36,6 +36,7 @@
   "mac": {
     "target": ["dmg"],
     "artifactName": "${productName}-Mac-${version}-Installer.${ext}",
+    "icon": "public/video2blog.ico",
     "extraResources":  {
       "from": "./command/mac/",
       "to": "command"
