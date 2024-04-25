@@ -42,11 +42,11 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.RELEASE_TOKEN }}
 
-    - name: Create release
-      uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
-      with:
-        token: ${{ secrets.RELEASE_TOKEN }}
-        files: |
-          ./release/${{ github.ref }}/Video2Blog-Windows-${{ github.ref }}-Setup.exe
-          ./release/${{ github.ref }}/Video2Blog-Windows-${{ github.ref }}-Install.dmg
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          token: ${{ secrets.RELEASE_TOKEN }}
+          files: |
+            ./release/${{ github.ref }}/Video2Blog-Windows-${{ github.ref }}-Setup.exe
+            ./release/${{ github.ref }}/Video2Blog-Mac-${{ github.ref }}-Install.dmg
