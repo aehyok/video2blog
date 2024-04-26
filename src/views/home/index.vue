@@ -11,8 +11,8 @@
           <n-button @click="testApi" size="small" type="primary" style="margin-left: 10px;">gemini</n-button> -->
         </div>
         <div style="margin-right:25px;">
-          <!-- <n-button @click="setClick" size="small" type="info" style="margin-left:10px;">设置</n-button>
-          <n-button @click="getHtml" size="small" type="info" style="margin-left:10px;">html</n-button> -->
+          <n-button @click="saveClick" size="small" type="success" style="margin-left:10px;">保存</n-button>
+          <!-- <n-button @click="getHtml" size="small" type="info" style="margin-left:10px;">html</n-button> -->
         </div>
       </n-layout-header>
       <n-layout has-sider content-style="padding: 24px;">
@@ -149,8 +149,9 @@
   <context-menu
     v-model:show="state.showMenu"
     :options="state.menuOptions"
+    v-if="state.rightMenuList.length > 0" 
   >
-    <context-menu-item v-for="item in state.rightMenuList" :key="item?.label" :label="item.label" @click="rightContextMenuClick(item)"></context-menu-item>
+    <context-menu-item  v-for="item in state.rightMenuList" :key="item?.label" :label="item.label" @click="rightContextMenuClick(item)"></context-menu-item>
   </context-menu>
 </template>
 <script lang="ts">
@@ -170,14 +171,14 @@ export default defineComponent({
 });
 </script>
 <script setup lang="ts">
-  import { ref , h, reactive, shallowRef, watch } from 'vue'
+  import { ref , h, reactive } from 'vue'
   import { ipcRenderer } from 'electron'
   import { NButton, NInput, NSwitch, NLayout, NLayoutSider, NLayoutContent, NMenu, NIcon, useMessage, useModal, NModal, NCard, NCheckboxGroup, NCheckbox } from 'naive-ui';
   import {  
     VideocamOutline as BookIcon
 } from '@vicons/ionicons5'
 
-  import { get, all } from '../../sqlite3';
+  import { get, all, run } from '../../sqlite3';
   import { GoogleGenerativeAI } from "@google/generative-ai"
   import { createQrCode, checkLogin, upload } from '@/utils/request';
   import { useStorage } from "@vueuse/core";
@@ -224,23 +225,11 @@ export default defineComponent({
   const modal = useModal();
 
   const showModal =ref(false)
-  const timeout = ref(60000)
   const active = ref(false)
   const source = ref(null)
   const target = ref<any>(null)
   const intervalId = ref<any>();
 
-  const onSelect = () => {
-    console.log(target.value, "test");
-  } 
-
-  // 编辑器实例，必须用 shallowRef
-  const editorRef = shallowRef()
-  
-  const getHtml = () => {
-    // const html = editor.value.getHTML();
-    // console.log(html, 'html')
-  } 
   const state = reactive({
     rightMenuList: [],
     showMenu: false,
@@ -280,17 +269,6 @@ export default defineComponent({
     const text = response.text();
     console.log(text,"response");
   }
-
-
-  // quill.value?.on("selection-change",(range: any, oldRange: any) => {
-  //   if (range && range.length === 0) {
-  //     const end = quill.value?.selection.getNativeRange().end;
-  //     const node = end.node;
-  //     if (node && node.data?.match(/^\uFEFF$/) && !node.nextSibling && end.offset === 0) {
-  //       quill.value.setSelection(range.index + 1, 0);
-  //     }
-  //   }
-  // })
 
   const rightContextMenuClick = async (item: any) => {
     console.log(item, "item=====item")
@@ -342,20 +320,14 @@ export default defineComponent({
    */
   const onContextMenu = (e: any, type: string) => {
     if(type === 'textarea') {
-      state.rightMenuList = [
-        { "label": "翻译的prompt设置"},
-        { "label": "将当前字幕翻译为英文"},
-        { "label": "将当前字幕翻译为中文"}
-      ]
+      // state.rightMenuList = [
+      //   { "label": "英文字母翻译为中文的prompt设置"},
+      //   { "label": "将当前字幕翻译为中文"}
+      // ]
     }
 
     if(type === 'editor') {
-      console.log(target.value, "dedgfgege")
-      // const selectionText = quill.value?.getSelection()
-      // console.log(selectionText, 'selectionText')
       const selectionText = target.value.getSelectedText()
-      // editorRef.value.insertText(selectionText)
-      // editorRef.value.insertText("\nhello world")
 
       // /\[(\d{2}:\d{2}:\d{2}\.\d{3}) .* (\d{2}:\d{2}:\d{2}\.\d{3})\]/
       const regExp =   /(\d{2}:\d{2}:\d{2}\.\d{3}) .* (\d{2}:\d{2}:\d{2}\.\d{3})/;
@@ -382,15 +354,23 @@ export default defineComponent({
     state.showMenu = true
   }
 
-  const countdown = () => {
-      if (timeout.value <= 0) {
-        showModal.value = false
-      } else {
-        timeout.value -= 1000
-        setTimeout(countdown, 1000)
-      }
-    }
+  const saveClick = async() => {
+    console.log("保存按钮")
 
+    if(state.currentVideoRow.Id) {
+      const updateSql = `
+        UPDATE ParsingVideo
+        SET SourceSubtitles = $1, TargetSubtitles = $2
+        WHERE Id = $3
+      `;
+     const result = await run(updateSql, [outputSource.value, outputTarget.value, state.currentVideoRow.Id]);
+     if(!result) {
+      console.log(result, "result")
+      message.success("保存成功")
+     }
+    }
+  }
+    
   const setClick = () => {
     active.value = true
     state.showMenu = true
@@ -399,7 +379,6 @@ export default defineComponent({
   const modalClick = async() => {
     await getWhisperModelList()
     showModal.value = true
-    countdown()
     modal.create({
       title: '模态框',
       content: '内容',
