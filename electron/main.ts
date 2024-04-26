@@ -58,10 +58,10 @@ function createWindow() {
     icon: path.join(process.env.VITE_PUBLIC, "logo.svg"),
     webPreferences: {
       preload: path.join(__dirname, "./preload.js"),
-      nodeIntegrationInWorker: true,
+      nodeIntegrationInWorker: true, // 则在Web Worker中允许使用Node.js
       contextIsolation: false,
-      nodeIntegration: true,
-      webSecurity: false, // Allow Ajax cross
+      nodeIntegration: true, //渲染进程中允许使用Node.js
+      webSecurity: false, // 禁用了一些安全策略，例如跨源资源共享（CORS）和同源策略（SOP），允许跨域请求。
     },
   });
 
@@ -72,7 +72,7 @@ function createWindow() {
 
   if (process.env.VITE_DEV_SERVER_URL) {
     win.loadURL(process.env.VITE_DEV_SERVER_URL);
-    win.webContents.openDevTools();
+    // win.webContents.openDevTools();
   } else {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(process.env.DIST, "index.html"));
