@@ -7,12 +7,12 @@
           <n-switch v-model:value="checkedValue"/>
           <span class="right">同时下载视频</span>
           <n-button @click="SubtitleClick" size="small" type="primary">获取视频字幕文件</n-button>
-          <n-button @click="modalClick" size="small" type="primary" style="margin-left:10px;">下载模型</n-button>
-          <n-button @click="testApi" size="small" type="primary" style="margin-left: 10px;">gemini</n-button>
+          <!-- <n-button @click="modalClick" size="small" type="primary" style="margin-left:10px;">下载模型</n-button>
+          <n-button @click="testApi" size="small" type="primary" style="margin-left: 10px;">gemini</n-button> -->
         </div>
         <div style="margin-right:25px;">
-          <n-button @click="setClick" size="small" type="info" style="margin-left:10px;">设置</n-button>
-          <n-button @click="getHtml" size="small" type="info" style="margin-left:10px;">html</n-button>
+          <!-- <n-button @click="setClick" size="small" type="info" style="margin-left:10px;">设置</n-button>
+          <n-button @click="getHtml" size="small" type="info" style="margin-left:10px;">html</n-button> -->
         </div>
       </n-layout-header>
       <n-layout has-sider content-style="padding: 24px;">
