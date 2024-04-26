@@ -121,9 +121,9 @@
       <n-scrollbar style="max-height: 500px; margin-top: 20px;margin-left:10px;">
         <n-checkbox-group v-model:value="state.checkImageList">
           <n-grid x-gap="12" y-gap="12" :cols="3">
-            <n-gi v-for="item in state.imageList" :key="item.file" >
-              <img :src="item.base64" :alt="item.file" style="height: 100px; border-radius: 5px;" />
-              <n-checkbox :value="item.file"  />
+            <n-gi v-for="item in state.imageList" :key="item.file" style="height: 100px; position: relative;" >
+              <img :src="item.base64" :alt="item.file" style="height: 100%; border-radius: 5px;" />
+              <n-checkbox :value="item.file" style="position: absolute; top: 4px; right: 28px; z-index: 1;"  />
             </n-gi>
           </n-grid>
       </n-checkbox-group>
@@ -635,5 +635,8 @@ export default defineComponent({
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+:deep(.n-checkbox .n-checkbox-box .n-checkbox-box__border){
+  border: 2px solid #63e2b7;
 }
 </style>
