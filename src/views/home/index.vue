@@ -31,6 +31,7 @@
           :collapsed-icon-size="20"
           :options="menuOptions"
           @update:value = "onMenuChange"
+          :default-value="defaultKey"
           class="menu-border"
         />
         </n-layout-sider>
@@ -215,7 +216,6 @@ export default defineComponent({
     state.showImageModal = false
   }
 
-
   const closeImageModalClick = () => {
     console.log('closeImageModalClick')
     state.showImageModal = false
@@ -229,6 +229,7 @@ export default defineComponent({
   const source = ref(null)
   const target = ref<any>(null)
   const intervalId = ref<any>();
+  const defaultKey = ref("")
 
   const state = reactive({
     rightMenuList: [],
@@ -272,7 +273,11 @@ export default defineComponent({
 
   const rightContextMenuClick = async (item: any) => {
     console.log(item, "item=====item")
-    if(item.label === "获取图片") {
+    if(item.code === "srt2blog") {
+      message.warning("prompt设置")
+    }
+
+    if(item.code === "getImage") {
       console.log(cacheState, "cacheState")
       if(!cacheState.value?.token) {
         const result = await createQrCode();
@@ -320,10 +325,13 @@ export default defineComponent({
    */
   const onContextMenu = (e: any, type: string) => {
     if(type === 'textarea') {
-      // state.rightMenuList = [
-      //   { "label": "英文字母翻译为中文的prompt设置"},
-      //   { "label": "将当前字幕翻译为中文"}
-      // ]
+
+      if(outputSource.value) {
+          state.rightMenuList = [
+            { "label": "字幕内容转换为博文的初始化prompt", code: "srt2blog"},
+          // { "label": "将当前字幕翻译为中文"}
+          ]
+      }
     }
 
     if(type === 'editor') {
@@ -345,7 +353,7 @@ export default defineComponent({
       console.log(selectionText, "selectionText")
 
       state.rightMenuList = [
-        { "label": "获取图片"},
+        { "label": "获取图片", code: "getImage"},
       ]
     }
     e.preventDefault();
@@ -405,13 +413,16 @@ export default defineComponent({
   const outputTarget = ref("")
   const checkedValue = ref(true)
 
-  const getAll = async() => {
+  const getAll = async(input: string) => {
     menuOptions.value = []
     const rows: any[] = await all("select Id, Title, Path, SourceSubtitles, TargetSubtitles, CreateTime, LocationVideoPath From ParsingVideo order by CreateTime desc", []);
 
     console.log(rows, 'home页面获取数据')
     
     rows.forEach((item: any) => {
+      if(input === item.Id) {
+        defaultKey.value = item.Id
+      }
       const data = {
         key: item.Id,
         label: item.Title,
@@ -429,7 +440,7 @@ export default defineComponent({
     modelList.value = rows;
   }
 
-  getAll()
+  getAll("")
   const onMenuChange = async(key: string, item: any) => {
     console.log("onMenuChange", key, item)
     const row: any = await get(`select * from ParsingVideo where Id = ? `, key);
@@ -467,7 +478,7 @@ export default defineComponent({
     }
     outputSource.value = text;
     showPin.value = false;
-    getAll();
+    getAll(input.value);
   });
 
   ipcRenderer.on("call-image-ffmpeg-render", (event: any, { file, data }) => {

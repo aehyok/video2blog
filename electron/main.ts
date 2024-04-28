@@ -177,7 +177,6 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
   }
 });
 
-
 // 获取时间区间的视频帧图片列表（先生成再说）
 ipcMain.on("call-image-ffmpeg", async (event, folderDate, everyStartTime, everyEndTime)=> {
 
