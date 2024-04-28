@@ -407,7 +407,7 @@ export default defineComponent({
 
   const getAll = async() => {
     menuOptions.value = []
-    const rows: any[] = await all("select Id, Title, Path, Type, SourceSubtitles, TargetSubtitles, CreateTime, LocationVideoPath From ParsingVideo order by CreateTime desc", []);
+    const rows: any[] = await all("select Id, Title, Path, SourceSubtitles, TargetSubtitles, CreateTime, LocationVideoPath From ParsingVideo order by CreateTime desc", []);
 
     console.log(rows, 'home页面获取数据')
     
