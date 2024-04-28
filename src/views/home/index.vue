@@ -48,7 +48,7 @@
               </n-input>
             </n-gi>
             <n-gi :span="18">
-              <MdEditor v-model="outputTarget"  theme='dark' ref="target" class="textarea" placeholder="这里将是AI生成的文章..."  @contextmenu="onContextMenu($event,'editor')"/>
+              <MdEditor v-model="outputTarget"  theme='dark' ref="target" class="textarea" placeholder="这里将是AI生成的文章（右侧区域为预览区）..."  @contextmenu="onContextMenu($event,'editor')"/>
             </n-gi>
           </n-grid>
         </n-layout-content>
@@ -368,6 +368,8 @@ export default defineComponent({
       console.log(result, "result")
       message.success("保存成功")
      }
+    } else {
+      message.warning("请先选择要编辑的视频")    
     }
   }
     
@@ -388,7 +390,7 @@ export default defineComponent({
 
 
   message.success("欢迎使用aehyok字幕下载器")
-  const input = ref("https://youtu.be/dIyQl99oxlg?si=fwfuC2lLkxG_Fgpd");
+  const input = ref("https://twitter.com/i/status/1784184434796949774");
 
   function renderIcon (icon: any) {
     return () => h(NIcon, null, { default: () => h(icon) })
@@ -405,7 +407,7 @@ export default defineComponent({
 
   const getAll = async() => {
     menuOptions.value = []
-    const rows: any[] = await all("select Id, Title, Path, Type, SourceSubtitles, TargetSubtitles, CreateTime, LocationVideoPath From ParsingVideo ", []);
+    const rows: any[] = await all("select Id, Title, Path, Type, SourceSubtitles, TargetSubtitles, CreateTime, LocationVideoPath From ParsingVideo order by CreateTime desc", []);
 
     console.log(rows, 'home页面获取数据')
     
@@ -430,7 +432,7 @@ export default defineComponent({
   getAll()
   const onMenuChange = async(key: string, item: any) => {
     console.log("onMenuChange", key, item)
-    const row: any = await get(`select * from ParsingVideo where Id = ?`, key);
+    const row: any = await get(`select * from ParsingVideo where Id = ? `, key);
     console.log(row, 'row', row.FolderDate)
     outputSource.value = row.SourceSubtitles
     outputTarget.value = row.TargetSubtitles
@@ -459,9 +461,12 @@ export default defineComponent({
       showPin.value = false
       return;
     }
+
+    if(text === "") {
+      message.warning("下载成功，不存在字幕文件")
+    }
     outputSource.value = text;
     showPin.value = false;
-    console.log("子进程接收到主进程的数据",outputSource.value);
     getAll();
   });
 
@@ -527,6 +532,7 @@ export default defineComponent({
   height:calc(100vh - 120px);
   margin-right: 40px;
   position: relative;
+  background-color: #18181c;
 }
 
 .render-html{
@@ -560,7 +566,6 @@ export default defineComponent({
 }
 
 .menu-border {
-  height: calc(100vh - 320px);
   padding-top: 10px;
   overflow-x: auto; 
 }
@@ -617,5 +622,9 @@ export default defineComponent({
 }
 :deep(.n-checkbox .n-checkbox-box .n-checkbox-box__border){
   border: 2px solid #63e2b7;
+}
+
+:deep(.ͼ1 .cm-scroller) {
+  background-color: #18181c;
 }
 </style>

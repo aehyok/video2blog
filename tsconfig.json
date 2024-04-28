@@ -9,7 +9,9 @@
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
-
+    "paths": {
+      "@/*": ["src/*"]
+    },
 
     "useDefineForClassFields": true,
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
