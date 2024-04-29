@@ -55,7 +55,7 @@
         </n-layout-content>
       </n-layout>
       <n-layout-footer :inverted="inverted" bordered class="footer">
-          Powered by aehyok v0.0.1 Copyright © 2024 -  All right reserved.
+          Powered by aehyok v{{ version }} Copyright © 2024 -  All right reserved.
       </n-layout-footer>
     </n-layout>
   </n-spin>
@@ -186,7 +186,11 @@ export default defineComponent({
   import { getUserSelf } from '../../utils/request';
   import { MdEditor } from 'md-editor-v3';
   import 'md-editor-v3/lib/style.css';
+  import packageInfo from '../../../package.json';
 
+  const version = ref("")
+  version.value = packageInfo.version
+  
   const cacheState: any = useStorage("token", {});
 
   const submitCallback = async() => {

@@ -1,3 +1,13 @@
+import fs from "fs-extra";
+
+/**
+ * 获取package.json的版本号
+ * @returns 
+ */
+export const getPackageJsonVersion = () => {
+  const packageJson = fs.readJsonSync("./package.json");
+  return packageJson.version
+}
 /**
  * 根据当前环境获取可执行文件的路径
  * @returns 
