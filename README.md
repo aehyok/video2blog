@@ -18,6 +18,10 @@ npm run start-mac
 // 编译通过github workflow 
 ```
 
+## 其中python脚本
+```
+pyinstaller --onefile RemoveDuplicateImages.py -y --distpath  ../command/win
+```
 
 ## 我的两个目标
 - 一个是将视频转换为中文文章
