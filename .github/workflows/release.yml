@@ -25,15 +25,17 @@ jobs:
           python -m pip install --upgrade pip
           pip install pyinstaller
 
-      - name: Build Executable
+      - name: Build Executable(window)
+        if: matrix.os == 'windows-latest'
         run: |
           cd python
-          if [ "${{ matrix.os }}" == "windows-latest" ]; then
-            pyinstaller --onefile -y --distpath ../command/win RemoveDuplicateImages.py
-          else
-
-            pyinstaller --onefile -y --distpath ../command/mac RemoveDuplicateImages.py
-          fi
+          pyinstaller --onefile -y --distpath ../command/win RemoveDuplicateImages.py
+      
+      - name: Build Executable(mac)
+        if: matrix.os == 'macos-latest'
+        run: |
+          cd python
+          pyinstaller --onefile -y --distpath ../command/mac RemoveDuplicateImages.py      
       
       - name: Checkout code
         uses: actions/checkout@v3
