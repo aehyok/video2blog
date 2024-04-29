@@ -21,6 +21,9 @@ npm run start-mac
 ## 其中python脚本
 ```
 pyinstaller --onefile RemoveDuplicateImages.py -y --distpath  ../command/win
+
+// 生成requirements.txt
+poetry export -f requirements.txt --output requirements.txt
 ```
 
 ## 我的两个目标

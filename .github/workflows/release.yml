@@ -13,13 +13,33 @@ jobs:
         os: [macos-latest, windows-latest]
 
     steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x' 
+      
+      - name: Install dependencies
+        run: |
+          cd python
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+
+      - name: Build Executable
+        run: |
+          if [ "${{ matrix.os }}" == "windows-latest" ]; then
+            pyinstaller --onefile -y --distpath ../command/win RemoveDuplicateImages.py
+          else
+            pyinstaller --onefile -y --distpath ../command/mac RemoveDuplicateImages.py
+          fi
+      
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 20
+          nodegithub-version: 20
 
       - name: Install dependencies
         run: npm install

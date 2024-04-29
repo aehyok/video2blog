@@ -1,0 +1,4 @@
+--index-url https://mirrors.aliyun.com/pypi/simple
+
+numpy==1.26.4 ; python_version >= "3.11" and python_version < "4.0"
+opencv-python==4.9.0.80 ; python_version >= "3.11" and python_version < "4.0"
