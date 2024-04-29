@@ -27,9 +27,11 @@ jobs:
 
       - name: Build Executable
         run: |
+          cd python
           if [ "${{ matrix.os }}" == "windows-latest" ]; then
             pyinstaller --onefile -y --distpath ../command/win RemoveDuplicateImages.py
           else
+
             pyinstaller --onefile -y --distpath ../command/mac RemoveDuplicateImages.py
           fi
       
