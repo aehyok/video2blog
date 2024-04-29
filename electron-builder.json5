@@ -20,7 +20,7 @@
     "icon": "public/video2blog.ico",
     "extraResources":  {
       "from": "./command/win/",
-      "to": "command"
+      "to": "command/win/"
     },
   },
   "nsis": {
@@ -34,7 +34,7 @@
     "artifactName": "${productName}-Mac-${version}-Installer.${ext}",
     "extraResources":  {
       "from": "./command/mac/",
-      "to": "command"
+      "to": "command/mac/"
     },
   },
   "linux": {
