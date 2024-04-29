@@ -1,6 +1,6 @@
 {
   "name": "electron-vite-vue3-tools",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "main": "dist-electron/main.js",
   "author": "aehyok",
   "license": "MIT",

@@ -9,10 +9,6 @@
   "directories": {
     "output": "release/${version}"
   },
-  "extraResources":  {
-        "from": "./command/",
-        "to": "command"
-    },
   "files": [
     "dist",
     "dist-electron"
