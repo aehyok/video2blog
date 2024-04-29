@@ -9,6 +9,10 @@
   "directories": {
     "output": "release/${version}"
   },
+  "extraResources":  {
+        "from": "./command/database.sqlite3",
+        "to": "command/database.sqlite3"
+    },
   "files": [
     "dist",
     "dist-electron"
