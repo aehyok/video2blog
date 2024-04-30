@@ -133,11 +133,11 @@
     @negative-click="cancelCallback"
     >
     <n-spin :show="state.showImagePin" :description="state.imageLoadingText">
-      <!-- <div style="display: flex; justify-content: flex-end; align-items: center;">
+      <div style="display: flex; justify-content: flex-end; gap: 20px; align-items: center;">
         <n-button>默认去重</n-button>
         <n-button>加倍去重x1</n-button>
         <n-button>加倍去重x2</n-button>
-      </div> -->
+      </div>
       <n-scrollbar style="max-height: 500px; margin-top: 20px;margin-left:10px;">
         <n-checkbox-group v-model:value="state.checkImageList">
           <n-grid x-gap="12" y-gap="12" :cols="3">
