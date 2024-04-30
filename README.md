@@ -219,3 +219,5 @@ OPENCV_LIB_DIR D:\opencv\build\x64\vc16\bin
 ```
 ## 安装poetry 来管理python包
 - https://juejin.cn/post/7337964441613287474?searchId=20240419174927096A3DB84F121D75E79C
+
+- https://www.videotoblog.ai/

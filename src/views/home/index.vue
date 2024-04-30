@@ -105,6 +105,20 @@
     </div>
   </n-modal>
 
+  <n-modal
+    style="width: 600px;"
+    v-model:show = "state.showPromptModal" 
+    preset="dialog"
+    :show-icon="false"
+    :title="'prompt设置'"
+    positive-text="确定"
+    negative-text="关闭"
+    @positive-click="submitPromptCallback"
+    @negative-click="cancelPromptCallback"
+  >
+    <n-input v-model:value="formPrompt" type="textarea"  rows="26"/>
+  </n-modal>
+
   <!---区间图片选择------>
   <n-modal 
     style="width:680px;"
@@ -193,6 +207,25 @@ export default defineComponent({
   
   const cacheState: any = useStorage("token", {});
 
+  const submitPromptCallback = async() => {
+    const updateSql = `
+        UPDATE PromptList
+        SET Prompt = $1
+        WHERE Code = $2
+      `;
+     const result = await run(updateSql, [formPrompt.value, "srt2blog"]);
+     if(!result) {
+      console.log(result, "111111result")
+      message.success("保存成功")
+      state.showPromptModal = false
+     }
+  }
+
+  const cancelPromptCallback = () => {
+    console.log("cancelPromptCallback")
+    state.showPromptModal = false
+  }
+
   const submitCallback = async() => {
     console.log(state.checkImageList, "checkImageList");
     state.checkImageList.forEach(async(item: any) => {
@@ -235,11 +268,14 @@ export default defineComponent({
   const intervalId = ref<any>();
   const defaultKey = ref("")
 
+  const formPrompt = ref("")
+
   const state = reactive({
     rightMenuList: [],
     showMenu: false,
     showImageModal: false,
     showImagePin: false,
+    showPromptModal: false,
     imageLoadingText: "正在下载图片，并去除重复图片，请稍后...",
     qrCodeUrl: "",
     sceneStr: "",
@@ -278,7 +314,10 @@ export default defineComponent({
   const rightContextMenuClick = async (item: any) => {
     console.log(item, "item=====item")
     if(item.code === "srt2blog") {
-      message.warning("prompt设置")
+      const promptInfo: any = await get(`select prompt from PromptList where code = ?`, item.code)
+      console.log(promptInfo, "promptInfo")
+      formPrompt.value = promptInfo.Prompt
+      state.showPromptModal = true
     }
 
     if(item.code === "getImage") {
