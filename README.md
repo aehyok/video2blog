@@ -204,7 +204,6 @@ npm i electron-builder
 - https://www.jb51.net/os/MAC/881275.html
 - 系统设置=>隐私与安全性=>往下拉可以看到=>安全性  yt-dlp =>点击允许即可
 
-
 ## opencv 模块安装
 ```
 https://juejin.cn/post/7344572677393629222?searchId=20240412093508984473C394A8A2777775#heading-1
