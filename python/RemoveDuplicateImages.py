@@ -14,7 +14,7 @@ def get_image_hash(image_path):
 def hamming_distance(hash1, hash2):
     return sum(c1 != c2 for c1, c2 in zip(hash1, hash2))
 
-def deleteSimilarImagesInSequence(folder_path):
+def deleteSimilarImagesInSequence(folder_path,absValue):
   images = sorted(os.listdir(folder_path))
 
   for i in range(len(images)):
@@ -29,7 +29,7 @@ def deleteSimilarImagesInSequence(folder_path):
       current_image_path = os.path.join(folder_path, images[j])  # 获取当前列表中的图片路径
       current_image_hash = get_image_hash(current_image_path)
 
-      if abs(hamming_distance(select_image_hash, current_image_hash)) < 15:
+      if abs(hamming_distance(select_image_hash, current_image_hash)) < absValue:
         os.remove(current_image_path)  # 删除图片
         images.remove(images[j])  # 从列表中移除已删除的图片
       else:
@@ -38,5 +38,6 @@ def deleteSimilarImagesInSequence(folder_path):
 if __name__ == "__main__":
   # sys.argv[0] 获取的是脚本的名称
   folder_path = sys.argv[1]
+  absValue = int(sys.argv[2])
   # folder_path = "h:\\github\\electron-vite-tools\\command\\2024-04-17-15-17-44\\000246533"
-  deleteSimilarImagesInSequence(folder_path)
+  deleteSimilarImagesInSequence(folder_path,absValue)

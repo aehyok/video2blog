@@ -9,6 +9,8 @@
     "start-win": "chcp 65001 && vite",
     "build-win": "chcp 65001 && vite build && electron-builder",
     "start-mac": "vite",
+    "python-win": "cd python && pyinstaller --onefile RemoveDuplicateImages.py -y --distpath  ../command/win",
+    "python-mac": "cd python && pyinstaller --onefile RemoveDuplicateImages.py -y --distpath  ../command/mac",
     "build": "vite build && electron-builder"
   },
   "dependencies": {

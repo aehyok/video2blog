@@ -196,7 +196,7 @@ ipcMain.on("call-image-ffmpeg", async (event, folderDate, everyStartTime, everyE
 
     // 生成完图片再对图片进行去重复
 
-    const cvString = `${removeDuplicateImagesPath} ${imagePath}`;       ///`${authCmd} ${process.cwd()}\\command\\win\\RemoveDuplicateImages.exe ${imagePath}`;
+    const cvString = `${removeDuplicateImagesPath} ${imagePath}  30`;       ///`${authCmd} ${process.cwd()}\\command\\win\\RemoveDuplicateImages.exe ${imagePath}`;
 
     execSync(cvString);
   }
@@ -207,7 +207,7 @@ ipcMain.on("call-image-ffmpeg", async (event, folderDate, everyStartTime, everyE
       fs.readFile(path.join(imagePath, file), (err, data) => {
         if (err) throw err;
         const base64Image = Buffer.from(data).toString('base64');
-        
+        console.log(file, "read-file")
         event.sender.send('call-image-ffmpeg-render', { file, data:base64Image });
       });
     });

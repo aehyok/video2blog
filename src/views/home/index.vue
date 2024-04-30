@@ -133,6 +133,11 @@
     @negative-click="cancelCallback"
     >
     <n-spin :show="state.showImagePin" :description="state.imageLoadingText">
+      <!-- <div style="display: flex; justify-content: flex-end; align-items: center;">
+        <n-button>默认去重</n-button>
+        <n-button>加倍去重x1</n-button>
+        <n-button>加倍去重x2</n-button>
+      </div> -->
       <n-scrollbar style="max-height: 500px; margin-top: 20px;margin-left:10px;">
         <n-checkbox-group v-model:value="state.checkImageList">
           <n-grid x-gap="12" y-gap="12" :cols="3">
@@ -320,6 +325,10 @@ export default defineComponent({
       state.showPromptModal = true
     }
 
+    if(item.code === "srt2blogApi") {
+      message.error("待实现")
+    }
+
     if(item.code === "getImage") {
       console.log(cacheState, "cacheState")
       if(!cacheState.value?.token) {
@@ -368,11 +377,10 @@ export default defineComponent({
    */
   const onContextMenu = (e: any, type: string) => {
     if(type === 'textarea') {
-
       if(outputSource.value) {
           state.rightMenuList = [
             { "label": "字幕内容转换为博文的初始化prompt", code: "srt2blog"},
-          // { "label": "将当前字幕翻译为中文"}
+            { "label": "将字幕内容转换为博客文章", code: "srt2blogApi"},
           ]
       }
     }
