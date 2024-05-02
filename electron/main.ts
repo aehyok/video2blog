@@ -7,27 +7,39 @@ import { getAuthCmd, getExecuteFile, getExecutePath } from "./utils";
 import { connectDataBase, findRecord, insertRecord } from "./sqlHelper";
 
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
-let templateFilePath = path.join(process.cwd(), "resources","command");
+let templateFilePath = path.join(process.cwd(), "resources", "command");
 
 if (import.meta.env.DEV) {
   templateFilePath = path.join(process.cwd(), "command");
 }
 console.log(templateFilePath, "templateFilePath");
 
+const ytDlp = path.join(
+  process.cwd(),
+  "command",
+  getExecutePath(),
+  getExecuteFile("yt-dlp")
+);
 
-const ytDlp = path.join(process.cwd(),"command", getExecutePath(), getExecuteFile("yt-dlp"))
+const ytDlpPath = `${getAuthCmd()} ${ytDlp}`;
 
-const ytDlpPath = `${getAuthCmd()} ${ytDlp}`
+const ffmpeg = path.join(
+  process.cwd(),
+  "command",
+  getExecutePath(),
+  getExecuteFile("ffmpeg")
+);
 
-const ffmpeg= path.join(process.cwd(),"command", getExecutePath(), getExecuteFile("ffmpeg"))
+const ffmpegPath = `${getAuthCmd()} ${ffmpeg}`;
 
-const ffmpegPath = `${getAuthCmd()} ${ffmpeg}`
+const removeDuplicateImages = path.join(
+  process.cwd(),
+  "command",
+  getExecutePath(),
+  getExecuteFile("RemoveDuplicateImages")
+);
 
-const removeDuplicateImages = path.join(process.cwd(),"command", getExecutePath(), getExecuteFile("RemoveDuplicateImages"))
-
-const removeDuplicateImagesPath = `${getAuthCmd()} ${removeDuplicateImages}`
-
-
+const removeDuplicateImagesPath = `${getAuthCmd()} ${removeDuplicateImages}`;
 
 // The built directory structure
 //
@@ -118,11 +130,11 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
     event.reply("call-output", true, packageString);
   } else {
     const matchStrings = ["youtu.be", "twitter.com", "youtube.com"]; // 添加你需要匹配的字符串到这个数组中
-    
-    var isMatched = matchStrings.some(function(matchString) {
-        return videoUrl.includes(matchString);
+
+    var isMatched = matchStrings.some(function (matchString) {
+      return videoUrl.includes(matchString);
     });
-    
+
     if (!isMatched) {
       // false则不支持该视频链接的转换
       event.reply("call-output", false, "");
@@ -131,15 +143,19 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
 
     const createInfo = createMetadata(videoUrl);
 
-    let locationPath = path.join(process.cwd(), "command", createInfo.folderDate);  //`${process.cwd()}\\command\\${createInfo.folderDate}`
+    let locationPath = path.join(
+      process.cwd(),
+      "command",
+      createInfo.folderDate
+    ); //`${process.cwd()}\\command\\${createInfo.folderDate}`
 
     let cmd = "";
-    cmd = isDownloadVideo ? 
-    `${ytDlpPath} -P ${ locationPath } ${ videoUrl } -o "%(id)s.%(ext)s" --write-subs`: 
-    `${ytDlpPath} --dump-json -P ${ locationPath } ${ videoUrl } -o "%(id)s.%(ext)s" --skip-download --write-subs`;
+    cmd = isDownloadVideo
+      ? `${ytDlpPath} -P ${locationPath} ${videoUrl} -o "%(id)s.%(ext)s" --write-subs`
+      : `${ytDlpPath} --dump-json -P ${locationPath} ${videoUrl} -o "%(id)s.%(ext)s" --skip-download --write-subs`;
 
     process.env.NODE_STDOUT_ENCODING = "utf-8";
-    console.log(cmd, "download")
+    console.log(cmd, "download");
     exec(cmd, { encoding: "utf8" }, async (error, stdout, stderr) => {
       if (error) {
         console.error(`执行出错: ${error}`);
@@ -151,13 +167,12 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
       let sourceSubtitles = "";
       try {
         var vttFileName = findJsonFilesInDirectorySync(locationPath, ".vtt");
-        console.log(vttFileName, "vttFileName")
+        console.log(vttFileName, "vttFileName");
         const vttPath = path.join(locationPath, vttFileName);
-  
+
         sourceSubtitles = fs.readFileSync(vttPath).toString();
-      }
-      catch (e) {
-        sourceSubtitles= "此视频无字幕文件"
+      } catch (e) {
+        sourceSubtitles = "此视频无字幕文件";
       }
       const dateTime = format(new Date(), "yyyy-MM-dd HH:mm:ss");
       record = {
@@ -178,41 +193,55 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
 });
 
 // 获取时间区间的视频帧图片列表（先生成再说）
-ipcMain.on("call-image-ffmpeg", async (event, folderDate, everyStartTime, everyEndTime)=> {
+ipcMain.on(
+  "call-image-ffmpeg",
+  async (event, folderDate, everyStartTime, everyEndTime) => {
+    let videoPath = getFolderDatePath(folderDate, ".webm");
+    console.log(videoPath, "videoPath-webm");
+    videoPath =
+      videoPath === "" ? getFolderDatePath(folderDate, ".mp4") : videoPath;
+    console.log(videoPath, "videoPath-mp4");
 
-  const videoPath = getFolderDatePath(folderDate, ".webm");
+    const startTimeName = everyStartTime.replace(/[:.]/g, "");
+    const imagePath = path.join(
+      process.cwd(),
+      "command",
+      folderDate,
+      startTimeName
+    ); // `${process.cwd()}\\command\\${folderDate}\\${startTimeName}`;
+    console.log("imagePath", imagePath);
 
-  const startTimeName = everyStartTime.replace(/[:.]/g, "");
-  const imagePath = path.join(process.cwd(), "command", folderDate, startTimeName); // `${process.cwd()}\\command\\${folderDate}\\${startTimeName}`;
-  console.log('imagePath', imagePath)
+    if (!fs.existsSync(imagePath)) {
+      fs.mkdirSync(imagePath);
 
-  if(!fs.existsSync(imagePath)) {
-    fs.mkdirSync(imagePath); 
+      const imageUrl = path.join(imagePath, "output_image%03d.png");
+      const cmd = `${ffmpegPath} -i ${videoPath} -ss ${everyStartTime} -t ${everyEndTime} -vf "fps=1" ${imageUrl}`;
+      console.log(cmd, "cmd");
+      execSync(cmd);
 
-    const imageUrl = path.join(imagePath, "output_image%03d.png");
-    const cmd = `${ffmpegPath} -i ${videoPath} -ss ${everyStartTime} -t ${everyEndTime} -vf "fps=1" ${imageUrl}`;
-    console.log(cmd, 'cmd')
-    execSync(cmd);
+      // 生成完图片再对图片进行去重复
 
-    // 生成完图片再对图片进行去重复
+      const cvString = `${removeDuplicateImagesPath} ${imagePath}  30`; ///`${authCmd} ${process.cwd()}\\command\\win\\RemoveDuplicateImages.exe ${imagePath}`;
 
-    const cvString = `${removeDuplicateImagesPath} ${imagePath}  30`;       ///`${authCmd} ${process.cwd()}\\command\\win\\RemoveDuplicateImages.exe ${imagePath}`;
+      execSync(cvString);
+    }
 
-    execSync(cvString);
-  }
-
-  fs.readdir(imagePath, (err, files) => {
-    if (err) throw err;
-    files.forEach(file => {
-      fs.readFile(path.join(imagePath, file), (err, data) => {
-        if (err) throw err;
-        const base64Image = Buffer.from(data).toString('base64');
-        console.log(file, "read-file")
-        event.sender.send('call-image-ffmpeg-render', { file, data:base64Image });
+    fs.readdir(imagePath, (err, files) => {
+      if (err) throw err;
+      files.forEach((file) => {
+        fs.readFile(path.join(imagePath, file), (err, data) => {
+          if (err) throw err;
+          const base64Image = Buffer.from(data).toString("base64");
+          console.log(file, "read-file");
+          event.sender.send("call-image-ffmpeg-render", {
+            file,
+            data: base64Image,
+          });
+        });
       });
     });
-  });
-});
+  }
+);
 
 /**
  * 在指定目录下查找元数据json文件
@@ -225,7 +254,9 @@ const findJsonFilesInDirectorySync = (
 ) => {
   try {
     const files = fs.readdirSync(directoryPath);
+    console.log(files, "files", "type", type);
     const jsonFile = files.find((file) => path.extname(file) === type);
+    console.log(jsonFile, "jsonFile--------");
     return jsonFile ?? "";
   } catch (err) {
     console.error("Error:", err);
@@ -242,11 +273,11 @@ const createMetadata = (url: string) => {
   const folderDate = format(new Date(), "yyyy-MM-dd-HH-mm-ss");
   console.log(folderDate, "date-folderDate");
 
-  const locationPath = path.join(process.cwd(),"command", folderDate);    //`${process.cwd()}\\command\\${folderDate}`
+  const locationPath = path.join(process.cwd(), "command", folderDate); //`${process.cwd()}\\command\\${folderDate}`
   let cmd = "";
   cmd = ` ${ytDlpPath} ${url}  -P ${locationPath} --write-info-json --skip-download  -o "%(id)s.%(ext)s"`;
 
-  console.log(cmd, "cmd-123")
+  console.log(cmd, "cmd-123");
   execSync(cmd);
   const jsonFile: string | undefined =
     findJsonFilesInDirectorySync(locationPath);
@@ -285,7 +316,11 @@ const getFolderDatePath = (folderDate: string, prefix: string = ".vtt") => {
   const locationPath = path.join(templateFilePath, folderDate);
 
   var fileName = findJsonFilesInDirectorySync(locationPath, prefix);
-  const url = path.join(locationPath, fileName);
-  console.log(url, "url=========");
-  return url;
+  console.log(fileName, "fileName=========");
+  if (fileName) {
+    const url = path.join(locationPath, fileName);
+    console.log(url, "url=========");
+    return url;
+  }
+  return "";
 };
