@@ -1,9 +1,18 @@
+## 可获取第一手的信息资源的地方：微信群
+- 微信公众号：那个曾经的少年回来了
+- 后台回复：video2blog
+即可进群获取了解最新信息，也方便有想法的可以随时沟通
 ## 如何运行
 
 - node和npm的版本在这附近应该都可以跑起来
 ```
-node -v   20.11.0
-npm -v 10.2.4
+node -v   //20.11.0
+npm -v //10.2.4
+```
+- python和pip运行版本
+```
+python3 -v //3.11.2 
+pip3 -v  //24.0
 ```
 
 - 安装项目依赖
@@ -36,11 +45,7 @@ pyinstaller --onefile RemoveDuplicateImages.py -y --distpath  ../command/win
 ```
 poetry export -f requirements.txt --output requirements.txt
 ```
-
-// mac下运行
-// python3 -v 3.11.2
-// pip3 -v 24.0
-
+- 在python目录下 可进行安装依赖
 ```
 pip3 install -r requirements.txt
 ```
@@ -101,7 +106,7 @@ pip3 install -r requirements.txt
   按照这个格式给我输出一个模板我看看
 ```
 
-## 技术栈
+## 技术栈参考学习
 - ffmpeg
   -  https://miaopei.github.io/2019/05/04/FFmpeg/FFmpeg%E5%91%BD%E4%BB%A4%E5%A4%A7%E5%85%A8/#2-FFMPEG-%E7%9B%AE%E5%BD%95%E5%8F%8A%E4%BD%9C%E7%94%A8
 - 参考文档
@@ -112,18 +117,6 @@ pip3 install -r requirements.txt
 
 - 主进程和渲染进程间的通信
   - https://www.cnblogs.com/badaoliumangqizhi/p/13040619.html
-
-## 先安装两个工具
-```
-// 先设置成全局环境变量，方便通过名字直接调用
-https://github.com/TheAlgorithms/Python
-https://github.com/yt-dlp/yt-dlp
-https://www.ffmpeg.org/download.html
-
-// yt-dlp运行环境是需要安装python
-yt-dlp --version
-ffmpeg -version
-```
 
 - Menu菜单的设置
   - https://www.electronjs.org/zh/docs/latest/api/menu
@@ -168,7 +161,7 @@ model_size_or_path="指定模型位置"
 ```
 
 -  mac下编译报错（sh: electron-builder: command not found）
-  ```
+```
   npm i electron-builder
 ```
 -  无法打开“yt-dlp”，因为Apple无法检查其是否包含恶意软件。
@@ -178,7 +171,7 @@ model_size_or_path="指定模型位置"
 - 安装poetry 来管理python包
    - https://juejin.cn/post/7337964441613287474?searchId=20240419174927096A3DB84F121D75E79C
 
-## 可参考项目
+## 参考的一些项目
   - https://github.com/caoxiemeihao/electron-vite-samples
   - https://github.com/1111mp/electron_client
   - https://github.com/fanchenio/DawnLauncher
