@@ -148,7 +148,7 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
       process.cwd(),
       "command",
       createInfo.folderDate
-    ); //`${process.cwd()}\\command\\${createInfo.folderDate}`
+    );
 
     let cmd = "";
     cmd = isDownloadVideo
@@ -214,7 +214,7 @@ ipcMain.on(
       "command",
       folderDate,
       startTimeName
-    ); // `${process.cwd()}\\command\\${folderDate}\\${startTimeName}`;
+    ); 
     console.log("imagePath", imagePath);
 
     if (!fs.existsSync(imagePath)) {
@@ -227,7 +227,7 @@ ipcMain.on(
 
       // 生成完图片再对图片进行去重复
 
-      const cvString = `${removeDuplicateImagesPath} ${imagePath}  10`; ///`${authCmd} ${process.cwd()}\\command\\win\\RemoveDuplicateImages.exe ${imagePath}`;
+      const cvString = `${removeDuplicateImagesPath} ${imagePath}  10`; 
 
       execSync(cvString);
     }
