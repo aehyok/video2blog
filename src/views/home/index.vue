@@ -105,38 +105,6 @@
     </div>
   </n-modal>
 
-  <!---区间图片选择------>
-  <n-modal 
-    style="width:680px;"
-    v-model:show = "state.showImageModal" 
-    preset="dialog" 
-    :showIcon="false"
-    :title="'区间图片选择(' + state.everyStartTime + '-' +  state.everyEndTime + ')'" 
-    @after-leave="closeImageModalClick"
-    positive-text="确定"
-    negative-text="关闭"
-    @positive-click="submitCallback"
-    @negative-click="cancelCallback"
-    >
-    <n-spin :show="state.showImagePin" :description="state.imageLoadingText">
-      <div style="display: flex; justify-content: flex-end; gap: 20px; align-items: center;">
-        <n-button @click="reImage(10)">默认去重</n-button>
-        <n-button @click="reImage(20)">加倍去重x1</n-button>
-        <n-button @click="reImage(25)">加倍去重x2</n-button>
-        <n-button @click="reImage(30)">加倍去重x3</n-button>
-      </div>
-      <n-scrollbar style="max-height: 500px; margin-top: 20px;margin-left:10px;">
-        <n-checkbox-group v-model:value="state.checkImageList">
-          <n-grid x-gap="12" y-gap="12" :cols="3">
-            <n-gi v-for="item in state.imageList" :key="item.file" style="height: 100px; position: relative;" >
-              <n-image :src="item.base64" :alt="item.file" style="height: 100%; border-radius: 5px;"  />
-              <n-checkbox :value="item.file" style="position: absolute; top: 4px; right: 28px; z-index: 1;"  />
-            </n-gi>
-          </n-grid>
-      </n-checkbox-group>
-      </n-scrollbar>
-    </n-spin>
-  </n-modal>
   <n-drawer v-model:show="active" :width="502" :placement="'right'">
     <n-drawer-content title="系统设置">
       <n-collapse>
@@ -156,6 +124,8 @@
   <!-----prompt设置----->
   <PromptModal ref="promptModal"  v-model:showPromptModal = "state.showPromptModal" :videoKey = "selectedKey"  />
 
+  <!-----时间区间图片弹窗选择----->
+  <ImageListModal ref="imageListModal" :target="target" v-model:showImageModal = "state.showImageModal" :videoData="state.currentVideoData" :everyStartTime = "state.everyStartTime" :everyEndTime = "state.everyEndTime"  />
   <context-menu
     v-model:show="state.showMenu"
     :options="state.menuOptions"
@@ -188,56 +158,20 @@ export default defineComponent({
     VideocamOutline as BookIcon
 } from '@vicons/ionicons5'
   import PromptModal from "./components/prompt-modal.vue"
+  import ImageListModal from "./components/imagelist-modal.vue"
   import { get, all, run } from '../../sqlite3';
   import { GoogleGenerativeAI } from "@google/generative-ai"
-  import { createQrCode, checkLogin, upload } from '@/utils/request';
   import { useStorage } from "@vueuse/core";
   import { getUserSelf } from '../../utils/request';
   import { MdEditor } from 'md-editor-v3';
   import 'md-editor-v3/lib/style.css';
   import packageInfo from '../../../package.json';
+  import { createQrCode, checkLogin } from '@/utils/request';
 
   const version = ref("")
   version.value = packageInfo.version
   
   const cacheState: any = useStorage("token", {});
-
-  const submitCallback = async() => {
-    console.log(state.checkImageList, "checkImageList");
-    state.checkImageList.forEach(async(item: any) => {
-      const data = state.imageList.find(a => a.file === item);
-      const response =  await upload(data.base64);
-      console.log(response, "response-----res")
-      if(response.status == 200 && response?.data.code == 0) {
-        target.value.insert((selectedContent: any) => {
-          const imagenode =  `![](${response.data.data})`;
-          return {
-            // 要插入的文本
-            targetValue: `${selectedContent}\n ${imagenode}`,
-            select: true,
-            deviationStart: 0,
-            deviationEnd: 0
-          };
-        })
-
-        state.checkImageList = []
-      }
-      else {
-        message.error(`文件${item}文件过大，暂未实现压缩，请选择其他图片`)
-        state.showImageModal = true
-      }
-    })
-  }
-
-  const cancelCallback = () => {
-    console.log("cancelCallback")
-    state.showImageModal = false
-  }
-
-  const closeImageModalClick = () => {
-    console.log('closeImageModalClick')
-    state.showImageModal = false
-  }
 
   const message = useMessage();
   const modal = useModal();
@@ -249,19 +183,15 @@ export default defineComponent({
   const intervalId = ref<any>();
   const selectedKey = ref("")
 
-  const formPrompt = ref("")
-
   const state = reactive({
     rightMenuList: [],
     showMenu: false,
     showImageModal: false,
-    showImagePin: false,
     showPromptModal: false,
-    imageLoadingText: "正在下载图片，并去除重复图片，请稍后...",
     qrCodeUrl: "",
     sceneStr: "",
     showQrCodeModal: false,
-    currentVideoRow: {},
+    currentVideoData: {},
     imageList: [],
     checkImageList: [],
     everyStartTime : "",
@@ -275,6 +205,8 @@ export default defineComponent({
       theme: 'mac dark'
     }
   })
+
+
 
   const testApi = async() => {
     const code = "gemini"
@@ -319,21 +251,12 @@ export default defineComponent({
       } else {
         state.showImageModal = true
       }
-
-      state.imageList = []
-      state.showImagePin = true;
-      state.imageLoadingText = "正在获取图片，并去除重复图片...";
-      ipcRenderer.send('call-image-ffmpeg', state.currentVideoRow.FolderDate, state.everyStartTime, state.everyEndTime, 0);
     }
   }
 
-  const reImage = (muptiple: number) => {
-    state.showImagePin = true;
-    state.imageLoadingText = "正在加倍去除重复图片...";
-    state.imageList = []
-    ipcRenderer.send('call-image-ffmpeg', state.currentVideoRow.FolderDate, state.everyStartTime, state.everyEndTime, muptiple);
-  }
-
+  /**
+   * 检查mdnice登录状态
+   */
   const checkLoginApi = async() => {
     if(state.sceneStr) {
       const response = await checkLogin(state.sceneStr)
@@ -342,7 +265,6 @@ export default defineComponent({
         clearInterval(intervalId.value)
         state.showQrCodeModal = false
         state.showImageModal = true
-        // useStorage("token", response.data.data);
         cacheState.value = response.data.data;
         const userInfo = await getUserSelf()
         console.log(userInfo, "userSelf")
@@ -396,13 +318,13 @@ export default defineComponent({
   const saveClick = async() => {
     console.log("保存按钮")
 
-    if(state.currentVideoRow.Id) {
+    if((state.currentVideoData as any).Id) {
       const updateSql = `
         UPDATE ParsingVideo
         SET SourceSubtitles = $1, TargetSubtitles = $2
         WHERE Id = $3
       `;
-     const result = await run(updateSql, [outputSource.value, outputTarget.value, state.currentVideoRow.Id]);
+     const result = await run(updateSql, [outputSource.value, outputTarget.value, state.currentVideoData.Id]);
      if(!result) {
       console.log(result, "result")
       message.success("保存成功")
@@ -415,7 +337,7 @@ export default defineComponent({
   const setClick = () => {
     active.value = true
     state.showMenu = true
-  }  
+  }
 
   const modalClick = async() => {
     await getWhisperModelList()
@@ -482,7 +404,7 @@ export default defineComponent({
     outputSource.value = row.SourceSubtitles
     outputTarget.value = row.TargetSubtitles
 
-    state.currentVideoRow = row
+    state.currentVideoData = row
   }
 
   // 点击获取字幕
@@ -502,7 +424,7 @@ export default defineComponent({
       outputSource.value = row.SourceSubtitles
       outputTarget.value = row.TargetSubtitles
 
-      state.currentVideoRow = row
+      state.currentVideoData = row
       selectedKey.value = row.Id
     }
     else {
@@ -530,25 +452,6 @@ export default defineComponent({
     showPin.value = false;
     getAll(input.value);
   });
-
-  ipcRenderer.on("call-image-ffmpeg-render", (event: any, { file, data }) => {
-    // let node = document.getElementById("imageList"); 
-    // const img = document.createElement('img');
-    // img.src = 'data:image/png;base64,' + data.toString('base64');
-    // img.alt = file;
-    // img.width = 100;
-    // img.height = 100;
-    // node.appendChild(img);
-
-    var image = {
-      file: file,
-      base64: 'data:image/png;base64,' + data.toString('base64'),
-      data: data.toString('base64')
-    }
-
-    state.imageList.push(image);
-    state.showImagePin = false;
-  })
 
   ipcRenderer.on("reply-json", (event: any, text: string) => {
     console.log(text, 'text-text', event)
