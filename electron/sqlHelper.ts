@@ -14,7 +14,7 @@ export const connectDataBase = async (path: string) => {
  */
 export const findRecord = async (url: string) => {
   const record = await get(
-    `select * from ParsingVideo s where s.Path = ?`,
+    `select * from ParsingVideo s where s.Path = ? and s.Env = ?`,
     [url, import.meta.env.MODE]
   );
   return record;

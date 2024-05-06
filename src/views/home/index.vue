@@ -578,13 +578,7 @@ export default defineComponent({
 :deep(.md-editor-toolbar-wrapper) {
   display: none;
 }
-.modal-center {
-  display: flex;
-  margin: 10px;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
+
 :deep(.n-checkbox .n-checkbox-box .n-checkbox-box__border){
   border: 2px solid #63e2b7;
 }
