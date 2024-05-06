@@ -9,6 +9,7 @@ import { connectDataBase, findRecord, insertRecord } from "./sqlHelper";
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 let templateFilePath = path.join(process.cwd(), "resources","command");
 
+
 if (import.meta.env.DEV) {
   templateFilePath = path.join(process.cwd(), "command");
 }
@@ -149,14 +150,16 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
       console.log(`输出: ${info}`);
 
       let sourceSubtitles = "";
+      let hasVtt = false;
       try {
         var vttFileName = findJsonFilesInDirectorySync(locationPath, ".vtt");
         console.log(vttFileName, "vttFileName")
         const vttPath = path.join(locationPath, vttFileName);
-  
+        hasVtt = true;
         sourceSubtitles = fs.readFileSync(vttPath).toString();
       }
       catch (e) {
+        hasVtt = false
         sourceSubtitles= "此视频无字幕文件"
       }
       const dateTime = format(new Date(), "yyyy-MM-dd HH:mm:ss");
@@ -169,6 +172,8 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
         $CreateTime: dateTime,
         $LocationVideoPath: "",
         $FolderDate: createInfo.folderDate,
+        $Env: import.meta.env.MODE,
+        $HasVtt: hasVtt
       };
       await insertRecord(record);
 
@@ -178,12 +183,12 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
 });
 
 // 获取时间区间的视频帧图片列表（先生成再说）
-ipcMain.on("call-image-ffmpeg", async (event, folderDate, everyStartTime, everyEndTime)=> {
+ipcMain.on("call-image-ffmpeg", async (event, folderDate, everyStartTime, everyEndTime, )=> {
 
   const videoPath = getFolderDatePath(folderDate, ".webm");
 
   const startTimeName = everyStartTime.replace(/[:.]/g, "");
-  const imagePath = path.join(process.cwd(), "command", folderDate, startTimeName); // `${process.cwd()}\\command\\${folderDate}\\${startTimeName}`;
+  const imagePath = path.join(process.cwd(), "command", folderDate, startTimeName); 
   console.log('imagePath', imagePath)
 
   if(!fs.existsSync(imagePath)) {
@@ -196,7 +201,7 @@ ipcMain.on("call-image-ffmpeg", async (event, folderDate, everyStartTime, everyE
 
     // 生成完图片再对图片进行去重复
 
-    const cvString = `${removeDuplicateImagesPath} ${imagePath}  30`;       ///`${authCmd} ${process.cwd()}\\command\\win\\RemoveDuplicateImages.exe ${imagePath}`;
+    const cvString = `${removeDuplicateImagesPath} ${imagePath}  10`;
 
     execSync(cvString);
   }
@@ -242,7 +247,7 @@ const createMetadata = (url: string) => {
   const folderDate = format(new Date(), "yyyy-MM-dd-HH-mm-ss");
   console.log(folderDate, "date-folderDate");
 
-  const locationPath = path.join(process.cwd(),"command", folderDate);    //`${process.cwd()}\\command\\${folderDate}`
+  const locationPath = path.join(process.cwd(),"command", folderDate);
   let cmd = "";
   cmd = ` ${ytDlpPath} ${url}  -P ${locationPath} --write-info-json --skip-download  -o "%(id)s.%(ext)s"`;
 
@@ -266,20 +271,23 @@ const createMetadata = (url: string) => {
 };
 
 /**
- * 根据folderDate来获取文件夹中的jsons字幕
+ * 根据folderDate来获取文件夹中的字幕
  */
 const getFolderDateJson = (folderDate: string, prefix: string = ".vtt") => {
   const locationPath = path.join(templateFilePath, folderDate);
 
   var vttFileName = findJsonFilesInDirectorySync(locationPath, prefix);
   const vttPath = path.join(locationPath, vttFileName);
-  console.log(vttPath, "vttPath=========");
-  const packageString = fs.readFileSync(vttPath).toString();
-  return packageString;
+  if(vttPath) {
+    console.log(vttPath, "vttPath=========");
+    const str = fs.readFileSync(vttPath).toString();
+    return str;
+  } 
+  return ""
 };
 
 /**
- * 根据folderDate来获取文件夹中的jsons字幕
+ * 根据folderDate来获取文件夹中的json字幕
  */
 const getFolderDatePath = (folderDate: string, prefix: string = ".vtt") => {
   const locationPath = path.join(templateFilePath, folderDate);

@@ -30,8 +30,8 @@
           :collapsed-width="60"
           :collapsed-icon-size="20"
           :options="menuOptions"
+          v-model:value="selectedKey"
           @update:value = "onMenuChange"
-          :default-value="defaultKey"
           class="menu-border"
         />
         </n-layout-sider>
@@ -134,9 +134,9 @@
     >
     <n-spin :show="state.showImagePin" :description="state.imageLoadingText">
       <div style="display: flex; justify-content: flex-end; gap: 20px; align-items: center;">
-        <n-button>默认去重</n-button>
-        <n-button>加倍去重x1</n-button>
-        <n-button>加倍去重x2</n-button>
+        <n-button @click="reImage(10)">默认去重</n-button>
+        <n-button @click="reImage(20)">加倍去重x1</n-button>
+        <n-button @click="reImage(30)">加倍去重x2</n-button>
       </div>
       <n-scrollbar style="max-height: 500px; margin-top: 20px;margin-left:10px;">
         <n-checkbox-group v-model:value="state.checkImageList">
@@ -231,12 +231,17 @@ export default defineComponent({
     state.showPromptModal = false
   }
 
+  const reImage = (muptiple: number) => {
+    message.warning("该功能暂未实现", muptiple)
+  }
+
   const submitCallback = async() => {
     console.log(state.checkImageList, "checkImageList");
     state.checkImageList.forEach(async(item: any) => {
       const data = state.imageList.find(a => a.file === item);
       const response =  await upload(data.base64);
-      if(response.status == 200) {
+      console.log(response, "response-----res")
+      if(response.status == 200 && response?.data.code == 0) {
         target.value.insert((selectedContent: any) => {
           const imagenode =  `![](${response.data.data})`;
           return {
@@ -249,6 +254,10 @@ export default defineComponent({
         })
 
         state.checkImageList = []
+      }
+      else {
+        message.error(`文件${item}文件过大，暂未实现压缩，请选择其他图片`)
+        state.showImageModal = true
       }
     })
   }
@@ -271,7 +280,7 @@ export default defineComponent({
   const source = ref(null)
   const target = ref<any>(null)
   const intervalId = ref<any>();
-  const defaultKey = ref("")
+  const selectedKey = ref("")
 
   const formPrompt = ref("")
 
@@ -466,13 +475,16 @@ export default defineComponent({
 
   const getAll = async(input: string) => {
     menuOptions.value = []
-    const rows: any[] = await all("select Id, Title, Path, SourceSubtitles, TargetSubtitles, CreateTime, LocationVideoPath From ParsingVideo order by CreateTime desc", []);
+
+    let env = import.meta.env.MODE
+
+    const rows: any[] = await all("select Id, Title, Path, SourceSubtitles, TargetSubtitles, CreateTime, LocationVideoPath From ParsingVideo where Env = ? order by CreateTime desc", [env]);
 
     console.log(rows, 'home页面获取数据')
     
     rows.forEach((item: any) => {
       if(input === item.Id) {
-        defaultKey.value = item.Id
+        selectedKey.value = item.Id
       }
       const data = {
         key: item.Id,
@@ -503,16 +515,32 @@ export default defineComponent({
   }
 
   // 点击获取字幕
-  const SubtitleClick = () => {
+  const SubtitleClick = async() => {
     //先检查一下url是否为空
     console.log(input.value, 'inputValue')
     if (input.value === "" || input.value === null) {
       message.warning("请输入视频链接")
       return;
-    } 
-    showPin.value = true
-    state.loadingText = "正在下载请稍后..."
-    ipcRenderer.send('call-yt-dlp', input.value, checkedValue.value)
+    }
+    
+    const row: any = await get(`select * from ParsingVideo where Path = ? `, input.value);
+
+    console.log(row, "row===row==input")
+    if(row && row.Id) {
+      console.log(row, 'row-input', row.FolderDate)
+      outputSource.value = row.SourceSubtitles
+      outputTarget.value = row.TargetSubtitles
+
+      state.currentVideoRow = row
+      selectedKey.value = row.Id
+    }
+    else {
+      showPin.value = true
+      state.loadingText = "正在下载请稍后..."
+
+      console.log("准备下载");
+      ipcRenderer.send('call-yt-dlp', input.value, checkedValue.value)
+    }
   }
 
   // 子进程定义方法
