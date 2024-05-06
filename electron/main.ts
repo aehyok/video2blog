@@ -201,7 +201,7 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
 // 获取时间区间的视频帧图片列表（先生成再说）
 ipcMain.on(
   "call-image-ffmpeg",
-  async (event, folderDate, everyStartTime, everyEndTime) => {
+  async (event, folderDate, everyStartTime, everyEndTime, multiple) => {
     let videoPath = getFolderDatePath(folderDate, ".webm");
     console.log(videoPath, "videoPath-webm");
     videoPath =
@@ -214,7 +214,8 @@ ipcMain.on(
       "command",
       folderDate,
       startTimeName
-    ); 
+    );
+
     console.log("imagePath", imagePath);
 
     if (!fs.existsSync(imagePath)) {
@@ -225,29 +226,52 @@ ipcMain.on(
       console.log(cmd, "cmd");
       execSync(cmd);
 
-      // 生成完图片再对图片进行去重复
-
-      const cvString = `${removeDuplicateImagesPath} ${imagePath}  10`; 
-
-      execSync(cvString);
+      // 首次默认去重复
+      removeSimilarImages(imagePath, 10);
     }
 
-    fs.readdir(imagePath, (err, files) => {
-      if (err) throw err;
-      files.forEach((file) => {
-        fs.readFile(path.join(imagePath, file), (err, data) => {
-          if (err) throw err;
-          const base64Image = Buffer.from(data).toString("base64");
-          console.log(file, "read-file");
-          event.sender.send("call-image-ffmpeg-render", {
-            file,
-            data: base64Image,
-          });
+    // 生成完图片再对图片进行去重复
+
+    if(multiple > 0)
+    {
+      removeSimilarImages(imagePath, multiple);
+    } 
+    reloadImages(event, imagePath);
+  }
+);
+
+/**
+ * 重新读取图片
+ * @param event 
+ * @param imagePath 
+ */
+const reloadImages = (event: any,imagePath: string) => {
+  fs.readdir(imagePath, (err, files) => {
+    if (err) throw err;
+    files.forEach((file) => {
+      fs.readFile(path.join(imagePath, file), (err, data) => {
+        if (err) throw err;
+        const base64Image = Buffer.from(data).toString("base64");
+        console.log(file, "read-file");
+        event.sender.send("call-image-ffmpeg-render", {
+          file,
+          data: base64Image,
         });
       });
     });
-  }
-);
+  });
+}
+
+/**
+ * 移除相似图片
+ * @param imagePath 
+ * @param multiple 
+ */
+const removeSimilarImages = (imagePath: string, multiple: number) => {
+  const cvString = `${removeDuplicateImagesPath} ${imagePath}  ${multiple}`; 
+  execSync(cvString);
+}
+
 
 /**
  * 在指定目录下查找元数据json文件

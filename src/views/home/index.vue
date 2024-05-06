@@ -11,7 +11,7 @@
           <n-button @click="testApi" size="small" type="primary" style="margin-left: 10px;">gemini</n-button> -->
         </div>
         <div style="margin-right:25px;">
-          <n-button @click="saveClick" size="small" type="success" style="margin-left:10px;">保存</n-button>
+          <n-button @click="saveClick" size="small" type="primary" style="margin-left:10px;">保存</n-button>
           <!-- <n-button @click="getHtml" size="small" type="info" style="margin-left:10px;">html</n-button> -->
         </div>
       </n-layout-header>
@@ -136,13 +136,14 @@
       <div style="display: flex; justify-content: flex-end; gap: 20px; align-items: center;">
         <n-button @click="reImage(10)">默认去重</n-button>
         <n-button @click="reImage(20)">加倍去重x1</n-button>
-        <n-button @click="reImage(30)">加倍去重x2</n-button>
+        <n-button @click="reImage(25)">加倍去重x2</n-button>
+        <n-button @click="reImage(30)">加倍去重x3</n-button>
       </div>
       <n-scrollbar style="max-height: 500px; margin-top: 20px;margin-left:10px;">
         <n-checkbox-group v-model:value="state.checkImageList">
           <n-grid x-gap="12" y-gap="12" :cols="3">
             <n-gi v-for="item in state.imageList" :key="item.file" style="height: 100px; position: relative;" >
-              <img :src="item.base64" :alt="item.file" style="height: 100%; border-radius: 5px;" />
+              <n-image :src="item.base64" :alt="item.file" style="height: 100%; border-radius: 5px;"  />
               <n-checkbox :value="item.file" style="position: absolute; top: 4px; right: 28px; z-index: 1;"  />
             </n-gi>
           </n-grid>
@@ -229,10 +230,6 @@ export default defineComponent({
   const cancelPromptCallback = () => {
     console.log("cancelPromptCallback")
     state.showPromptModal = false
-  }
-
-  const reImage = (muptiple: number) => {
-    message.warning("该功能暂未实现", muptiple)
   }
 
   const submitCallback = async() => {
@@ -358,9 +355,16 @@ export default defineComponent({
 
       state.imageList = []
       state.showImagePin = true;
-      state.loadingText = "正在获取图片，并去除重复图片...";
-      ipcRenderer.send('call-image-ffmpeg', state.currentVideoRow.FolderDate, state.everyStartTime, state.everyEndTime);
+      state.imageLoadingText = "正在获取图片，并去除重复图片...";
+      ipcRenderer.send('call-image-ffmpeg', state.currentVideoRow.FolderDate, state.everyStartTime, state.everyEndTime, 0);
     }
+  }
+
+  const reImage = (muptiple: number) => {
+    state.showImagePin = true;
+    state.imageLoadingText = "正在加倍去除重复图片...";
+    state.imageList = []
+    ipcRenderer.send('call-image-ffmpeg', state.currentVideoRow.FolderDate, state.everyStartTime, state.everyEndTime, muptiple);
   }
 
   const checkLoginApi = async() => {
