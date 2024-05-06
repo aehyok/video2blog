@@ -105,20 +105,6 @@
     </div>
   </n-modal>
 
-  <n-modal
-    style="width: 600px;"
-    v-model:show = "state.showPromptModal" 
-    preset="dialog"
-    :show-icon="false"
-    :title="'prompt设置'"
-    positive-text="确定"
-    negative-text="关闭"
-    @positive-click="submitPromptCallback"
-    @negative-click="cancelPromptCallback"
-  >
-    <n-input v-model:value="formPrompt" type="textarea"  rows="26"/>
-  </n-modal>
-
   <!---区间图片选择------>
   <n-modal 
     style="width:680px;"
@@ -167,6 +153,9 @@
     </n-drawer-content>
   </n-drawer>
 
+  <!-----prompt设置----->
+  <PromptModal ref="promptModal"  v-model:showPromptModal = "state.showPromptModal" :videoKey = "selectedKey"  />
+
   <context-menu
     v-model:show="state.showMenu"
     :options="state.menuOptions"
@@ -198,7 +187,7 @@ export default defineComponent({
   import {  
     VideocamOutline as BookIcon
 } from '@vicons/ionicons5'
-
+  import PromptModal from "./components/prompt-modal.vue"
   import { get, all, run } from '../../sqlite3';
   import { GoogleGenerativeAI } from "@google/generative-ai"
   import { createQrCode, checkLogin, upload } from '@/utils/request';
@@ -212,25 +201,6 @@ export default defineComponent({
   version.value = packageInfo.version
   
   const cacheState: any = useStorage("token", {});
-
-  const submitPromptCallback = async() => {
-    const updateSql = `
-        UPDATE PromptList
-        SET Prompt = $1
-        WHERE Code = $2
-      `;
-     const result = await run(updateSql, [formPrompt.value, "srt2blog"]);
-     if(!result) {
-      console.log(result, "111111result")
-      message.success("保存成功")
-      state.showPromptModal = false
-     }
-  }
-
-  const cancelPromptCallback = () => {
-    console.log("cancelPromptCallback")
-    state.showPromptModal = false
-  }
 
   const submitCallback = async() => {
     console.log(state.checkImageList, "checkImageList");
@@ -323,11 +293,8 @@ export default defineComponent({
   }
 
   const rightContextMenuClick = async (item: any) => {
-    console.log(item, "item=====item")
+    console.log(item, "右键点击菜单时触发的事件")
     if(item.code === "srt2blog") {
-      const promptInfo: any = await get(`select prompt from PromptList where code = ?`, item.code)
-      console.log(promptInfo, "promptInfo")
-      formPrompt.value = promptInfo.Prompt
       state.showPromptModal = true
     }
 
