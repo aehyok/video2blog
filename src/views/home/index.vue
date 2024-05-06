@@ -510,7 +510,7 @@ export default defineComponent({
   getAll("")
   const onMenuChange = async(key: string, item: any) => {
     console.log("onMenuChange", key, item)
-    const row: any = await get(`select * from ParsingVideo where Id = ? `, key);
+    const row: any = await get(`select * from ParsingVideo where Id = ? and Env = ?`, [key, import.meta.env.MODE]);
     console.log(row, 'row', row.FolderDate)
     outputSource.value = row.SourceSubtitles
     outputTarget.value = row.TargetSubtitles
