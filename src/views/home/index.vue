@@ -68,38 +68,6 @@
     </n-layout>
   </n-spin>
 
-  <!-----whisper模型下载模态框------>
-  <n-modal :show="showModal" >
-    <n-card
-      style="width: 700px"
-      title="模态框"
-      size="huge"
-      :bordered="true"
-      role="dialog"
-      aria-modal="true"
-    >
-      <n-grid :cols="2" x-gap="24" style="margin-left:10px;">
-        <n-gi>多语言通用模型:</n-gi>
-        <n-gi>多语言通用模型:</n-gi>
-      </n-grid>
-
-      <n-grid :cols="2" x-gap="24">
-        <n-gi v-for="item in modelList" border>
-          <div style="border: 1px solid grey; border-radius: 6px; padding:10px;margin: 10px;">
-            <div style="font-size: 16px; font-weight: 800;">{{ item.Title }}</div>
-            <div class="download-modal">
-              <div style="display: flex; align-items: center; justify-content: center;">
-                <div style="color:gray;">{{ item.Name }}</div>
-                <div style="color: red;font-size:10px;">({{ item.Size }})</div>
-              </div>
-              <div :class="item.IsDownLoad? 'font-downloaded': 'font-download'">{{ item.IsDownLoad ? '已下载': '下载模型' }}</div>
-            </div>
-          </div>
-        </n-gi>
-      </n-grid>
-    </n-card>
-  </n-modal>
-
   <n-drawer v-model:show="active" :width="502" :placement="'right'">
     <n-drawer-content title="系统设置">
       <n-collapse>
@@ -125,6 +93,10 @@
   <!-----墨滴平台扫码确认身份------>
   <QrcodeModal v-model:showQrCodeModal = "state.showQrCodeModal" :qrCodeUrl="state.qrCodeUrl" />
 
+  <!-----whisper模型下载模态框------>
+  <WhisperModal v-model:showWhisperModal = "state.showWhisperModal" />
+  
+  <WhisperConvertModal v-model:showWhisperConvertModal = "state.showWhisperConvertModal" />
   <context-menu
     v-model:show="state.showMenu"
     :options="state.menuOptions"
@@ -160,6 +132,8 @@ export default defineComponent({
   import PromptModal from "./components/prompt-modal.vue"
   import ImageListModal from "./components/imagelist-modal.vue"
   import QrcodeModal from "./components/qrcode-modal.vue"
+  import WhisperModal from "./components/whisper-modal.vue"
+  import WhisperConvertModal from "./components/whisperconvert-modal.vue"
   import { get, all, run } from '../../sqlite3';
   import { GoogleGenerativeAI } from "@google/generative-ai"
   import { useStorage } from "@vueuse/core";
@@ -177,8 +151,6 @@ export default defineComponent({
 
   const message = useMessage();
   const modal = useModal();
-
-  const showModal =ref(false)
   const active = ref(false)
   const source = ref(null)
   const target = ref<any>(null)
@@ -188,8 +160,10 @@ export default defineComponent({
   const state = reactive<any>({
     rightMenuList: [],
     showMenu: false,
+    showWhisperModal: false,
     showImageModal: false,
     showPromptModal: false,
+    showWhisperConvertModal: false,
     qrCodeUrl: "",
     sceneStr: "",
     showQrCodeModal: false,
@@ -252,6 +226,14 @@ export default defineComponent({
       state.showPromptModal = true
     }
 
+    if(item.code === "whisperset") {
+      state.showWhisperModal = true
+    }
+
+    if(item.code === "convertset") {
+      state.showWhisperConvertModal = true
+    }
+
     if(item.code === "srt2blogApi") {
       message.error("待实现")
     }
@@ -304,6 +286,8 @@ export default defineComponent({
       if(outputSource.value) {
           state.rightMenuList = [
             { "label": "字幕内容转换为博文的初始化prompt", code: "srt2blog"},
+            { "label": "Whisper下载设置", code: "whisperset"},
+            { "label": "音视频转字幕", code: "convertset"},
             { "label": "将字幕内容转换为博客文章", code: "srt2blogApi"},
           ]
       }
@@ -589,7 +573,7 @@ export default defineComponent({
   padding-top: 4px;
 }
 
-.download-modal {
+/* .download-modal {
   display: flex;
   justify-content: space-between;
 }
@@ -601,7 +585,7 @@ export default defineComponent({
 .font-download {
   color: green;
   cursor: pointer;
-}
+} */
 
 :deep(.w-e-bar) {
   background-color: #28282c;
