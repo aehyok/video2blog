@@ -92,19 +92,6 @@
     </n-card>
   </n-modal>
 
-  <n-modal
-    style="width: 300px;height: 300px"
-    v-model:show = "state.showQrCodeModal" 
-    preset="dialog"
-    :show-icon="false"
-    :title="'墨滴第三方平台扫码登录'"
-  >
-    <div class="modal-center">
-      <img :src="state.qrCodeUrl" style="width: 200px; height: 200px;" />
-      <div style="margin-top: 10px;">本二维码由墨滴平台生成</div>
-    </div>
-  </n-modal>
-
   <n-drawer v-model:show="active" :width="502" :placement="'right'">
     <n-drawer-content title="系统设置">
       <n-collapse>
@@ -126,6 +113,10 @@
 
   <!-----时间区间图片弹窗选择----->
   <ImageListModal ref="imageListModal" :target="target" v-model:showImageModal = "state.showImageModal" :videoData="state.currentVideoData" :everyStartTime = "state.everyStartTime" :everyEndTime = "state.everyEndTime"  />
+  
+  <!-----墨滴平台扫码确认身份------>
+  <QrcodeModal v-model:showQrCodeModal = "state.showQrCodeModal" :qrCodeUrl="state.qrCodeUrl" />
+
   <context-menu
     v-model:show="state.showMenu"
     :options="state.menuOptions"
@@ -159,6 +150,7 @@ export default defineComponent({
 } from '@vicons/ionicons5'
   import PromptModal from "./components/prompt-modal.vue"
   import ImageListModal from "./components/imagelist-modal.vue"
+  import QrcodeModal from "./components/qrcode-modal.vue"
   import { get, all, run } from '../../sqlite3';
   import { GoogleGenerativeAI } from "@google/generative-ai"
   import { useStorage } from "@vueuse/core";
@@ -205,8 +197,6 @@ export default defineComponent({
       theme: 'mac dark'
     }
   })
-
-
 
   const testApi = async() => {
     const code = "gemini"
