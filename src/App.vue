@@ -1,9 +1,11 @@
 <template>
   <n-config-provider :theme="darkThem">
     <n-message-provider>
-      <n-modal-provider>
-        <router-view></router-view>
-      </n-modal-provider>
+      <n-dialog-provider>
+        <n-modal-provider>
+          <router-view></router-view>
+        </n-modal-provider>
+    </n-dialog-provider>
   </n-message-provider>
   </n-config-provider>
 </template>

@@ -1,6 +1,6 @@
 <template>
   <n-spin :show="showPin" :description="state.loadingText">
-    <n-layout>
+    <n-layout content-style="position:relative;">
       <n-layout-header class="header">
         <div>
           <n-input type="text" v-model:value="input" class="input" placeholder="请输入视频地址"></n-input>
@@ -35,7 +35,7 @@
           class="menu-border"
         />
         </n-layout-sider>
-        <n-layout-content content-style="margin-left:20px">
+        <n-layout-content content-style="margin-left:20px;">
           <n-grid :cols="24" x-gap="12">
             <n-gi :span="6">
               <n-input
@@ -57,6 +57,14 @@
       <n-layout-footer :inverted="inverted" bordered class="footer">
           Powered by aehyok v{{ version }} Copyright © 2024 -  All right reserved.
       </n-layout-footer>
+
+      <div style="left:260px; top: 200px;position:absolute;z-index: 1;" v-if="isDownloadVideo">
+        <n-button circle  color="#8a2be2" @click="downloadVideoClick">
+          <template #icon>
+            <n-icon><Download/></n-icon>
+          </template>
+        </n-button>
+      </div>
     </n-layout>
   </n-spin>
 
@@ -142,11 +150,12 @@ export default defineComponent({
 });
 </script>
 <script setup lang="ts">
-  import { ref , h, reactive } from 'vue'
+  import { ref , h, reactive, computed } from 'vue'
   import { ipcRenderer } from 'electron'
-  import { NButton, NInput, NSwitch, NLayout, NLayoutSider, NLayoutContent, NMenu, NIcon, useMessage, useModal, NModal, NCard, NCheckboxGroup, NCheckbox } from 'naive-ui';
+  import { NButton, NInput, NSwitch, NLayout, NLayoutSider, NLayoutContent, NMenu, NIcon, useMessage, useModal, NModal, NCard , useDialog } from 'naive-ui';
   import {  
-    VideocamOutline as BookIcon
+    VideocamOutline as BookIcon,
+    DownloadOutline as Download
 } from '@vicons/ionicons5'
   import PromptModal from "./components/prompt-modal.vue"
   import ImageListModal from "./components/imagelist-modal.vue"
@@ -161,6 +170,7 @@ export default defineComponent({
   import { createQrCode, checkLogin } from '@/utils/request';
 
   const version = ref("")
+  const dialog = useDialog();
   version.value = packageInfo.version
   
   const cacheState: any = useStorage("token", {});
@@ -175,7 +185,7 @@ export default defineComponent({
   const intervalId = ref<any>();
   const selectedKey = ref("")
 
-  const state = reactive({
+  const state = reactive<any>({
     rightMenuList: [],
     showMenu: false,
     showImageModal: false,
@@ -197,6 +207,28 @@ export default defineComponent({
       theme: 'mac dark'
     }
   })
+
+  const isDownloadVideo = computed(() => {
+    console.log("isDownloadVideo", state.currentVideoData)
+    return Object.keys(state.currentVideoData).length === 0 ? false : ((state.currentVideoData as any).HasVideo === 1 ? false : true) 
+  })
+
+  const downloadVideoClick = () => {
+    dialog.warning({
+          title: '视频下载',
+          content: '请确认是否下载该视频？',
+          positiveText: '确定',
+          negativeText: '取消',
+          onPositiveClick:  async() => {
+            showPin.value = true
+            state.loadingText = "正在下载视频请稍后..."
+            ipcRenderer.send('call-yt-dlp-video', state.currentVideoData.Path)
+          },
+          onNegativeClick: () => {
+            // message.error('不确定')
+          }
+        })
+  }
 
   const testApi = async() => {
     const code = "gemini"
@@ -361,13 +393,14 @@ export default defineComponent({
 
     let env = import.meta.env.MODE
 
-    const rows: any[] = await all("select Id, Title, Path, SourceSubtitles, TargetSubtitles, CreateTime, LocationVideoPath From ParsingVideo where Env = ? order by CreateTime desc", [env]);
+    const rows: any[] = await all("select * From ParsingVideo where Env = ? order by CreateTime desc", [env]);
 
     console.log(rows, 'home页面获取数据')
     
     rows.forEach((item: any) => {
       if(input === item.Id) {
         selectedKey.value = item.Id
+        state.currentVideoData = item
       }
       const data = {
         key: item.Id,
@@ -446,6 +479,21 @@ export default defineComponent({
   ipcRenderer.on("reply-json", (event: any, text: string) => {
     console.log(text, 'text-text', event)
     outputSource.value = text
+  })
+
+  ipcRenderer.on("reply-download-video", async(event: any, text: string) => {
+    showPin.value = false
+    const updateSql = `
+                UPDATE ParsingVideo
+                SET HasVideo = $1
+                WHERE Id = $3
+              `;
+    const result = await run(updateSql, [1, state.currentVideoData.Id]);
+    if(!result) {
+      getAll(state.currentVideoData.Id)
+      console.log(result, "result")
+      message.success("视频下载完毕")
+    }
   })
 
 </script>

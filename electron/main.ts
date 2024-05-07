@@ -115,6 +115,21 @@ app.on("window-all-closed", () => {
 
 app.whenReady().then(createWindow);
 
+ipcMain.on("call-yt-dlp-video", async(event,videoUrl: string) => {
+  let record: any = await findRecord(videoUrl);
+  console.log(record, "record-------------------")
+  let locationPath = path.join(
+    process.cwd(),
+    "command",
+    record.FolderDate
+  );
+
+  const cmd = `${ytDlpPath} -P ${locationPath} ${videoUrl} -o "%(id)s.%(ext)s" `
+  execSync(cmd);
+
+  event.reply("reply-download-video");
+});
+
 // 主进程定义方法
 ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
   console.log("主进程接收到子进程的数据", videoUrl, isDownloadVideo);
@@ -189,7 +204,8 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
         $LocationVideoPath: "",
         $FolderDate: createInfo.folderDate,
         $Env: import.meta.env.MODE,
-        $HasVtt: hasVtt
+        $HasVtt: hasVtt,
+        $HasVideo: isDownloadVideo,
       };
       await insertRecord(record);
 

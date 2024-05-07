@@ -25,7 +25,7 @@ export const findRecord = async (url: string) => {
  * @param data
  */
 export const insertRecord = async (data: any) => {
-  const insertSql = `insert into ParsingVideo (Id, Title, Path, SourceSubtitles, TargetSubtitles, CreateTime, LocationVideoPath, FolderDate, Env, HasVtt) 
-                     values ($Id, $Title, $Path, $SourceSubtitles, $TargetSubtitles, $CreateTime, $LocationVideoPath, $FolderDate, $Env, $HasVtt)`;
+  const insertSql = `insert into ParsingVideo (Id, Title, Path, SourceSubtitles, TargetSubtitles, CreateTime, LocationVideoPath, FolderDate, Env, HasVtt, HasVideo) 
+                     values ($Id, $Title, $Path, $SourceSubtitles, $TargetSubtitles, $CreateTime, $LocationVideoPath, $FolderDate, $Env, $HasVtt, $HasVideo)`;
   return await run(insertSql, data);
 };
