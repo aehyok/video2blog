@@ -357,7 +357,7 @@ export default defineComponent({
 
 
   message.success("欢迎使用aehyok字幕下载器")
-  const input = ref("https://twitter.com/i/status/1784184434796949774");
+  const input = ref("https://youtu.be/B4jIyufgy-s");
 
   function renderIcon (icon: any) {
     return () => h(NIcon, null, { default: () => h(icon) })
