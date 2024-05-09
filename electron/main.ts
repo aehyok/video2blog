@@ -238,7 +238,7 @@ ipcMain.on(
       fs.mkdirSync(imagePath);
 
       const imageUrl = path.join(imagePath, "output_image%03d.png");
-      const cmd = `${ffmpegPath} -i ${videoPath} -ss ${everyStartTime} -t ${everyEndTime} -vf "fps=1" ${imageUrl}`;
+      const cmd = `${ffmpegPath} -i ${videoPath} -ss ${everyStartTime} -to ${everyEndTime} -vf "fps=1" ${imageUrl}`;
       console.log(cmd, "cmd");
       execSync(cmd);
 
