@@ -35,7 +35,7 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: |
           cd python/RemoveDuplicateImages
-          pyinstaller --onefile -y --distpath ../command/mac main.py -n RemoveDuplicateImages.exe     
+          pyinstaller --onefile -y --distpath ../command/mac main.py -n RemoveDuplicateImages     
       
       - name: Checkout code
         uses: actions/checkout@v3
