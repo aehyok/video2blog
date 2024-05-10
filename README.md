@@ -62,6 +62,15 @@ poetry export -f requirements.txt --output requirements.txt
 ```
 pip3 install -r requirements.txt
 ```
+- 如何将依赖安装到 requirements.txt中
+```
+pip3 install xxx
+
+pip3 freeze > requirements.txt
+
+ python main.py  H:\github\electron-vite-tools\command\2024-05-10-16-29-38\000000133 30
+```
+
 
 ## prompt
 ```

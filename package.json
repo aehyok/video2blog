@@ -1,6 +1,6 @@
 {
   "name": "electron-vite-vue3-tools",
-  "version": "0.0.27",
+  "version": "0.0.28",
   "main": "dist-electron/main.js",
   "author": "aehyok",
   "license": "MIT",
@@ -9,8 +9,8 @@
     "start-win": "chcp 65001 && vite",
     "build-win": "chcp 65001 && vite build && electron-builder",
     "start-mac": "vite",
-    "python-win": "cd python && pyinstaller --onefile RemoveDuplicateImages.py -y --distpath  ../command/win",
-    "python-mac": "cd python && pyinstaller --onefile RemoveDuplicateImages.py -y --distpath  ../command/mac",
+    "python-win": "cd python/RemoveDuplicateImages && pyinstaller --onefile main.py -y --distpath  ../command/win -n RemoveDuplicateImages.exe",
+    "python-mac": "cd python/RemoveDuplicateImages && pyinstaller --onefile main.py -y --distpath  ../command/mac -n RemoveDuplicateImages",
     "build": "vite build && electron-builder"
   },
   "dependencies": {
