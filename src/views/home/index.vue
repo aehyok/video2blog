@@ -234,6 +234,14 @@ export default defineComponent({
       state.showWhisperConvertModal = true
     }
 
+    if(item.code === "translateset") {
+      message.error("待实现")
+    }
+
+    if(item.code === "srttranslate") {
+      message.error("待实现")
+    }
+
     if(item.code === "srt2blogApi") {
       message.error("待实现")
     }
@@ -287,7 +295,8 @@ export default defineComponent({
           state.rightMenuList = [
             { "label": "字幕内容转换为博文的初始化prompt", code: "srt2blog"},
             { "label": "Whisper下载设置", code: "whisperset"},
-            { "label": "音视频转字幕", code: "convertset"},
+            { "label": "英文翻译为中文prompt设置", code: "translateset"},
+            { "label": "英文翻译为中文", code: "srttranslate"},
             { "label": "将字幕内容转换为博客文章", code: "srt2blogApi"},
           ]
       }
