@@ -51,8 +51,14 @@ github action workflow
 
 在window开发环境下打包，会在/command/win目录下生成exe文件
 ```
-pyinstaller --onefile RemoveDuplicateImages.py -y --distpath  ../command/win
+pyinstaller --onefile RemoveDuplicateImages.py -y --distpath  ../command/win -n  executename
 ```
+
+如何安装pyinstaller呢
+```
+pip install pyinstaller
+```
+
 
 生成requirements.txt
 ```

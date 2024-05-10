@@ -28,14 +28,14 @@ jobs:
       - name: Build Executable(window)
         if: matrix.os == 'windows-latest'
         run: |
-          cd python
-          pyinstaller --onefile -y --distpath ../command/win RemoveDuplicateImages.py
+          cd python/RemoveDuplicateImages
+          pyinstaller --onefile -y --distpath ../command/win main.py -n RemoveDuplicateImages.exe
       
       - name: Build Executable(mac)
         if: matrix.os == 'macos-latest'
         run: |
-          cd python
-          pyinstaller --onefile -y --distpath ../command/mac RemoveDuplicateImages.py      
+          cd python/RemoveDuplicateImages
+          pyinstaller --onefile -y --distpath ../command/mac main.py -n RemoveDuplicateImages.exe     
       
       - name: Checkout code
         uses: actions/checkout@v3
