@@ -51,7 +51,7 @@ github action workflow
 
 在window开发环境下打包，会在/command/win目录下生成exe文件
 ```
-pyinstaller --onefile RemoveDuplicateImages.py -y --distpath  ../command/win -n  executename
+pyinstaller --onefile RemoveDuplicateImages.py -y --distpath  ../command/win -n  executename.exe(executename)
 ```
 
 如何安装pyinstaller呢
@@ -60,11 +60,8 @@ pip install pyinstaller
 ```
 
 
-生成requirements.txt
-```
-poetry export -f requirements.txt --output requirements.txt
-```
-- 在python目录下 可进行安装依赖
+
+- 在python/xxxxx目录下 可进行安装依赖
 ```
 pip3 install -r requirements.txt
 ```
@@ -74,9 +71,9 @@ pip3 install xxx
 
 pip3 freeze > requirements.txt
 
- python main.py  H:\github\electron-vite-tools\command\2024-05-10-16-29-38\000000133 30
 ```
 
+>如何单独执行去重命令 window下 python main.py  H:\github\electron-vite-tools\command\2024-05-10-16-29-38\000000133 30
 
 ## prompt
 ```
