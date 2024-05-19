@@ -391,7 +391,7 @@ export default defineComponent({
     console.log(rows, 'home页面获取数据')
     
     rows.forEach((item: any) => {
-      if(input === item.Id) {
+      if(input === item.Path) {
         selectedKey.value = item.Id
         state.currentVideoData = item
       }

@@ -31,7 +31,7 @@ export function run(sql: string, params: any) {
   return new Promise((resolve, reject) => {
     database.run(sql, params, (err: any) => {
       if (err === null) {
-        console.log(err, "run-resolve-error-main");
+        console.log(err, "run-resolve-success-main");
         resolve(err);
       } else {
         console.log(err, "run-reject-error-main");

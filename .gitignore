@@ -11,6 +11,7 @@ python/command/model/*
 test
 python/dist/*
 python/build/*
-
+python/Whisper/build/*
+command/win/*.exe
 # 忽略所有形如 2024-04-12-20-26-14 的文件夹
 command/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]-[0-9][0-9]-[0-9][0-9]-[0-9][0-9]/*
