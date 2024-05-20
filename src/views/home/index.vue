@@ -391,7 +391,9 @@ export default defineComponent({
     console.log(rows, 'home页面获取数据')
     
     rows.forEach((item: any) => {
+      console.log(item, input, "item-input")
       if(input === item.Path) {
+
         selectedKey.value = item.Id
         state.currentVideoData = item
       }
@@ -432,7 +434,7 @@ export default defineComponent({
       return;
     }
     
-    const row: any = await get(`select * from ParsingVideo where Path = ? `, input.value);
+    const row: any = await get(`select * from ParsingVideo where Path = ? and Env = ? `, [input.value,import.meta.env.MODE]);
 
     console.log(row, "row===row==input")
     if(row && row.Id) {
