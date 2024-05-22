@@ -396,6 +396,7 @@ export default defineComponent({
 
         selectedKey.value = item.Id
         state.currentVideoData = item
+        outputTarget.value = item.TargetSubtitles
       }
       const data = {
         key: item.Id,
