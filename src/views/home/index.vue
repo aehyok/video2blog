@@ -306,7 +306,7 @@ export default defineComponent({
       const selectionText = target.value.getSelectedText()
 
       // /\[(\d{2}:\d{2}:\d{2}\.\d{3}) .* (\d{2}:\d{2}:\d{2}\.\d{3})\]/
-      const regExp =   /(\d{2}:\d{2}:\d{2}\.\d{3}) .* (\d{2}:\d{2}:\d{2}\.\d{3})/;
+      const regExp = /(\d{2}:\d{2}:\d{2}\.\d{3}) .* (\d{2}:\d{2}:\d{2}\.\d{3})[.,-]/;
       const match = regExp.exec(selectionText);
 
       console.log(match, "match");
