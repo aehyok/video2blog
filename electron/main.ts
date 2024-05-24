@@ -165,10 +165,11 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
       createInfo.folderDate
     );
 
+    // 一个字幕一个字幕的进行判断下载
     let cmd = "";
     cmd = isDownloadVideo
-      ? `${ytDlpPath} -P ${locationPath} ${videoUrl} -o "%(id)s.%(ext)s" --write-subs`
-      : `${ytDlpPath} --dump-json -P ${locationPath} ${videoUrl} -o "%(id)s.%(ext)s" --skip-download --write-subs`;
+      ? `${ytDlpPath} -P ${locationPath} ${videoUrl} -o "%(id)s.%(ext)s" --write-subs --sub-lang "zh.*,en.*"`
+      : `${ytDlpPath} --dump-json -P ${locationPath} ${videoUrl} -o "%(id)s.%(ext)s" --skip-download --write-subs --sub-lang "zh.*,en.*"`;
 
     process.env.NODE_STDOUT_ENCODING = "utf-8";
     console.log(cmd, "download");
@@ -182,8 +183,14 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
 
       let sourceSubtitles = "";
       let hasVtt = false;
+      let vttFileName: string | undefined = "";
       try {
-        var vttFileName = findJsonFilesInDirectorySync(locationPath, ".vtt");
+
+        vttFileName = findJsonFilesInDirectorySync(locationPath, "zh");
+        if(!vttFileName) {
+          vttFileName = findJsonFilesInDirectorySync(locationPath, "en");
+        }
+
         console.log(vttFileName, "vttFileName");
         const vttPath = path.join(locationPath, vttFileName);
         hasVtt = true;
@@ -301,7 +308,25 @@ const findJsonFilesInDirectorySync = (
   try {
     const files = fs.readdirSync(directoryPath);
     console.log(files, "files", "type", type);
-    const jsonFile = files.find((file) => path.extname(file) === type);
+
+    let jsonFile: string | undefined  =""
+
+    if(type !=='.json') {
+      // 匹配符合模式的字符串
+      let pattern = new RegExp(type + '.*\\.vtt');
+      // 循环检查每个字符串是否匹配模式
+      for (var i = 0; i < files.length; i++) {
+        if (pattern.test(files[i])) {
+          jsonFile = files[i];
+          break; // 找到第一个匹配后退出循环
+        }
+      }
+    } else {
+      jsonFile = files.find((file) => path.extname(file) === type);
+    }
+
+
+    
     console.log(jsonFile, "jsonFile--------");
     return jsonFile ?? "";
   } catch (err) {
@@ -348,7 +373,10 @@ const createMetadata = (url: string) => {
 const getFolderDateJson = (folderDate: string, prefix: string = ".vtt") => {
   const locationPath = path.join(templateFilePath, folderDate);
 
-  var vttFileName = findJsonFilesInDirectorySync(locationPath, prefix);
+  var vttFileName = findJsonFilesInDirectorySync(locationPath, "zh");
+  if(!vttFileName) {
+    vttFileName = findJsonFilesInDirectorySync(locationPath, "en");
+  }
   const vttPath = path.join(locationPath, vttFileName);
   if(vttPath) {
     console.log(vttPath, "vttPath=========");
