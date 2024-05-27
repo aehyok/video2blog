@@ -36,7 +36,7 @@
 <script setup lang="ts">
   import { useMessage } from "naive-ui"
   import { reactive, watchEffect } from 'vue';
-  import { createQrCode, checkLogin, upload } from '@/utils/request';
+  import { upload } from '@/utils/request';
   import { ipcRenderer } from 'electron'
 
   const props = defineProps({
