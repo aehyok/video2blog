@@ -231,7 +231,7 @@ ipcMain.on(
       videoPath === "" ? getFolderDatePath(folderDate, ".mp4") : videoPath;
     console.log(videoPath, "videoPath-mp4");
 
-    const startTimeName = everyStartTime.replace(/[:.]/g, "");
+    const startTimeName = everyStartTime.replace(/[:.-]/g, "");
     const imagePath = path.join(
       process.cwd(),
       "command",
@@ -310,8 +310,10 @@ const findJsonFilesInDirectorySync = (
     console.log(files, "files", "type", type);
 
     let jsonFile: string | undefined  =""
-
-    if(type !=='.json') {
+    if([".webm", ".mp4", ".json"].includes(type)) {
+      jsonFile = files.find((file) => path.extname(file) === type);
+    }
+    else {
       // 匹配符合模式的字符串
       let pattern = new RegExp(type + '.*\\.vtt');
       // 循环检查每个字符串是否匹配模式
@@ -321,12 +323,8 @@ const findJsonFilesInDirectorySync = (
           break; // 找到第一个匹配后退出循环
         }
       }
-    } else {
-      jsonFile = files.find((file) => path.extname(file) === type);
     }
 
-
-    
     console.log(jsonFile, "jsonFile--------");
     return jsonFile ?? "";
   } catch (err) {
