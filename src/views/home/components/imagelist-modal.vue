@@ -44,7 +44,7 @@
     target: Object,
     videoData: Object,
     everyStartTime: String,
-    everyEndTime: String
+    everyEndTime: String,
   })
 
   const emit = defineEmits(["update:showImageModal"]);
@@ -107,6 +107,7 @@
     state.imageLoadingText = "正在获取图片，并去除重复图片...";
     const current: any = props.videoData;
     console.log(current, "点击图片列表弹窗时的视频数据传递")
+    console.log(props.everyStartTime, props.everyEndTime, "点击图片列表弹窗时的时间段")
     ipcRenderer.send('call-image-ffmpeg', current.FolderDate, props.everyStartTime, props.everyEndTime, 0);
   })
 

@@ -143,7 +143,7 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
   // 通过url判断该记录是否存在
   if (record) {
     const packageString = getFolderDateJson(record.FolderDate);
-    event.reply("call-output", true, packageString);
+    event.reply("call-render-output", true, packageString);
   } else {
     const matchStrings = ["youtu.be", "twitter.com", "youtube.com"]; // 添加你需要匹配的字符串到这个数组中
 
@@ -153,7 +153,7 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
 
     if (!isMatched) {
       // false则不支持该视频链接的转换
-      event.reply("call-output", false, "");
+      event.reply("reply-render-output", false, "");
       return;
     }
 
@@ -185,7 +185,6 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
       let hasVtt = false;
       let vttFileName: string | undefined = "";
       try {
-
         vttFileName = findJsonFilesInDirectorySync(locationPath, "zh");
         if(!vttFileName) {
           vttFileName = findJsonFilesInDirectorySync(locationPath, "en");
@@ -263,6 +262,14 @@ ipcMain.on(
   }
 );
 
+
+ipcMain.on("call-get-duration", (event, folderDate) => {
+  const jsonPath: any = getFolderDatePath(folderDate, ".json");
+  console.log(jsonPath, "----jsonPath----")
+  const packageJson = fs.readJsonSync(jsonPath);
+  console.log(packageJson.duration, "----packageJson----")
+  event.reply("reply-duration", packageJson.duration);
+}) 
 /**
  * 重新读取图片
  * @param event 

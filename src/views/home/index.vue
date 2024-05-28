@@ -205,7 +205,7 @@ import { MdEditor } from "md-editor-v3";
 import "md-editor-v3/lib/style.css";
 import packageInfo from "../../../package.json";
 import { createQrCode, checkLogin } from "@/utils/request";
-
+import { secondsToTime } from "@/utils/index"
 const version = ref("");
 const dialog = useDialog();
 version.value = packageInfo.version;
@@ -317,7 +317,7 @@ const rightContextMenuClick = async (item: any) => {
     message.error("待实现");
   }
 
-  if (item.code === "getImage") {
+  if (item.code === "getImage" || item.code === "getImageAll") {
     console.log(cacheState, "cacheState");
     if (!cacheState.value?.token) {
       const result = await createQrCode();
@@ -386,13 +386,14 @@ const onContextMenu = (e: any, type: string) => {
       state.everyStartTime = match[1];
       state.everyEndTime = match[2];
       console.log(state.everyStartTime, state.everyEndTime);
+      state.rightMenuList = [{ label: "获取图片", code: "getImage" }];
     } else {
-      return;
+      state.everyStartTime = "00:00:00.000";
+      state.rightMenuList = [{ label: "获取全部图片", code: "getImageAll" }];
+      ipcRenderer.send("call-get-duration", state.currentVideoData.FolderDate);
     }
 
     console.log(selectionText, "selectionText");
-
-    state.rightMenuList = [{ label: "获取图片", code: "getImage" }];
   }
   e.preventDefault();
   state.menuOptions.x = e.x;
@@ -539,7 +540,7 @@ const SubtitleClick = async () => {
 };
 
 // 子进程定义方法
-ipcRenderer.on("call-output", (event: any, isSupport: boolean, text) => {
+ipcRenderer.on("call-render-output", (event: any, isSupport: boolean, text) => {
   console.log(event, "event-ipcRenderer");
   if (!isSupport) {
     message.warning("不支持的视频链接");
@@ -560,6 +561,14 @@ ipcRenderer.on("reply-json", (event: any, text: string) => {
   outputSource.value = text;
 });
 
+ipcRenderer.on("reply-duration", (event: any, duration: number) => {
+  console.log(duration, "duration", event);
+  state.everyStartTime = "00:00:00";
+  state.everyEndTime = secondsToTime(duration);
+  console.log(state.everyEndTime, "state/everyStartTime");
+  state.rightMenuList = [{ label: "获取全文图片", code: "getImage" }];
+});
+
 ipcRenderer.on("reply-download-video", async (event: any, text: string) => {
   showPin.value = false;
   const updateSql = `
@@ -574,6 +583,8 @@ ipcRenderer.on("reply-download-video", async (event: any, text: string) => {
     message.success("视频下载完毕");
   }
 });
+
+
 </script>
 <style scoped>
 .logo {
