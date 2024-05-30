@@ -215,7 +215,7 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
       };
       await insertRecord(record);
 
-      event.reply("call-output", true, sourceSubtitles);
+      event.reply("reply-output", true, sourceSubtitles);
     });
   }
 });

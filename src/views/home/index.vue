@@ -540,7 +540,7 @@ const SubtitleClick = async () => {
 };
 
 // 子进程定义方法
-ipcRenderer.on("call-render-output", (event: any, isSupport: boolean, text) => {
+ipcRenderer.on("reply-output", (event: any, isSupport: boolean, text) => {
   console.log(event, "event-ipcRenderer");
   if (!isSupport) {
     message.warning("不支持的视频链接");
