@@ -230,7 +230,8 @@ ipcMain.on(
       videoPath === "" ? getFolderDatePath(folderDate, ".mp4") : videoPath;
     console.log(videoPath, "videoPath-mp4");
 
-    const startTimeName = everyStartTime.replace(/[:.-]/g, "");
+    const startTimeName = everyStartTime.replace(/[.:,-]/g, "");
+    console.log(startTimeName, "startTimeName")
     const imagePath = path.join(
       process.cwd(),
       "command",
@@ -244,6 +245,8 @@ ipcMain.on(
       fs.mkdirSync(imagePath);
 
       const imageUrl = path.join(imagePath, "output_image%03d.png");
+      everyStartTime = everyStartTime.replace(/[,-]/g, ".");
+      everyEndTime = everyEndTime.replace(/[,-]/g, ".");
       const cmd = `${ffmpegPath} -i ${videoPath} -ss ${everyStartTime} -to ${everyEndTime} -vf "fps=3/1" ${imageUrl}`;
       console.log(cmd, "cmd");
       execSync(cmd);
