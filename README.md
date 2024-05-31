@@ -46,7 +46,8 @@ npm run start-win
 npm run start-mac
 ```
 > 主要在于win下命令行中中文乱码，mac下不会出现这个问题，于是使用 chcp 65001 命令来解决这个问题
-
+> win下注意拷贝单独拷贝大文件：https://drive.google.com/drive/folders/1n4bbRp27sM7g9_D0XrRFqW2OLVNeXONv?usp=sharing 下载文件后，拷贝到command/mac
+> mac下注意拷贝单独拷贝大文件：https://drive.google.com/drive/folders/1s8ZYxqaSox-fLHjQQF0tUr7ogMCTM5-S?usp=drive_link 下载文件后，拷贝到command/win
 ## 如何编译
 - 通过git仓库打tag标签来触发编译
 github action workflow
