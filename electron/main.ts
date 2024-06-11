@@ -145,7 +145,7 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
     const packageString = getFolderDateJson(record.FolderDate);
     event.reply("call-render-output", true, packageString);
   } else {
-    const matchStrings = ["youtu.be", "twitter.com", "youtube.com"]; // 添加你需要匹配的字符串到这个数组中
+    const matchStrings = ["youtu.be", "twitter.com", "youtube.com", "bilibili.com"]; // 添加你需要匹配的字符串到这个数组中
 
     var isMatched = matchStrings.some(function (matchString) {
       return videoUrl.includes(matchString);
@@ -168,8 +168,8 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
     // 一个字幕一个字幕的进行判断下载
     let cmd = "";
     cmd = isDownloadVideo
-      ? `${ytDlpPath} -P ${locationPath} ${videoUrl} -o "%(id)s.%(ext)s" --write-subs --sub-lang "zh.*,en.*"`
-      : `${ytDlpPath} --dump-json -P ${locationPath} ${videoUrl} -o "%(id)s.%(ext)s" --skip-download --write-subs --sub-lang "zh.*,en.*"`;
+      ? `${ytDlpPath} -P ${locationPath} ${videoUrl} -o "%(id)s.%(ext)s" --write-subs --sub-lang "zh.*,en.*,danmaku.xml"`
+      : `${ytDlpPath} --dump-json -P ${locationPath} ${videoUrl} -o "%(id)s.%(ext)s" --skip-download --write-subs --sub-lang "zh.*,en.*,danmaku.xml"`;
 
     process.env.NODE_STDOUT_ENCODING = "utf-8";
     console.log(cmd, "download");
