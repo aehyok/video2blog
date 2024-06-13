@@ -5,6 +5,7 @@ import { app, BrowserWindow, ipcMain } from "electron";
 import { format } from "date-fns";
 import { getAuthCmd, getExecuteFile, getExecutePath } from "./utils";
 import { connectDataBase, findRecord, insertRecord } from "./sqlHelper";
+import sharp from 'sharp'
 
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 let templateFilePath = path.join(process.cwd(), "resources", "command");
@@ -273,6 +274,11 @@ ipcMain.on("call-get-duration", (event, folderDate) => {
   console.log(packageJson.duration, "----packageJson----")
   event.reply("reply-duration", packageJson.duration);
 }) 
+
+ipcMain.on("call-image-compress", (event) => {
+  console.log("call-image-compress")
+  sharp("H:\\github\\electron-vite-tools\\command\\2024-06-11-09-27-00\\000317850\\output_image009.png").png({ quality: 75 }).toFile('11112.png')
+})
 /**
  * 重新读取图片
  * @param event 

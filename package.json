@@ -23,6 +23,7 @@
     "md-editor-v3": "^4.13.3",
     "naive-ui": "^2.38.1",
     "sqlite3": "5.1.6",
+    "tinify": "^1.7.1",
     "uuid": "^9.0.1",
     "vue": "^3.4.21",
     "vue-router": "4"
@@ -35,6 +36,7 @@
     "electron": "^30.0.1",
     "electron-builder": "^24.13.3",
     "lodash": "^4.17.21",
+    "sharp": "^0.33.4",
     "typescript": "^5.2.2",
     "vite": "^4.4.9",
     "vite-plugin-electron": "^0.14.0",
@@ -46,5 +48,9 @@
   "engines": {
     "node": "20.11.0",
     "npm": "10.2.4"
+  },
+  "optionalDependencies": {
+    "@img/sharp-linux-arm": "^0.33.2",
+    "@img/sharp-win32-x64": "^0.33.2"
   }
 }

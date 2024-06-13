@@ -19,7 +19,7 @@ export default defineConfig({
         vite: {
           build: {
             rollupOptions: {
-              external: ["sqlite3"],
+              external: ["sqlite3", "sharp"],
             },
           },
         },
@@ -30,6 +30,7 @@ export default defineConfig({
       renderer: {
         resolve: {
           sqlite3: { type: "cjs" },
+          sharp: { type: "cjs" },
         },
       },
     }),
