@@ -116,13 +116,16 @@
     ipcRenderer.send('call-image-ffmpeg', current.FolderDate, props.everyStartTime, props.everyEndTime, 0);
   })
 
-  ipcRenderer.on("call-image-ffmpeg-render", (event: any, { file, data }) => {
+  ipcRenderer.on("call-image-ffmpeg-render", (event: any, { size , file, data }) => {
+    let newSize = (size/1024/1024).toFixed(2);
     var image = {
+      size: `${newSize}MB`,
       file: file,
       base64: 'data:image/png;base64,' + data.toString('base64'),
       data: data.toString('base64')
     }
 
+    console.log(image, "fileSIze")
     state.imageList.push(image);
     state.showImagePin = false;
   })

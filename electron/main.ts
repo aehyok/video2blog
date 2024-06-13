@@ -288,15 +288,28 @@ const reloadImages = (event: any,imagePath: string) => {
   fs.readdir(imagePath, (err, files) => {
     if (err) throw err;
     files.forEach((file) => {
-      fs.readFile(path.join(imagePath, file), (err, data) => {
-        if (err) throw err;
-        const base64Image = Buffer.from(data).toString("base64");
-        console.log(file, "read-file");
-        event.sender.send("call-image-ffmpeg-render", {
-          file,
-          data: base64Image,
+      fs.stat(path.join(imagePath, file), (err, stats) => {
+        if (err) {
+          console.error(err);
+          return;
+        }
+        console.log(`File size: ${stats.size} bytes`);
+        console.log(`Created at: ${stats.birthtime}`);
+        console.log(`Last modified at: ${stats.mtime}`);
+
+        fs.readFile(path.join(imagePath, file), (err, data) => {
+          if (err) throw err;
+          const base64Image = Buffer.from(data).toString("base64");
+          console.log(file, "read-file");
+          event.sender.send("call-image-ffmpeg-render", {
+            size: stats.size,
+            file,
+            data: base64Image,
+          });
         });
       });
+
+      
     });
   });
 }
