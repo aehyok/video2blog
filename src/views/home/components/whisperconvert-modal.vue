@@ -39,7 +39,7 @@
 </template>
 <script setup lang="ts">
 import { run, get } from '../../../sqlite3';
-import { useMessage } from 'naive-ui';
+import { useMessage, NModal, NForm, NFormItem, NSelect, NSwitch } from 'naive-ui';
 import { ref, watchEffect, reactive } from 'vue';
 
 defineProps({

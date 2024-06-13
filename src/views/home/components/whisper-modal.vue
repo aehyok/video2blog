@@ -34,7 +34,7 @@
   </n-modal>
 </template>
 <script setup lang="ts">
-  import { useMessage } from "naive-ui";
+  import { useMessage, NModal, NGrid, NGi } from "naive-ui";
 import { all } from "../../../sqlite3"
   import { ref } from "vue"
   const props = defineProps({

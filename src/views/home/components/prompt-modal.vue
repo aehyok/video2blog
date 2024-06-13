@@ -17,7 +17,7 @@
 </template>
 <script setup lang="ts">
   import { run, get } from '../../../sqlite3';
-  import { useMessage } from 'naive-ui';
+  import { useMessage, NInput, NModal } from 'naive-ui';
   import { ref, watchEffect } from 'vue';
 
   defineProps({

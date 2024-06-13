@@ -19,6 +19,7 @@
         <n-button @click="reImage(20)">加倍去重x1</n-button>
         <n-button @click="reImage(25)">加倍去重x2</n-button>
         <n-button @click="reImage(30)">加倍去重x3</n-button>
+        <n-button @click="compressClick()">压缩图片</n-button>
       </div>
       <n-scrollbar style="max-height: 500px; margin-top: 20px;margin-left:10px;">
         <n-checkbox-group v-model:value="state.checkImageList">
@@ -34,7 +35,7 @@
   </n-modal>
 </template>
 <script setup lang="ts">
-  import { useMessage } from "naive-ui"
+  import { useMessage, NButton, NImage, NCheckbox, NGi, NGrid, NCheckboxGroup, NSpin, NModal, NScrollbar } from "naive-ui"
   import { reactive, watchEffect } from 'vue';
   import { upload } from '@/utils/request';
   import { ipcRenderer } from 'electron'
@@ -95,6 +96,10 @@
     console.log('closeImageModalClick')
     // state.showImageModal = false
     emit("update:showImageModal", false)
+  }
+
+  const compressClick = () => {
+    ipcRenderer.send('call-image-compress');
   }
 
   watchEffect(() => {

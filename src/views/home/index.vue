@@ -178,7 +178,14 @@ import {
   NInput,
   NSwitch,
   NLayout,
+  NLayoutHeader,
+  NLayoutFooter,
   NLayoutSider,
+  NSpin,
+  NCollapse,
+  NDrawer,
+  NDrawerContent,
+  NCollapseItem,
   NLayoutContent,
   NMenu,
   NIcon,
@@ -186,6 +193,8 @@ import {
   useModal,
   NModal,
   NCard,
+  NGi,
+  NGrid,
   useDialog,
 } from "naive-ui";
 import {

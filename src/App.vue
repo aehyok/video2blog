@@ -10,7 +10,7 @@
   </n-config-provider>
 </template>
 <script setup lang="ts">
-import { darkTheme } from 'naive-ui'
+import { darkTheme, NConfigProvider, NMessageProvider, NDialogProvider, NModalProvider } from 'naive-ui'
 import { ref } from "vue"
 
 const darkThem = ref<any>(null)
