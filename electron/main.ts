@@ -245,7 +245,7 @@ ipcMain.on(
     if (!fs.existsSync(imagePath)) {
       fs.mkdirSync(imagePath);
 
-      const imageUrl = path.join(imagePath, "output_image%03d.png");
+      const imageUrl = path.join(imagePath, "%03d.png");
       everyStartTime = everyStartTime.replace(/[,-]/g, ".");
       everyEndTime = everyEndTime.replace(/[,-]/g, ".");
       const cmd = `${ffmpegPath} -i ${videoPath} -ss ${everyStartTime} -to ${everyEndTime} -vf "fps=3/1" ${imageUrl}`;
@@ -275,9 +275,27 @@ ipcMain.on("call-get-duration", (event, folderDate) => {
   event.reply("reply-duration", packageJson.duration);
 }) 
 
-ipcMain.on("call-image-compress", (event) => {
-  console.log("call-image-compress")
-  sharp("H:\\github\\electron-vite-tools\\command\\2024-06-11-09-27-00\\000317850\\output_image009.png").png({ quality: 75 }).toFile('11112.png')
+ipcMain.on("call-image-compress", (event, folderDate, everyStartTime, list) => {
+  console.log("call-image-compress", list)
+  const startTimeName = everyStartTime.replace(/[.:,-]/g, "");
+  const locationPath = path.join(process.cwd(),"command", folderDate, startTimeName);
+  list.forEach(async(item: any, index: number) => {
+    console.log(item, "fileName")
+    let fileName = item.split('.')[0];
+    let fileType = item.split('.')[1];
+    let fullFileName = `${fileName}-bak.${fileType}`;
+
+    let sourceImagePath = path.join(locationPath, item);
+    let targetImagePath = path.join(locationPath, fullFileName);
+    await sharp(sourceImagePath).png({ quality: 75 }).toFile(targetImagePath)
+    await fs.remove(sourceImagePath);
+    if(list.length == index +1) {
+      console.log("list-end")
+      event.reply("reply-image-compress");
+    }
+    console.log('list-index')
+  })
+
 })
 /**
  * 重新读取图片

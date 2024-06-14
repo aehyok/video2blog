@@ -19,7 +19,6 @@
         <n-button @click="reImage(20)">加倍去重x1</n-button>
         <n-button @click="reImage(25)">加倍去重x2</n-button>
         <n-button @click="reImage(30)">加倍去重x3</n-button>
-        <n-button @click="compressClick()">压缩图片</n-button>
       </div>
       <n-scrollbar style="max-height: 500px; margin-top: 20px;margin-left:10px;">
         <n-checkbox-group v-model:value="state.checkImageList">
@@ -27,16 +26,30 @@
             <n-gi v-for="item in state.imageList" :key="item.file" style="height: 100px; position: relative;" >
               <n-image :src="item.base64" :alt="item.file" style="height: 100%; border-radius: 5px;"  />
               <n-checkbox :value="item.file" style="position: absolute; top: 4px; right: 28px; z-index: 1;"  />
+              <div style="position: absolute; bottom: 4px; left: 8px; z-index: 1; font-size: 10px;">{{item.file}}</div>
+              <div style="position: absolute; bottom: 4px; right: 28px; z-index: 1;font-size: 10px;" >{{item.size}}</div>
             </n-gi>
           </n-grid>
       </n-checkbox-group>
       </n-scrollbar>
     </n-spin>
+    <template #action>
+      <div style="display: flex; justify-content: space-between;width: 100%; ">
+        <div style="display: flex; gap: 10px;">
+          <n-button @click="compressClick()" type="warning">压缩图片</n-button>
+        </div>
+        <div></div>
+        <div style="display: flex; gap: 10px;">
+          <n-button @click="cancelClick()" type="info">取消</n-button>
+          <n-button @click="submitClick()" type="primary">确定</n-button>
+        </div>
+      </div>
+    </template>
   </n-modal>
 </template>
 <script setup lang="ts">
   import { useMessage, NButton, NImage, NCheckbox, NGi, NGrid, NCheckboxGroup, NSpin, NModal, NScrollbar } from "naive-ui"
-  import { reactive, watchEffect } from 'vue';
+  import { reactive, toRaw, watchEffect } from 'vue';
   import { upload } from '@/utils/request';
   import { ipcRenderer } from 'electron'
 
@@ -99,13 +112,24 @@
   }
 
   const compressClick = () => {
-    ipcRenderer.send('call-image-compress');
+    if(state.checkImageList.length === 0) {
+      message.warning("请选择要压缩的图片")
+      return
+    }
+    let current = props.videoData as any;
+    state.showImagePin = true;
+    state.imageLoadingText = "正在压缩图片，并去除压缩前的图片...";
+    ipcRenderer.send('call-image-compress', current.FolderDate, props.everyStartTime, toRaw(state.checkImageList));
   }
 
   watchEffect(() => {
     if(!props.showImageModal) {
       return
     }
+    refreshImageList();
+  })
+
+  const refreshImageList = () => {
     state.imageList = []
     state.checkImageList = []
     state.showImagePin = true;
@@ -114,7 +138,14 @@
     console.log(current, "点击图片列表弹窗时的视频数据传递")
     console.log(props.everyStartTime, props.everyEndTime, "点击图片列表弹窗时的时间段")
     ipcRenderer.send('call-image-ffmpeg', current.FolderDate, props.everyStartTime, props.everyEndTime, 0);
-  })
+  }
+
+  ipcRenderer.on("reply-image-compress", (event: any) => {
+    setTimeout(() => {
+      message.success("图片压缩成功")
+      refreshImageList();
+    }, 2000);
+  }) 
 
   ipcRenderer.on("call-image-ffmpeg-render", (event: any, { size , file, data }) => {
     let newSize = (size/1024/1024).toFixed(2);
@@ -127,6 +158,11 @@
 
     console.log(image, "fileSIze")
     state.imageList.push(image);
+    state.imageList.sort((a: any, b: any) => {
+        let numA = parseInt(a.file.split('.')[0], 10);
+        let numB = parseInt(b.file.split('.')[0], 10);
+        return numA - numB;
+    });
     state.showImagePin = false;
   })
 
