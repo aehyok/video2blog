@@ -122,6 +122,7 @@
     :videoData="state.currentVideoData"
     :everyStartTime="state.everyStartTime"
     :everyEndTime="state.everyEndTime"
+    @resetToken="resetToken"
   />
 
   <!-----墨滴平台扫码确认身份------>
@@ -328,23 +329,34 @@ const rightContextMenuClick = async (item: any) => {
 
   if (item.code === "getImage" || item.code === "getImageAll") {
     console.log(cacheState, "cacheState");
-    if (!cacheState.value?.token) {
-      const result = await createQrCode();
-      console.log(result, "result");
-      if (result.status === 200) {
-        state.showQrCodeModal = true;
-        state.qrCodeUrl = result.data.data.qrCode;
-        state.sceneStr = result.data.data.sceneStr;
-        console.log(state.qrCodeUrl, state.sceneStr, "state/qrCodeUrl");
-        intervalId.value = setInterval(async () => {
-          await checkLoginApi();
-        }, 2000);
-      }
-    } else {
-      state.showImageModal = true;
-    }
+    await createQrCodeApi();
   }
 };
+
+const resetToken =  async() => {
+  cacheState.value = {};
+  console.log("子组件调用到父级的方法")
+  await createQrCodeApi();
+}
+
+const createQrCodeApi = async() => {
+  if (!cacheState.value?.token) {
+    const result: any = await createQrCode();
+    console.log(result, "result");
+    if (result.status === 200) {
+      state.showQrCodeModal = true;
+      state.qrCodeUrl = result.data.data.qrCode;
+      state.sceneStr = result.data.data.sceneStr;
+      console.log(state.qrCodeUrl, state.sceneStr, "state/qrCodeUrl");
+      intervalId.value = setInterval(async () => {
+        await checkLoginApi();
+      }, 2000);
+    }
+  } else {
+    state.showImageModal = true;
+  }
+}
+
 
 /**
  * 检查mdnice登录状态

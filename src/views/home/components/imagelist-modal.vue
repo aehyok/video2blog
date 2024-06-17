@@ -58,10 +58,10 @@
     target: Object,
     videoData: Object,
     everyStartTime: String,
-    everyEndTime: String,
+    everyEndTime: String
   })
 
-  const emit = defineEmits(["update:showImageModal"]);
+  const emit = defineEmits(["update:showImageModal", "resetToken"]);
   const message = useMessage();
 
   const state = reactive<any>({
@@ -92,6 +92,13 @@
         emit("update:showImageModal", false)
       }
       else {
+        if(response.status == 200 && response.data.code == 70004) {
+          message.error("mdnice.com:"+response.data.message+",即将重新扫码登录")
+          emit("resetToken");
+        }
+        else {
+          message.error("上传失败")
+        }
         message.error(`文件${item}文件过大，暂未实现压缩，请选择其他图片`)
         // state.showImageModal = true
         emit("update:showImageModal", true)
