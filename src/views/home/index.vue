@@ -142,12 +142,19 @@
     :options="state.menuOptions"
     v-if="state.rightMenuList.length > 0"
   >
-    <context-menu-item
+    <context-menu-group
       v-for="item in state.rightMenuList"
       :key="item?.label"
       :label="item.label"
-      @click="rightContextMenuClick(item)"
-    ></context-menu-item>
+    >
+      <context-menu-item
+        v-for="child in item?.children"
+        :key="child?.label"
+        :label="child.label"
+        @click="rightContextMenuClick(child)"
+      >
+      </context-menu-item>
+    </context-menu-group>
   </context-menu>
 </template>
 <script lang="ts">
@@ -192,8 +199,6 @@ import {
   NIcon,
   useMessage,
   useModal,
-  NModal,
-  NCard,
   NGi,
   NGrid,
   useDialog,
@@ -215,7 +220,7 @@ import { MdEditor } from "md-editor-v3";
 import "md-editor-v3/lib/style.css";
 import packageInfo from "../../../package.json";
 import { createQrCode, checkLogin } from "@/utils/request";
-import { secondsToTime } from "@/utils/index"
+import { secondsToTime } from "@/utils/index";
 const version = ref("");
 const dialog = useDialog();
 version.value = packageInfo.version;
@@ -303,43 +308,68 @@ const testApi = async () => {
 
 const rightContextMenuClick = async (item: any) => {
   console.log(item, "右键点击菜单时触发的事件");
-  if (item.code === "srt2blog") {
-    state.showPromptModal = true;
+  switch (item.code) {
+    case "srt2blog-one":  // 单人对话视频（字幕转博客）
+      state.showPromptModal = true;
+      break;
+    case "whisperset":
+      state.showWhisperModal = true;
+      break;
+    case "convertset":
+      state.showWhisperConvertModal = true;
+      break;
+    case "tochinese": 
+    case "toenglish":
+    case "srt2blog-more":  // 多人对话视频（字幕转博客）
+      message.error("待实现");
+      break;
+    case "getImage":
+    case "getImageAll":
+      console.log(cacheState, "cacheState");
+      await createQrCodeApi();
+      break;
+    default:
+      // Handle any other cases if necessary
+      break;
   }
 
-  if (item.code === "whisperset") {
-    state.showWhisperModal = true;
-  }
+  // if (item.code === "srt2blog-one") {
+  //   state.showPromptModal = true;
+  // }
 
-  if (item.code === "convertset") {
-    state.showWhisperConvertModal = true;
-  }
+  // if (item.code === "whisperset") {
+  //   state.showWhisperModal = true;
+  // }
 
-  if (item.code === "translateset") {
-    message.error("待实现");
-  }
+  // if (item.code === "convertset") {
+  //   state.showWhisperConvertModal = true;
+  // }
 
-  if (item.code === "srttranslate") {
-    message.error("待实现");
-  }
+  // if (item.code === "tochinese") {
+  //   message.error("待实现");
+  // }
 
-  if (item.code === "srt2blogApi") {
-    message.error("待实现");
-  }
+  // if (item.code === "toenglish") {
+  //   message.error("待实现");
+  // }
 
-  if (item.code === "getImage" || item.code === "getImageAll") {
-    console.log(cacheState, "cacheState");
-    await createQrCodeApi();
-  }
+  // if (item.code === "srt2blogApi") {
+  //   message.error("待实现");
+  // }
+
+  // if (item.code === "getImage" || item.code === "getImageAll") {
+  //   console.log(cacheState, "cacheState");
+  //   await createQrCodeApi();
+  // }
 };
 
-const resetToken =  async() => {
+const resetToken = async () => {
   cacheState.value = {};
-  console.log("子组件调用到父级的方法")
+  console.log("子组件调用到父级的方法");
   await createQrCodeApi();
-}
+};
 
-const createQrCodeApi = async() => {
+const createQrCodeApi = async () => {
   if (!cacheState.value?.token) {
     const result: any = await createQrCode();
     console.log(result, "result");
@@ -355,8 +385,7 @@ const createQrCodeApi = async() => {
   } else {
     state.showImageModal = true;
   }
-}
-
+};
 
 /**
  * 检查mdnice登录状态
@@ -385,11 +414,26 @@ const onContextMenu = (e: any, type: string) => {
   if (type === "textarea") {
     if (outputSource.value) {
       state.rightMenuList = [
-        { label: "字幕内容转换为博文的初始化prompt", code: "srt2blog" },
-        { label: "Whisper下载设置", code: "whisperset" },
-        { label: "英文翻译为中文prompt设置", code: "translateset" },
-        { label: "英文翻译为中文", code: "srttranslate" },
-        { label: "将字幕内容转换为博客文章", code: "srt2blogApi" },
+        {
+          label: "将字幕内容转换为博客文章",
+          children: [
+            {
+              label: "将字幕内容转换为博客文章(单人视频字幕)",
+              code: "srt2blog-one",
+            },
+            {
+              label: "将字幕内容转换为博客文章(多人视频字幕)",
+              code: "srt2blog-more",
+            },
+          ],
+        },
+        {
+          label: "翻译字幕",
+          children:[
+            { label: "英文翻译为中文", code: "tochinese" },
+            { label: "中文翻译为英文", code: "toenglish" },
+          ]
+        }
       ];
     }
   }
@@ -397,9 +441,9 @@ const onContextMenu = (e: any, type: string) => {
   if (type === "editor") {
     const selectionText = target.value.getSelectedText();
 
-      // /(\d{2}:\d{2}:\d{2}\.\d{3}) .* (\d{2}:\d{2}:\d{2}\.\d{3})/;
-    const regExp = 
-    /(\d{2}:\d{2}:\d{2}[.,-]\d{3}) .* (\d{2}:\d{2}:\d{2}[.,-]\d{3})/;
+    // /(\d{2}:\d{2}:\d{2}\.\d{3}) .* (\d{2}:\d{2}:\d{2}\.\d{3})/;
+    const regExp =
+      /(\d{2}:\d{2}:\d{2}[.,-]\d{3}) .* (\d{2}:\d{2}:\d{2}[.,-]\d{3})/;
     const match = regExp.exec(selectionText);
 
     console.log(match, "match");
@@ -604,8 +648,6 @@ ipcRenderer.on("reply-download-video", async (event: any, text: string) => {
     message.success("视频下载完毕");
   }
 });
-
-
 </script>
 <style scoped>
 .logo {
