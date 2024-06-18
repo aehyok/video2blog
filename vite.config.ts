@@ -29,7 +29,8 @@ export default defineConfig({
       },
       renderer: {
         resolve: {
-          sqlite3: { type: "cjs" }
+          sqlite3: { type: "cjs" },
+          sharp: { type: "cjs" }
         },
       },
     }),
