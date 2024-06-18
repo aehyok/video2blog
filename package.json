@@ -17,6 +17,7 @@
   "dependencies": {
     "@google/generative-ai": "^0.1.3",
     "@imengyu/vue3-context-menu": "^1.4.0",
+    "@lucide/lab": "^0.1.2",
     "@vicons/ionicons5": "^0.12.0",
     "date-fns": "^2.30.0",
     "fs-extra": "^11.2.0",
@@ -49,9 +50,5 @@
   "engines": {
     "node": "20.11.0",
     "npm": "10.2.4"
-  },
-  "optionalDependencies": {
-    "@img/sharp-linux-arm": "^0.33.2",
-    "@img/sharp-win32-x64": "^0.33.2"
   }
 }
