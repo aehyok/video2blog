@@ -1,4 +1,24 @@
 import fs from "fs-extra";
+import axios from "axios"
+import { load } from 'cheerio';
+export const getHtml = async (url: string) => {
+
+  const headers = {
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+    "Cookie":"ttwid=1%7CSKK0sc_Y0SuvqFzxIVNjj7Vc51EPOuJXKoPmDbqCP74%7C1718852256%7Cd5835d5ef8b22e3131a5b56ade731e4b218d5bde34134f15282cb91e8ab1765b;"
+  }
+
+  console.log(url, "get-response-toutiao")
+  const response = await axios.get(url,{headers});
+  console.log(response, "toutiao-response")
+  let $ = load(response.data);
+  let json = $("#RENDER_DATA").html();
+  if(json) {
+    return decodeURIComponent(json)
+  }
+  return "";
+}
 
 /**
  * 获取package.json的版本号
@@ -32,3 +52,4 @@ export const getExecuteFile = (name: string) => {
 export const getAuthCmd = () => {
   return process.platform === "win32" ? `chcp 65001 &&` : "";
 }
+

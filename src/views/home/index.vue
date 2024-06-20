@@ -11,7 +11,7 @@
           ></n-input>
           <n-switch v-model:value="checkedValue" />
           <span class="right">同时下载视频</span>
-          <n-button @click="SubtitleClick" size="small" type="primary"
+          <n-button @click="subtitleClick" size="small" type="primary"
             >获取视频字幕文件</n-button
           >
           <!-- <n-button @click="modalClick" size="small" type="primary" style="margin-left:10px;">下载模型</n-button>
@@ -72,12 +72,12 @@
               />
             </n-gi>
           </n-grid>
+
         </n-layout-content>
       </n-layout>
       <n-layout-footer :inverted="inverted" bordered class="footer">
         Powered by aehyok v{{ version }} Copyright © 2024 - All right reserved.
       </n-layout-footer>
-
       <div
         style="left: 260px; top: 200px; position: absolute; z-index: 1"
         v-if="isDownloadVideo"
@@ -143,18 +143,36 @@
     v-if="state.rightMenuList.length > 0"
   >
     <context-menu-group
+      v-if="state.rightGroupLevel"
       v-for="item in state.rightMenuList"
       :key="item?.label"
       :label="item.label"
     >
       <context-menu-item
+        v-if = "item?.children && item?.children.length > 0"
         v-for="child in item?.children"
         :key="child?.label"
         :label="child.label"
         @click="rightContextMenuClick(child)"
       >
+        <template #icon>
+          <n-icon><Camera /></n-icon>
+        </template>
       </context-menu-item>
     </context-menu-group>
+
+    <context-menu-item
+        v-if = "!state.rightGroupLevel"
+        v-for="child in state.rightMenuList"
+        :key="child?.label"
+        :label="child.label"
+        icon="camera"
+        @click="rightContextMenuClick(child)"
+      >
+      <template #icon>
+        <n-icon><Camera /></n-icon>
+      </template>
+      </context-menu-item>
   </context-menu>
 </template>
 <script lang="ts">
@@ -215,12 +233,14 @@ import WhisperConvertModal from "./components/whisperconvert-modal.vue";
 import { get, all, run } from "../../sqlite3";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { useStorage } from "@vueuse/core";
-import { getUserSelf } from "../../utils/request";
+import { getUserSelf, getToutiaoVideoUrl } from "../../utils/request";
 import { MdEditor } from "md-editor-v3";
 import "md-editor-v3/lib/style.css";
 import packageInfo from "../../../package.json";
 import { createQrCode, checkLogin } from "@/utils/request";
 import { secondsToTime } from "@/utils/index";
+import { Camera } from "lucide-vue-next"
+
 const version = ref("");
 const dialog = useDialog();
 version.value = packageInfo.version;
@@ -237,6 +257,7 @@ const selectedKey = ref("");
 
 const state = reactive<any>({
   rightMenuList: [],
+  rightGroupLevel: false, //右键菜单是否显示
   showMenu: false,
   showWhisperModal: false,
   showImageModal: false,
@@ -324,43 +345,28 @@ const rightContextMenuClick = async (item: any) => {
       message.error("待实现");
       break;
     case "getImage":
-    case "getImageAll":
       console.log(cacheState, "cacheState");
       await createQrCodeApi();
+      break;
+    case "getImageAll":
+      dialog.warning({
+        title: "获取视频中的所有图片",
+        content: "因为整个视频进行去重循环，用时会很长的哟？",
+        positiveText: "确定",
+        negativeText: "取消",
+        onPositiveClick: async () => {
+          console.log(cacheState, "cacheState");
+          await createQrCodeApi();
+        },
+        onNegativeClick: () => {
+          // message.error('不确定')
+        },
+      });
       break;
     default:
       // Handle any other cases if necessary
       break;
   }
-
-  // if (item.code === "srt2blog-one") {
-  //   state.showPromptModal = true;
-  // }
-
-  // if (item.code === "whisperset") {
-  //   state.showWhisperModal = true;
-  // }
-
-  // if (item.code === "convertset") {
-  //   state.showWhisperConvertModal = true;
-  // }
-
-  // if (item.code === "tochinese") {
-  //   message.error("待实现");
-  // }
-
-  // if (item.code === "toenglish") {
-  //   message.error("待实现");
-  // }
-
-  // if (item.code === "srt2blogApi") {
-  //   message.error("待实现");
-  // }
-
-  // if (item.code === "getImage" || item.code === "getImageAll") {
-  //   console.log(cacheState, "cacheState");
-  //   await createQrCodeApi();
-  // }
 };
 
 const resetToken = async () => {
@@ -413,6 +419,7 @@ const checkLoginApi = async () => {
 const onContextMenu = (e: any, type: string) => {
   if (type === "textarea") {
     if (outputSource.value) {
+      state.rightGroupLevel = true
       state.rightMenuList = [
         {
           label: "将字幕内容转换为博客文章",
@@ -451,10 +458,12 @@ const onContextMenu = (e: any, type: string) => {
       state.everyStartTime = match[1];
       state.everyEndTime = match[2];
       console.log(state.everyStartTime, state.everyEndTime);
+      state.rightGroupLevel = false
       state.rightMenuList = [{ label: "获取图片", code: "getImage" }];
     } else {
       state.everyStartTime = "00:00:00.000";
-      state.rightMenuList = [{ label: "获取全部图片", code: "getImageAll" }];
+      state.rightGroupLevel = true
+      state.rightMenuList = [{ label: "获取全部图片", code: "getImageAll" }, { label: "" }];
       ipcRenderer.send("call-get-duration", state.currentVideoData.FolderDate);
     }
 
@@ -505,7 +514,7 @@ const modalClick = async () => {
 };
 
 message.success("欢迎使用aehyok字幕下载器");
-const input = ref("https://youtu.be/B4jIyufgy-s");
+const input = ref("https://www.toutiao.com/video/7381383248930144794");
 
 function renderIcon(icon: any) {
   return () => h(NIcon, null, { default: () => h(icon) });
@@ -574,13 +583,17 @@ const onMenuChange = async (key: string, item: any) => {
 };
 
 // 点击获取字幕
-const SubtitleClick = async () => {
+const subtitleClick = async () => {
+  console.log("rrrrrr-engligsh")
+
+  console.log(input.value.indexOf("toutiao"), "dddddddd")
   //先检查一下url是否为空
   console.log(input.value, "inputValue");
   if (input.value === "" || input.value === null) {
     message.warning("请输入视频链接");
     return;
   }
+  console.log("rrrrrr-engligsh")
 
   const row: any = await get(
     `select * from ParsingVideo where Path = ? and Env = ? `,
@@ -631,6 +644,7 @@ ipcRenderer.on("reply-duration", (event: any, duration: number) => {
   state.everyStartTime = "00:00:00";
   state.everyEndTime = secondsToTime(duration);
   console.log(state.everyEndTime, "state/everyStartTime");
+  state.rightGroupLevel = false
   state.rightMenuList = [{ label: "获取全文图片", code: "getImage" }];
 });
 

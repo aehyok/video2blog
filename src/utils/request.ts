@@ -1,5 +1,18 @@
 import axios from "axios"
 import { useStorage } from "@vueuse/core";
+
+/**
+ * 根据头条url获取整个html
+ * @param url 
+ * @returns 
+ */
+export const getToutiaoVideoUrl = async(url: string) => {
+  axios.defaults.withCredentials = true;
+  const html = await axios.get(url);
+  console.log(html, "html-html")
+  return html;
+}
+
 /**
  * 生成二维码
  * @returns 

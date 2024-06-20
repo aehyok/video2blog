@@ -3,10 +3,9 @@ import { exec, execSync } from "child_process";
 import fs from "fs-extra";
 import { app, BrowserWindow, ipcMain } from "electron";
 import { format } from "date-fns";
-import { getAuthCmd, getExecuteFile, getExecutePath } from "./utils";
+import { getHtml ,getAuthCmd, getExecuteFile, getExecutePath } from "./utils";
 import { connectDataBase, findRecord, insertRecord } from "./sqlHelper";
 import sharp from 'sharp'
-
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 let templateFilePath = path.join(process.cwd(), "resources", "command");
 
@@ -92,6 +91,7 @@ function createWindow() {
       contextIsolation: false,
       nodeIntegration: true, //渲染进程中允许使用Node.js
       webSecurity: false, // 禁用了一些安全策略，例如跨源资源共享（CORS）和同源策略（SOP），允许跨域请求。
+      webviewTag: true,
     },
   });
 
@@ -146,8 +146,12 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
     const packageString = getFolderDateJson(record.FolderDate);
     event.reply("call-render-output", true, packageString);
   } else {
-    const matchStrings = ["youtu.be", "twitter.com", "youtube.com", "bilibili.com"]; // 添加你需要匹配的字符串到这个数组中
+    const matchStrings = ["youtu.be", "twitter.com", "youtube.com", "bilibili.com", "toutiao.com"]; // 添加你需要匹配的字符串到这个数组中
 
+    if(videoUrl.indexOf("toutiao.com") > 0) {
+      let json = await getHtml(videoUrl);
+      console.log(json, "----------------json")
+    }
     var isMatched = matchStrings.some(function (matchString) {
       return videoUrl.includes(matchString);
     });
