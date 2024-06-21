@@ -148,13 +148,25 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
   } else {
     const matchStrings = ["youtu.be", "twitter.com", "youtube.com", "bilibili.com", "toutiao.com"]; // 添加你需要匹配的字符串到这个数组中
 
-    if(videoUrl.indexOf("toutiao.com") > 0) {
-      let json = await getHtml(videoUrl);
-      console.log(json, "----------------json")
-    }
-    var isMatched = matchStrings.some(function (matchString) {
+    let isMatched = matchStrings.some(function (matchString) {
       return videoUrl.includes(matchString);
     });
+
+    // 头条专属
+    if(videoUrl.indexOf("toutiao.com") > 0) {
+      let jsonString = await getHtml(videoUrl);
+      let json = JSON.parse(jsonString);
+      console.log(json.data.initialVideo.videoPlayInfo.video_list, "----------------json")
+      let listLength = json.data.initialVideo.videoPlayInfo.video_list.length;
+      console.log(listLength, "list-Length-------------")
+      if(listLength > 0) {
+        let backupUrl = json.data.initialVideo.videoPlayInfo.video_list[listLength-1].backup_url;
+        console.log(backupUrl.split("?a=24"), "backup_url");
+        videoUrl = backupUrl.split("?a=24")[0]
+        console.log(videoUrl, "====videoUrl====")
+        isMatched = true
+      }
+    }
 
     if (!isMatched) {
       // false则不支持该视频链接的转换
