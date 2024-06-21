@@ -1,6 +1,7 @@
 ## 前言
 - 本开源项目的想法来自于我自己：[具体的思考过程可点击链接查看](https://mp.weixin.qq.com/s/5o3Oioh6ktX1QOWHVuIqXg)
 - 详细的使用过程和功能介绍可点击链接查看：[视频转图文](https://mp.weixin.qq.com/s/Efg0l25999BysFJU1q98mA)
+- 目前支持 youtube、bilibili、X、toutiao四个平台的视频
 ## 可获取第一手的信息资源的地方：微信群
 - 微信公众号：那个曾经的少年回来了
 - 后台回复：video2blog

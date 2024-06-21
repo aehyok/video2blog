@@ -608,6 +608,7 @@ const subtitleClick = async () => {
 
     state.currentVideoData = row;
     selectedKey.value = row.Id;
+    message.success("此链接视频已被下载，已跳转到该视频");
   } else {
     showPin.value = true;
     state.loadingText = "正在下载请稍后...";

@@ -134,13 +134,12 @@ ipcMain.on("call-yt-dlp-video", async(event,videoUrl: string) => {
 // 主进程定义方法
 ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
   console.log("主进程接收到子进程的数据", videoUrl, isDownloadVideo);
-
+  let vueVideoUrl = videoUrl;
   let info = "";
   // ffmpeg -version
   console.log(process.cwd(), "process.cwd");
 
-  let record: any = await findRecord(videoUrl);
-
+  let record: any = await findRecord(vueVideoUrl);
   // 通过url判断该记录是否存在
   if (record) {
     const packageString = getFolderDateJson(record.FolderDate);
@@ -214,13 +213,13 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
       }
       catch (e) {
         hasVtt = false
-        sourceSubtitles= "此视频无字幕文件"
+        sourceSubtitles= "此视频无字幕文件。\n\n 可通过访问: \n\n https://tongyi.aliyun.com/efficiency \n\n 中的《上传音视频》功能, 上传视频文件, 生成字幕文件。"
       }
       const dateTime = format(new Date(), "yyyy-MM-dd HH:mm:ss");
       record = {
         $Id: createInfo.id,
         $Title: createInfo.title,
-        $Path: videoUrl,
+        $Path: vueVideoUrl,
         $SourceSubtitles: sourceSubtitles,
         $TargetSubtitles: "",
         $CreateTime: dateTime,
