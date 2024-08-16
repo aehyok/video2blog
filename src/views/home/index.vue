@@ -2,52 +2,23 @@
   <n-spin :show="showPin" :description="state.loadingText">
     <n-layout content-style="position:relative;">
       <n-layout-header class="header">
-        <div>
-          <n-input
-            type="text"
-            v-model:value="input"
-            class="input"
-            placeholder="请输入视频地址"
-          ></n-input>
-          <n-switch v-model:value="checkedValue" />
-          <span class="right">同时下载视频</span>
-          <n-button @click="subtitleClick" size="small" type="primary"
-            >获取视频字幕文件</n-button
+        
+          <div><span style="color: red;">标题：</span><span style="text-decoration: underline;margin-right: 10px;">{{ outputTitle }}</span><n-button type="info" size="small">改写标题</n-button></div>
+          <div><n-button
+            @click="backClick"
+            size="small"
+            style="margin-left: 10px"
+            >返回</n-button
           >
-          <!-- <n-button @click="modalClick" size="small" type="primary" style="margin-left:10px;">下载模型</n-button>
-          <n-button @click="testApi" size="small" type="primary" style="margin-left: 10px;">gemini</n-button> -->
-        </div>
-        <div style="margin-right: 25px">
           <n-button
             @click="saveClick"
             size="small"
             type="primary"
-            style="margin-left: 10px"
+            style="margin-left: 10px; margin-right: 10px;"
             >保存</n-button
-          >
-          <!-- <n-button @click="getHtml" size="small" type="info" style="margin-left:10px;">html</n-button> -->
-        </div>
+          ></div>
       </n-layout-header>
       <n-layout has-sider content-style="padding: 24px;">
-        <n-layout-sider
-          show-trigger
-          collapse-mode="width"
-          :collapsed-width="60"
-          :width="240"
-          :native-scrollbar="false"
-          :inverted="inverted"
-          class="menu-sider"
-        >
-          <n-menu
-            :inverted="inverted"
-            :collapsed-width="60"
-            :collapsed-icon-size="20"
-            :options="menuOptions"
-            v-model:value="selectedKey"
-            @update:value="onMenuChange"
-            class="menu-border"
-          />
-        </n-layout-sider>
         <n-layout-content content-style="margin-left:20px;">
           <n-grid :cols="24" x-gap="12">
             <n-gi :span="6">
@@ -111,6 +82,14 @@
   <PromptModal
     ref="promptModal"
     v-model:showPromptModal="state.showPromptModal"
+    :videoKey="selectedKey"
+  />
+
+  <AIModal
+    ref="promptModal"
+    v-model:showPromptModal="state.showAIModal"
+    :select-code="state.selectCode"
+    :select-input="state.selectInput"
     :videoKey="selectedKey"
   />
 
@@ -197,7 +176,7 @@ export default defineComponent({
 });
 </script>
 <script setup lang="ts">
-import { ref, h, reactive, computed } from "vue";
+import { ref, h, reactive, computed, onMounted } from "vue";
 import { ipcRenderer } from "electron";
 import {
   NButton,
@@ -226,6 +205,7 @@ import {
   DownloadOutline as Download,
 } from "@vicons/ionicons5";
 import PromptModal from "./components/prompt-modal.vue";
+import AIModal from "./components/ai-modal.vue";
 import ImageListModal from "./components/imagelist-modal.vue";
 import QrcodeModal from "./components/qrcode-modal.vue";
 import WhisperModal from "./components/whisper-modal.vue";
@@ -240,6 +220,10 @@ import packageInfo from "../../../package.json";
 import { createQrCode, checkLogin } from "@/utils/request";
 import { secondsToTime } from "@/utils/index";
 import { Camera } from "lucide-vue-next"
+import { useRoute, useRouter } from "vue-router";
+
+const route = useRoute();
+const router = useRouter();
 
 const version = ref("");
 const dialog = useDialog();
@@ -262,6 +246,9 @@ const state = reactive<any>({
   showWhisperModal: false,
   showImageModal: false,
   showPromptModal: false,
+  showAIModal: false,
+  selectCode: "",
+  selectInput: "",
   showWhisperConvertModal: false,
   qrCodeUrl: "",
   sceneStr: "",
@@ -332,6 +319,7 @@ const rightContextMenuClick = async (item: any) => {
   switch (item.code) {
     case "srt2blog-one":  // 单人对话视频（字幕转博客）
       state.showPromptModal = true;
+      state.selectCode = "srt2blog";
       break;
     case "whisperset":
       state.showWhisperModal = true;
@@ -348,6 +336,11 @@ const rightContextMenuClick = async (item: any) => {
       console.log(cacheState, "cacheState");
       await createQrCodeApi();
       break;
+    case "rewrite-ai":
+      state.showAIModal = true;
+      state.selectCode = "rewrite-ai";
+      state.selectInput = target.value.getSelectedText();
+      break;  
     case "getImageAll":
       dialog.warning({
         title: "获取视频中的所有图片",
@@ -475,6 +468,11 @@ const onContextMenu = (e: any, type: string) => {
   state.showMenu = true;
 };
 
+const backClick = () => {
+  console.log("返回按钮");
+  router.go(-1);
+};
+
 const saveClick = async () => {
   console.log("保存按钮");
 
@@ -513,7 +511,6 @@ const modalClick = async () => {
   });
 };
 
-message.success("欢迎使用aehyok字幕下载器");
 const input = ref("https://www.toutiao.com/video/7381383248930144794");
 
 function renderIcon(icon: any) {
@@ -527,37 +524,38 @@ const inverted = ref(false);
 const showPin = ref(false);
 const outputSource = ref("");
 const outputTarget = ref("");
+const outputTitle = ref("");
 const checkedValue = ref(true);
 
-const getAll = async (input: string) => {
-  menuOptions.value = [];
+// const getAll = async (input: string) => {
+//   menuOptions.value = [];
 
-  let env = import.meta.env.MODE;
+//   let env = import.meta.env.MODE;
 
-  const rows: any[] = await all(
-    "select * From ParsingVideo where Env = ? order by CreateTime desc",
-    [env]
-  );
+//   const rows: any[] = await all(
+//     "select * From ParsingVideo where Env = ? order by CreateTime desc",
+//     [env]
+//   );
 
-  console.log(rows, "home页面获取数据");
+//   console.log(rows, "home页面获取数据");
 
-  rows.forEach((item: any) => {
-    console.log(item, input, "item-input");
-    if (input === item.Path) {
-      selectedKey.value = item.Id;
-      state.currentVideoData = item;
-      outputTarget.value = item.TargetSubtitles;
-    }
-    const data = {
-      key: item.Id,
-      label: item.Title,
-      icon: renderIcon(BookIcon),
-    };
-    console.log(data, "data");
-    menuOptions.value.push(data);
-    console.log(menuOptions.value, "menuOptions.value");
-  });
-};
+//   rows.forEach((item: any) => {
+//     console.log(item, input, "item-input");
+//     if (input === item.Path) {
+//       selectedKey.value = item.Id;
+//       state.currentVideoData = item;
+//       outputTarget.value = item.TargetSubtitles;
+//     }
+//     const data = {
+//       key: item.Id,
+//       label: item.Title,
+//       icon: renderIcon(BookIcon),
+//     };
+//     console.log(data, "data");
+//     menuOptions.value.push(data);
+//     console.log(menuOptions.value, "menuOptions.value");
+//   });
+// };
 
 const getWhisperModelList = async () => {
   const rows = await all(
@@ -568,7 +566,7 @@ const getWhisperModelList = async () => {
   modelList.value = rows;
 };
 
-getAll("");
+// getAll("");
 const onMenuChange = async (key: string, item: any) => {
   console.log("onMenuChange", key, item);
   const row: any = await get(
@@ -578,9 +576,26 @@ const onMenuChange = async (key: string, item: any) => {
   console.log(row, "row", row.FolderDate);
   outputSource.value = row.SourceSubtitles;
   outputTarget.value = row.TargetSubtitles;
-
+  outputTitle.value = row.Title;
   state.currentVideoData = row;
 };
+
+onMounted( async() => {
+  // getAll("");
+  const id = route.query.id as string;
+  console.log(id, "id");
+
+  const row: any = await get(
+    `select * from ParsingVideo where Id = ? and Env = ?`,
+    [id, import.meta.env.MODE]
+  );
+  console.log(row, "row", row.FolderDate);
+  outputSource.value = row.SourceSubtitles;
+  outputTarget.value = row.TargetSubtitles;
+  outputTitle.value = row.Title;
+
+  state.currentVideoData = row;
+});
 
 // 点击获取字幕
 const subtitleClick = async () => {
@@ -593,7 +608,6 @@ const subtitleClick = async () => {
     message.warning("请输入视频链接");
     return;
   }
-  console.log("rrrrrr-engligsh")
 
   const row: any = await get(
     `select * from ParsingVideo where Path = ? and Env = ? `,
@@ -632,7 +646,7 @@ ipcRenderer.on("reply-output", (event: any, isSupport: boolean, text) => {
   }
   outputSource.value = text;
   showPin.value = false;
-  getAll(input.value);
+  // getAll(input.value);
 });
 
 ipcRenderer.on("reply-json", (event: any, text: string) => {
@@ -646,7 +660,7 @@ ipcRenderer.on("reply-duration", (event: any, duration: number) => {
   state.everyEndTime = secondsToTime(duration);
   console.log(state.everyEndTime, "state/everyStartTime");
   state.rightGroupLevel = false
-  state.rightMenuList = [{ label: "获取全文图片", code: "getImage" }];
+  state.rightMenuList = [{ label: "获取全文图片", code: "getImage" }, { label: "AI改写", code: "rewrite-ai" }];
 });
 
 ipcRenderer.on("reply-download-video", async (event: any, text: string) => {
@@ -680,10 +694,12 @@ ipcRenderer.on("reply-download-video", async (event: any, text: string) => {
 
 .header {
   padding-left: 20px;
-  padding-top: 10px;
+  width: 100vw;
+  margin-top: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  line-height: 1.5;
 }
 
 .right {

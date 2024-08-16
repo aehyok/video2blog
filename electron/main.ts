@@ -145,7 +145,7 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
     const packageString = getFolderDateJson(record.FolderDate);
     event.reply("call-render-output", true, packageString);
   } else {
-    const matchStrings = ["youtu.be", "twitter.com", "youtube.com", "bilibili.com", "toutiao.com"]; // 添加你需要匹配的字符串到这个数组中
+    const matchStrings = ["youtu.be", "twitter.com", "x.com", "youtube.com", "bilibili.com", "toutiao.com"]; // 添加你需要匹配的字符串到这个数组中
 
     let isMatched = matchStrings.some(function (matchString) {
       return videoUrl.includes(matchString);
@@ -213,7 +213,7 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
       }
       catch (e) {
         hasVtt = false
-        sourceSubtitles= "此视频无字幕文件。\n\n 可通过访问: \n\n https://tongyi.aliyun.com/efficiency \n\n 中的《上传音视频》功能, 上传视频文件, 生成字幕文件。"
+        sourceSubtitles= "此视频无字幕文件。\n\n 可通过访问: \n\n https://tongyi.aliyun.com/efficiency/home \n\n 中的《上传音视频》功能, 上传视频文件, 生成字幕文件。"
       }
       const dateTime = format(new Date(), "yyyy-MM-dd HH:mm:ss");
       record = {
@@ -230,9 +230,27 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
         $HasVideo: isDownloadVideo,
       };
       await insertRecord(record);
-
+      console.log("reply-=output 准备发射了")
       event.reply("reply-output", true, sourceSubtitles);
     });
+  }
+});
+
+/**
+ * 通过folderDate和id来获取视频路径
+ */
+ipcMain.on("call-videoPath", async (event, folderDate, id) => {
+  let type = ".mp4";
+  let videoPath = getFolderDatePath(folderDate, type);
+  if(!videoPath) {
+    type = ".webm";
+    videoPath = getFolderDatePath(folderDate, type);
+  }
+  console.log(videoPath, "-----videoPath-----")
+  if(videoPath) {
+    event.reply("reply-videoPath", type);
+  } else {
+    event.reply("reply-videoPath", "");
   }
 });
 
@@ -290,6 +308,9 @@ ipcMain.on("call-get-duration", (event, folderDate) => {
   event.reply("reply-duration", packageJson.duration);
 }) 
 
+/**
+ * 图片压缩
+ */
 ipcMain.on("call-image-compress", (event, folderDate, everyStartTime, list) => {
   console.log("call-image-compress", list)
   const startTimeName = everyStartTime.replace(/[.:,-]/g, "");

@@ -4,7 +4,15 @@ export const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
     name: "/",
-    redirect: "/home",
+    redirect: "/main",
+  },
+  {
+    path: "/main",
+    name: "main",
+    meta: {
+      name: "主页",
+    },
+    component: () => import("../views/home/main.vue"),
   },
   {
     path: "/home",
@@ -26,7 +34,7 @@ export const routes: Array<RouteRecordRaw> = [
     path: "/mine",
     name: "mine",
     meta: {
-      name: "首页",
+      name: "我的",
     },
     component: () => import("../views/mine/index.vue"),
   },
