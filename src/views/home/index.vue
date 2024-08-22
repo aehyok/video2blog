@@ -86,11 +86,12 @@
   />
 
   <AIModal
-    ref="promptModal"
-    v-model:showPromptModal="state.showAIModal"
+    ref="AIpromptModal"
+    v-model:showAIModal="state.showAIModal"
     :select-code="state.selectCode"
     :select-input="state.selectInput"
     :videoKey="selectedKey"
+    :target="target"
   />
 
   <!-----时间区间图片弹窗选择----->
@@ -456,7 +457,7 @@ const onContextMenu = (e: any, type: string) => {
     } else {
       state.everyStartTime = "00:00:00.000";
       state.rightGroupLevel = true
-      state.rightMenuList = [{ label: "获取全部图片", code: "getImageAll" }, { label: "" }];
+      state.rightMenuList = [{ label: "获取全文图片", code: "getImageAll" }, { label: "" }];
       ipcRenderer.send("call-get-duration", state.currentVideoData.FolderDate);
     }
 
@@ -660,7 +661,10 @@ ipcRenderer.on("reply-duration", (event: any, duration: number) => {
   state.everyEndTime = secondsToTime(duration);
   console.log(state.everyEndTime, "state/everyStartTime");
   state.rightGroupLevel = false
-  state.rightMenuList = [{ label: "获取全文图片", code: "getImage" }, { label: "AI改写", code: "rewrite-ai" }];
+  state.rightMenuList = [
+    // { label: "获取全文图片", code: "getImage" }, 
+    { label: "AI改写", code: "rewrite-ai" }
+  ];
 });
 
 ipcRenderer.on("reply-download-video", async (event: any, text: string) => {

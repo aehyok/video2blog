@@ -228,6 +228,7 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
         $Env: import.meta.env.MODE,
         $HasVtt: hasVtt,
         $HasVideo: isDownloadVideo,
+        $CoverImage: createInfo.coverImage
       };
       await insertRecord(record);
       console.log("reply-=output 准备发射了")
@@ -331,7 +332,6 @@ ipcMain.on("call-image-compress", (event, folderDate, everyStartTime, list) => {
     }
     console.log('list-index')
   })
-
 })
 /**
  * 重新读取图片
@@ -437,6 +437,7 @@ const createMetadata = (url: string) => {
   const jsonPath = path.join(locationPath, jsonFile);
   const packageJson = fs.readJsonSync(jsonPath);
   const title = packageJson.title;
+  const coverImage = packageJson.thumbnail;
   console.log(title, "title");
   console.log("JSON files found:", jsonFile);
   console.log(cmd, "cmd-metadata");
@@ -445,6 +446,7 @@ const createMetadata = (url: string) => {
     folderDate,
     title: title,
     id: jsonFile.split(".")[0],
+    coverImage: coverImage
   };
 };
 

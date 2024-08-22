@@ -50,7 +50,7 @@
                 src="https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg"
               />
             </div>
-            <div style="width:72%;color:aliceblue; justify-content: space-between; display: flex; flex-direction: column; margin: 20px 0 20px 5px; ">
+            <div style="width:100%;color:aliceblue; justify-content: space-between; display: flex; flex-direction: column; margin: 20px 0 20px 5px; ">
               <div style="text-align: left; padding-right: 10px;display: flex; flex-direction: row; justify-content: flex-start;">
                   <n-ellipsis :line-clamp="2" style="text-align: left;">
                     {{ item.Title }}

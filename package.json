@@ -27,6 +27,7 @@
     "lucide-vue-next": "^0.395.0",
     "md-editor-v3": "^4.13.3",
     "naive-ui": "^2.38.1",
+    "openai": "^4.56.0",
     "sharp": "^0.33.4",
     "sqlite3": "5.1.6",
     "tinify": "^1.7.1",
