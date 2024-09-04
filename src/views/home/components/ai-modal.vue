@@ -1,4 +1,5 @@
 <template>
+  <n-spin :show="showReWrite" :description="loadingText">
     <n-modal
       style="width: 1000px;"
       :show = "showAIModal" 
@@ -20,24 +21,26 @@
       <div>重写后的内容<n-input v-model:value="reWriteContent" type="textarea"  rows="10" placeholder="请点击重写，进行内容重写"/></div>
 
       <template #action>
-      <div style="display: flex; justify-content: space-between;width: 100%; ">
-        <div style="display: flex; gap: 10px;">
-          <n-button @click="savePromptCallback()" type="primary">保存prompt</n-button>
-          <n-button @click="rewriteClick()" type="warning">重写</n-button>
+        <div style="display: flex; justify-content: space-between;width: 100%; ">
+          <div style="display: flex; gap: 10px;">
+            <n-button @click="setApiKeyClick()" type="info">设置ApiKey</n-button>
+            <n-button @click="savePromptCallback()" type="primary">保存prompt</n-button>
+            <n-button @click="rewriteClick()" type="warning">重写</n-button>
+          </div>
+          <div></div>
+          <div style="display: flex; gap: 10px;">
+            <n-button @click="cancelPromptCallback()" type="info">取消</n-button>
+            <n-button @click="replacePromptCallback()" type="primary">替换选中的内容</n-button>
+          </div>
         </div>
-        <div></div>
-        <div style="display: flex; gap: 10px;">
-          <n-button @click="cancelPromptCallback()" type="info">取消</n-button>
-          <n-button @click="replacePromptCallback()" type="primary">替换选中的内容</n-button>
-        </div>
-      </div>
-    </template>
-  </n-modal>
+      </template>
+    </n-modal>
+  </n-spin>
 </template>
 <script setup lang="ts">
   import { run, get } from '../../../sqlite3';
-  import { useMessage, NInput, NModal, NButton } from 'naive-ui';
-  import { ref, watchEffect } from 'vue';
+  import { useMessage, NInput, NModal, NButton, NSpin } from 'naive-ui';
+  import { reactive, ref, watchEffect } from 'vue';
   import OpenAI from 'openai';
 
   // 使用了one-api 统一接口设置
@@ -50,10 +53,18 @@
   })
 
   const emit = defineEmits(["update:showAIModal"]);
-
+  
   const formPrompt = ref<string>("")
   const reWriteContent = ref<string>("")
+  const showReWrite = ref<boolean>(false)
+  const loadingText = ref<string>("正在重写请稍后......")
   const message = useMessage()
+  const state = reactive({
+    model: "",
+    baseUrl: "",
+    apiKey: ""
+  })
+
   const savePromptCallback = async() => {
     const updateSql = `
         UPDATE PromptList
@@ -64,15 +75,27 @@
       if(!result) {
       console.log(result, "prompt保存成功")
       message.success("保存成功")
-      // emit("update:showPromptModal", false)
       }
   }
 
+  const setApiKeyClick = () => {
+    message.success("待实现")
+  }
+
+  const getApiModel = async() => {
+    const aiApi: any = await get(`select * from OpenAPI where IsDefault = 1`, [])
+    state.model = aiApi?.Model
+    state.baseUrl = aiApi?.BaseUrl
+    state.apiKey = aiApi?.apiKey
+  }
+
   const rewriteClick = async() => {
+    showReWrite.value = true
+    await getApiModel();
     const client = new OpenAI({
-      apiKey: "sk-7Ix1PX44G1cMly5oD02f2a3eD7044f279a78BdB9Ec05B776",
+      apiKey: state.apiKey, //"sk-7Ix1PX44G1cMly5oD02f2a3eD7044f279a78BdB9Ec05B776",
       dangerouslyAllowBrowser: true,
-      baseURL: "http://localhost:3000/v1",
+      baseURL: state.baseUrl,
     });
 
 
@@ -84,10 +107,11 @@
     console.log("rewriteClick")
     const chatCompletion = await client.chat.completions.create({
       messages: [{ role: 'user', content: content }],
-      model: 'gemini-1.5-flash',
+      model: state.model,
     });
     console.log(chatCompletion, "chatCompletion")
     reWriteContent.value = chatCompletion.choices[0].message.content;
+    showReWrite.value = false
   }
 
   const submitPromptCallback = () => {
@@ -95,10 +119,12 @@
   }
 
   const replacePromptCallback = () => {
-    emit("update:showAIModal", false)
-    
+    emit("update:showAIModal", false);
+
     (props.target as any).insert((selectedContent: any) => {
           const content =  `${reWriteContent.value}`;
+
+          console.log(content, "content")
           return {
             // 要插入的文本
             targetValue: ` ${content}`,
