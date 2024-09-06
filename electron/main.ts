@@ -231,7 +231,7 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
         $CoverImage: createInfo.coverImage
       };
       await insertRecord(record);
-      console.log("reply-=output 准备发射了")
+      console.log("视频下载完毕");
       event.reply("reply-output", true, sourceSubtitles);
     });
   }
