@@ -1,5 +1,6 @@
 import path from "path";
 import { exec, execSync } from "child_process";
+import electronLog  from 'electron-log';
 import fs from "fs-extra";
 import { app, BrowserWindow, ipcMain } from "electron";
 import { format } from "date-fns";
@@ -7,40 +8,6 @@ import { getHtml ,getAuthCmd, getExecuteFile, getExecutePath } from "./utils";
 import { connectDataBase, findRecord, insertRecord } from "./sqlHelper";
 import sharp from 'sharp'
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
-let templateFilePath = path.join(process.cwd(), "resources", "command");
-
-
-if (import.meta.env.DEV) {
-  templateFilePath = path.join(process.cwd(), "command");
-}
-console.log(templateFilePath, "templateFilePath");
-
-const ytDlp = path.join(
-  process.cwd(),
-  "command",
-  getExecutePath(),
-  getExecuteFile("yt-dlp")
-);
-
-const ytDlpPath = `${getAuthCmd()} ${ytDlp}`;
-
-const ffmpeg = path.join(
-  process.cwd(),
-  "command",
-  getExecutePath(),
-  getExecuteFile("ffmpeg")
-);
-
-const ffmpegPath = `${getAuthCmd()} ${ffmpeg}`;
-
-const removeDuplicateImages = path.join(
-  process.cwd(),
-  "command",
-  getExecutePath(),
-  getExecuteFile("RemoveDuplicateImages")
-);
-
-const removeDuplicateImagesPath = `${getAuthCmd()} ${removeDuplicateImages}`;
 
 // The built directory structure
 //
@@ -107,7 +74,54 @@ function createWindow() {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(process.env.DIST, "index.html"));
   }
+
+  // 重写console.log方法
+  const originalConsoleLog = console.log;
+  console.log = (...args) => {
+    originalConsoleLog(...args);
+    win?.webContents.send('main-process-log', args);
+  };
+
+  // 重写electron-log的日志方法
+  ['error', 'warn', 'info', 'verbose', 'debug', 'silly'].forEach(level => {
+    const originalLog = electronLog[level];
+    electronLog[level] = (...args) => {
+      originalLog(...args);
+      win?.webContents.send('main-process-log', [level, ...args]);
+    };
+  });
 }
+
+let templateFilePath = path.join(process.cwd(), "resources", "command");
+
+if (!import.meta.env.PROD) {
+  templateFilePath = path.join(process.cwd(), "command");
+}
+console.log(templateFilePath, "templateFilePath");
+
+const ytDlp = path.join(
+    templateFilePath,
+    getExecutePath(),
+    getExecuteFile("yt-dlp")
+);
+
+const ytDlpPath = `${getAuthCmd()} ${ytDlp}`;
+
+const ffmpeg = path.join(
+    templateFilePath,
+    getExecutePath(),
+    getExecuteFile("ffmpeg")
+);
+
+const ffmpegPath = `${getAuthCmd()} ${ffmpeg}`;
+
+const removeDuplicateImages = path.join(
+    templateFilePath,
+    getExecutePath(),
+    getExecuteFile("RemoveDuplicateImages")
+);
+
+const removeDuplicateImagesPath = `${getAuthCmd()} ${removeDuplicateImages}`;
 
 app.on("window-all-closed", () => {
   app.quit();
@@ -120,8 +134,7 @@ ipcMain.on("call-yt-dlp-video", async(event,videoUrl: string) => {
   let record: any = await findRecord(videoUrl);
   console.log(record, "record-------------------")
   let locationPath = path.join(
-    process.cwd(),
-    "command",
+    templateFilePath,
     record.FolderDate
   );
 
@@ -176,8 +189,7 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
     const createInfo = createMetadata(videoUrl);
 
     let locationPath = path.join(
-      process.cwd(),
-      "command",
+      templateFilePath,
       createInfo.folderDate
     );
 
@@ -268,8 +280,7 @@ ipcMain.on(
     const startTimeName = everyStartTime.replace(/[.:,-]/g, "");
     console.log(startTimeName, "startTimeName")
     const imagePath = path.join(
-      process.cwd(),
-      "command",
+      templateFilePath,
       folderDate,
       startTimeName
     );
@@ -309,13 +320,17 @@ ipcMain.on("call-get-duration", (event, folderDate) => {
   event.reply("reply-duration", packageJson.duration);
 }) 
 
+ipcMain.on("call-execute-path", (event)=> {
+  event.reply("reply-execute-path", process.cwd());
+})
+
 /**
  * 图片压缩
  */
 ipcMain.on("call-image-compress", (event, folderDate, everyStartTime, list) => {
   console.log("call-image-compress", list)
   const startTimeName = everyStartTime.replace(/[.:,-]/g, "");
-  const locationPath = path.join(process.cwd(),"command", folderDate, startTimeName);
+  const locationPath = path.join(templateFilePath, folderDate, startTimeName);
   list.forEach(async(item: any, index: number) => {
     console.log(item, "fileName")
     let fileName = item.split('.')[0];
@@ -382,6 +397,7 @@ const removeSimilarImages = (imagePath: string, multiple: number) => {
 /**
  * 在指定目录下查找元数据json文件
  * @param directoryPath
+ * @param type
  * @returns
  */
 const findJsonFilesInDirectorySync = (
@@ -425,12 +441,19 @@ const createMetadata = (url: string) => {
   const folderDate = format(new Date(), "yyyy-MM-dd-HH-mm-ss");
   console.log(folderDate, "date-folderDate");
 
-  const locationPath = path.join(process.cwd(),"command", folderDate);
+  const locationPath = path.join(templateFilePath, folderDate);
   let cmd = "";
   cmd = ` ${ytDlpPath} ${url}  -P ${locationPath} --write-info-json --skip-download  -o "%(id)s.%(ext)s"`;
 
   console.log(cmd, "cmd-123");
-  execSync(cmd);
+  try
+  {
+    execSync(cmd);
+  }
+  catch (e) {
+    console.log("执行cmd-123失败", e);
+  }
+  console.log("cmd-123执行完毕");
   const jsonFile: string | undefined =
     findJsonFilesInDirectorySync(locationPath);
 

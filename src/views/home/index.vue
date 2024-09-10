@@ -16,7 +16,16 @@
             type="primary"
             style="margin-left: 10px; margin-right: 10px;"
             >保存</n-button
-          ></div>
+          >
+            <n-button
+                @click="setClick"
+                size="small"
+                type="info"
+                style="margin-left: 10px; margin-right: 10px;"
+            >设置</n-button
+            >
+
+          </div>
       </n-layout-header>
       <n-layout has-sider content-style="padding: 24px;">
         <n-layout-content content-style="margin-left:20px;">
@@ -64,17 +73,7 @@
 
   <n-drawer v-model:show="active" :width="502" :placement="'right'">
     <n-drawer-content title="系统设置">
-      <n-collapse>
-        <n-collapse-item title="文件下载地址" name="1">
-          <div>文件下载地址</div>
-        </n-collapse-item>
-        <n-collapse-item title="Google Gemini" name="2">
-          <div>Gemini Api</div>
-        </n-collapse-item>
-        <n-collapse-item title="OpenAI ChatGPT" name="3">
-          <div>ChatGPT Api</div>
-        </n-collapse-item>
-      </n-collapse>
+
     </n-drawer-content>
   </n-drawer>
 
@@ -599,39 +598,39 @@ onMounted( async() => {
 });
 
 // 点击获取字幕
-const subtitleClick = async () => {
-  console.log("rrrrrr-engligsh")
-
-  console.log(input.value.indexOf("toutiao"), "dddddddd")
-  //先检查一下url是否为空
-  console.log(input.value, "inputValue");
-  if (input.value === "" || input.value === null) {
-    message.warning("请输入视频链接");
-    return;
-  }
-
-  const row: any = await get(
-    `select * from ParsingVideo where Path = ? and Env = ? `,
-    [input.value, import.meta.env.MODE]
-  );
-
-  console.log(row, "row===row==input");
-  if (row && row.Id) {
-    console.log(row, "row-input", row.FolderDate);
-    outputSource.value = row.SourceSubtitles;
-    outputTarget.value = row.TargetSubtitles;
-
-    state.currentVideoData = row;
-    selectedKey.value = row.Id;
-    message.success("此链接视频已被下载，已跳转到该视频");
-  } else {
-    showPin.value = true;
-    state.loadingText = "正在下载请稍后...";
-
-    console.log("准备下载");
-    ipcRenderer.send("call-yt-dlp", input.value, checkedValue.value);
-  }
-};
+// const subtitleClick = async () => {
+//   console.log("rrrrrr-engligsh")
+//
+//   console.log(input.value.indexOf("toutiao"), "dddddddd")
+//   //先检查一下url是否为空
+//   console.log(input.value, "inputValue");
+//   if (input.value === "" || input.value === null) {
+//     message.warning("请输入视频链接");
+//     return;
+//   }
+//
+//   const row: any = await get(
+//     `select * from ParsingVideo where Path = ? and Env = ? `,
+//     [input.value, import.meta.env.MODE]
+//   );
+//
+//   console.log(row, "row===row==input");
+//   if (row && row.Id) {
+//     console.log(row, "row-input", row.FolderDate);
+//     outputSource.value = row.SourceSubtitles;
+//     outputTarget.value = row.TargetSubtitles;
+//
+//     state.currentVideoData = row;
+//     selectedKey.value = row.Id;
+//     message.success("此链接视频已被下载，已跳转到该视频");
+//   } else {
+//     showPin.value = true;
+//     state.loadingText = "正在下载请稍后...";
+//
+//     console.log("准备下载");
+//     ipcRenderer.send("call-yt-dlp", input.value, checkedValue.value);
+//   }
+// };
 
 // 子进程定义方法
 ipcRenderer.on("reply-output", (event: any, isSupport: boolean, text) => {

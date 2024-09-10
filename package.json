@@ -1,6 +1,6 @@
 {
   "name": "electron-vite-vue3-tools",
-  "version": "0.0.33",
+  "version": "0.0.35",
   "main": "dist-electron/main.js",
   "author": "aehyok",
   "license": "MIT",
@@ -9,12 +9,12 @@
   "scripts": {
     "postinstall": "electron-builder install-app-deps",
     "start-win": "chcp 65001 && vite",
-    "build-win": "chcp 65001 && vite build && electron-builder",
+    "build-win": "chcp 65001 && vite build --mode production && electron-builder",
     "start-mac": "vite",
     "python-win": "cd python/RemoveDuplicateImages && pyinstaller --onefile main.py -y --distpath  ../../command/win -n RemoveDuplicateImages.exe",
     "python-whisper": "cd python/Whisper && pyinstaller --hidden-import=openai-whisper --onefile main.py -y --distpath  ../../command/win -n Whisper.exe",
     "python-mac": "cd python/RemoveDuplicateImages && pyinstaller --onefile main.py -y --distpath  ../../command/mac -n RemoveDuplicateImages",
-    "build": "vite build && electron-builder"
+    "build": "vite build --mode production && electron-builder"
   },
   "dependencies": {
     "@google/generative-ai": "^0.1.3",
@@ -23,6 +23,7 @@
     "@vicons/ionicons5": "^0.12.0",
     "cheerio": "^1.0.0-rc.12",
     "date-fns": "^2.30.0",
+    "electron-log": "^5.2.0",
     "fs-extra": "^11.2.0",
     "lucide-vue-next": "^0.395.0",
     "md-editor-v3": "^4.13.3",

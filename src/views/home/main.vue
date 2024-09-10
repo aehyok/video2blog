@@ -82,21 +82,8 @@ import { useRouter } from "vue-router";
 
 const message = useMessage();
 const router = useRouter();
-message.success("欢迎使用aehyok字幕下载器");
+message.success("欢迎使用aehyok视频转图文AI小工具");
 let videoPlayer = ref<Player>();
-
-onMounted(async() => {
-  await getAll();
-  videoPlayer.value = new Player({
-    id: "videoPlayer",
-    // url: "http://s2.pstatp.com/cdn/expire-1-M/byted-player-videos/1.0.0/xgplayer-demo.mp4",
-    url: "/command/2024-06-10-08-52-18/QxjzF9kt5Z0.webm",
-    height: "300px",
-    width: "100%",
-  });
-
-  console.log(videoPlayer, "videoPlayer");
-});
 
 const formRef = ref<FormInst | null>(null);
 
@@ -112,6 +99,34 @@ const model = reactive<any>({
 const state = reactive({
   checkedValue: false,
   rule: {},
+  executePath: "",
+  middlePath: ""
+});
+
+onMounted(async() => {
+  let env = import.meta.env.MODE;
+  state.middlePath = env == "development" ? "": "/resources";
+
+  ipcRenderer.send("call-execute-path");
+  await getAll();
+
+
+  console.log(videoPlayer, "videoPlayer");
+});
+
+
+// 子进程定义方法
+ipcRenderer.on("reply-execute-path", (event: any, executePath: string) => {
+  console.log(event, "event-ipcRenderer");
+  state.executePath = executePath;
+
+  videoPlayer.value = new Player({
+    id: "videoPlayer",
+    // url: "http://s2.pstatp.com/cdn/expire-1-M/byted-player-videos/1.0.0/xgplayer-demo.mp4",
+    url: state.executePath + state.middlePath +"/command/2024-06-10-08-52-18/QxjzF9kt5Z0.webm",
+    height: "300px",
+    width: "100%",
+  });
 });
 
 const jumpDetail = (item: any) => {
@@ -192,10 +207,12 @@ const subtitleClick = async () => {
 ipcRenderer.on("reply-videoPath", async(event: any, type: string) => {
   console.log(type, "event-ipcRenderer");
   console.log(model.currentSelected, "model.currentSelected");
+
+
   if(type) {
     videoPlayer.value = new Player({
       id: "videoPlayer",
-      url: `/command/${model.currentSelected.FolderDate}/${model.currentSelected.Id}${type}`,
+      url: state.executePath + state.middlePath  +`/command/${model.currentSelected.FolderDate}/${model.currentSelected.Id}${type}`,
       height: "300px",
       width: "100%",
     });
@@ -203,6 +220,7 @@ ipcRenderer.on("reply-videoPath", async(event: any, type: string) => {
 });
 
 // 子进程定义方法
+
 ipcRenderer.on("reply-output", async(event: any, isSupport: boolean, text) => {
   console.log(event, "event-ipcRenderer");
   if (!isSupport) {

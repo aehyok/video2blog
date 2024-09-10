@@ -17,6 +17,10 @@ ipcRenderer.invoke("local-sqlite3-db").then(async (dbPath) => {
   console.log(dbPath, "渲染进程获取到数据库路径");
 });
 
+ipcRenderer.on('main-process-log', (event, args) => {
+  console.log('electron主进程日志:', ...args);
+});
+
 // Remove Preload scripts loading
 const app = createApp(App);
 app.use(router);
