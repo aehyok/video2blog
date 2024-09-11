@@ -12,7 +12,6 @@
     "build-win": "chcp 65001 && vite build --mode production && electron-builder",
     "start-mac": "vite",
     "python-win": "cd python/RemoveDuplicateImages && pyinstaller --onefile main.py -y --distpath  ../../command/win -n RemoveDuplicateImages.exe",
-    "python-whisper": "cd python/Whisper && pyinstaller --hidden-import=openai-whisper --onefile main.py -y --distpath  ../../command/win -n Whisper.exe",
     "python-mac": "cd python/RemoveDuplicateImages && pyinstaller --onefile main.py -y --distpath  ../../command/mac -n RemoveDuplicateImages",
     "build": "vite build --mode production && electron-builder"
   },

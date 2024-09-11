@@ -105,7 +105,7 @@ const ytDlp = path.join(
     getExecuteFile("yt-dlp")
 );
 
-const ytDlpPath = `${getAuthCmd()} ${ytDlp}`;
+const ytDlpPath = `${getAuthCmd()} "${ytDlp}"`;
 
 const ffmpeg = path.join(
     templateFilePath,
@@ -113,7 +113,7 @@ const ffmpeg = path.join(
     getExecuteFile("ffmpeg")
 );
 
-const ffmpegPath = `${getAuthCmd()} ${ffmpeg}`;
+const ffmpegPath = `${getAuthCmd()} "${ffmpeg}"`;
 
 const removeDuplicateImages = path.join(
     templateFilePath,
@@ -121,7 +121,7 @@ const removeDuplicateImages = path.join(
     getExecuteFile("RemoveDuplicateImages")
 );
 
-const removeDuplicateImagesPath = `${getAuthCmd()} ${removeDuplicateImages}`;
+const removeDuplicateImagesPath = `${getAuthCmd()} "${removeDuplicateImages}"`;
 
 app.on("window-all-closed", () => {
   app.quit();
@@ -138,7 +138,7 @@ ipcMain.on("call-yt-dlp-video", async(event,videoUrl: string) => {
     record.FolderDate
   );
 
-  const cmd = `${ytDlpPath} -P ${locationPath} ${videoUrl} -o "%(id)s.%(ext)s" `
+  const cmd = `${ytDlpPath} -P "${locationPath}" ${videoUrl} -o "%(id)s.%(ext)s" `
   execSync(cmd);
 
   event.reply("reply-download-video");
@@ -196,8 +196,8 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
     // 一个字幕一个字幕的进行判断下载
     let cmd = "";
     cmd = isDownloadVideo
-      ? `${ytDlpPath} -P ${locationPath} ${videoUrl} -o "%(id)s.%(ext)s" --write-subs --sub-lang "zh.*,en.*,danmaku.xml"`
-      : `${ytDlpPath} --dump-json -P ${locationPath} ${videoUrl} -o "%(id)s.%(ext)s" --skip-download --write-subs --sub-lang "zh.*,en.*,danmaku.xml"`;
+      ? `${ytDlpPath} -P "${locationPath}" ${videoUrl} -o "%(id)s.%(ext)s" --write-subs --sub-lang "zh.*,en.*,danmaku.xml"`
+      : `${ytDlpPath} --dump-json -P "${locationPath}" ${videoUrl} -o "%(id)s.%(ext)s" --skip-download --write-subs --sub-lang "zh.*,en.*,danmaku.xml"`;
 
     process.env.NODE_STDOUT_ENCODING = "utf-8";
     console.log(cmd, "download");
@@ -293,7 +293,7 @@ ipcMain.on(
       const imageUrl = path.join(imagePath, "%03d.png");
       everyStartTime = everyStartTime.replace(/[,-]/g, ".");
       everyEndTime = everyEndTime.replace(/[,-]/g, ".");
-      const cmd = `${ffmpegPath} -i ${videoPath} -ss ${everyStartTime} -to ${everyEndTime} -vf "fps=3/1" ${imageUrl}`;
+      const cmd = `${ffmpegPath} -i "${videoPath}" -ss ${everyStartTime} -to ${everyEndTime} -vf "fps=3/1" ${imageUrl}`;
       console.log(cmd, "cmd");
       execSync(cmd);
 
@@ -389,7 +389,7 @@ const reloadImages = (event: any,imagePath: string) => {
  * @param multiple 
  */
 const removeSimilarImages = (imagePath: string, multiple: number) => {
-  const cvString = `${removeDuplicateImagesPath} ${imagePath}  ${multiple}`; 
+  const cvString = `${removeDuplicateImagesPath} "${imagePath}"  ${multiple}`;
   execSync(cvString);
 }
 
@@ -443,7 +443,7 @@ const createMetadata = (url: string) => {
 
   const locationPath = path.join(templateFilePath, folderDate);
   let cmd = "";
-  cmd = ` ${ytDlpPath} ${url}  -P ${locationPath} --write-info-json --skip-download  -o "%(id)s.%(ext)s"`;
+  cmd = ` ${ytDlpPath} ${url}  -P "${locationPath}" --write-info-json --skip-download  -o "%(id)s.%(ext)s"`;
 
   console.log(cmd, "cmd-123");
   try
