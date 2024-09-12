@@ -377,8 +377,6 @@ const reloadImages = (event: any,imagePath: string) => {
           });
         });
       });
-
-      
     });
   });
 }

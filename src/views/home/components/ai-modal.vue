@@ -23,7 +23,6 @@
       <template #action>
         <div style="display: flex; justify-content: space-between;width: 100%; ">
           <div style="display: flex; gap: 10px;">
-            <n-button @click="setApiKeyClick()" type="info">设置ApiKey</n-button>
             <n-button @click="savePromptCallback()" type="primary">保存prompt</n-button>
             <n-button @click="rewriteClick()" type="warning">重写</n-button>
           </div>
@@ -84,16 +83,17 @@
 
   const getApiModel = async() => {
     const aiApi: any = await get(`select * from OpenAPI where IsDefault = 1`, [])
+    console.log(aiApi, "AiApi------------")
     state.model = aiApi?.Model
     state.baseUrl = aiApi?.BaseUrl
-    state.apiKey = aiApi?.apiKey
+    state.apiKey = aiApi?.ApiKey
   }
 
   const rewriteClick = async() => {
     showReWrite.value = true
     await getApiModel();
     const client = new OpenAI({
-      apiKey: state.apiKey, //"sk-7Ix1PX44G1cMly5oD02f2a3eD7044f279a78BdB9Ec05B776",
+      apiKey: state.apiKey,
       dangerouslyAllowBrowser: true,
       baseURL: state.baseUrl,
     });

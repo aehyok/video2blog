@@ -24,7 +24,6 @@
                 style="margin-left: 10px; margin-right: 10px;"
             >设置</n-button
             >
-
           </div>
       </n-layout-header>
       <n-layout has-sider content-style="padding: 24px;">
@@ -73,7 +72,87 @@
 
   <n-drawer v-model:show="active" :width="502" :placement="'right'">
     <n-drawer-content title="系统设置">
-
+      <n-table :bordered="false" :single-line="false">
+        <thead>
+        <tr>
+          <th>model</th>
+          <th>baseURL</th>
+          <th>状态</th>
+          <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr v-for="item in state.openApiList ">
+          <td>{{ item.Model }}</td>
+          <td>{{ item.BaseUrl }}</td>
+          <td>
+            <NButton size="tiny" :type="item.IsDefault ==1 ? 'primary': 'warning'">
+              {{ item.IsDefault ==1 ? "启用": "禁用" }}
+            </NButton>
+          </td>
+          <td>
+            <NButton type="tertiary" size="tiny" @click="editOpenApiClick(item)">编辑</NButton>
+            <NButton size="tiny" type="tertiary" @click="changeStatus(item)" >{{item.IsDefault == 1 ? "禁用" : "启用"}}</NButton>
+          </td>
+        </tr>
+        </tbody>
+      </n-table>
+      <div style="display: flex; justify-content: flex-end; margin: 20px;">
+        <NButton style="margin-right: 20px" type="primary" size="tiny" color="#bbee53" @click="addOpenApiClick">新增</NButton>
+      </div>
+      <n-form v-if="showForm" ref="formRef" label-placement="top" :model="dynamicForm" :style="{ maxWidth: '440px' }">
+        <n-form-item
+            label="model"
+            path="model"
+            :rule="{
+                required: true,
+                message: '请输入model',
+                trigger: ['input', 'blur'],
+              }"
+        >
+          <n-input v-model:value="dynamicForm.model" placeholder="请输入model" clearable />
+        </n-form-item>
+        <n-form-item
+            label="baseUrl"
+            path="baseUrl"
+            :rule="{
+                required: true,
+                message: '请输入baseUrl',
+                trigger: ['input', 'blur'],
+              }"
+        >
+          <n-input v-model:value="dynamicForm.baseUrl" placeholder="请输入baseUrl" clearable />
+        </n-form-item>
+        <n-form-item
+            label="apiKey"
+            path="apiKey"
+            :rule="{
+                required: true,
+                message: '请输入apiKey',
+                trigger: ['input', 'blur'],
+              }"
+        >
+          <n-input v-model:value="dynamicForm.apiKey" placeholder="请输入apiKey"  clearable />
+        </n-form-item>
+        <n-form-item
+            label="remark"
+            path="remark"
+            :rule="{
+                required: false,
+                message: '请输入remark',
+                trigger: ['input', 'blur'],
+              }"
+        >
+          <n-input v-model:value="dynamicForm.remark" placeholder="请输入remark" clearable />
+        </n-form-item>
+        <n-form-item>
+          <n-space>
+            <n-button attr-type="button" @click="saveOpenApiClick">
+              保存
+            </n-button>
+          </n-space>
+        </n-form-item>
+      </n-form>
     </n-drawer-content>
   </n-drawer>
 
@@ -176,32 +255,29 @@ export default defineComponent({
 });
 </script>
 <script setup lang="ts">
-import { ref, h, reactive, computed, onMounted } from "vue";
+import { ref, h, reactive, computed, onMounted, toRaw  } from "vue";
 import { ipcRenderer } from "electron";
 import {
   NButton,
   NInput,
-  NSwitch,
   NLayout,
   NLayoutHeader,
   NLayoutFooter,
-  NLayoutSider,
   NSpin,
-  NCollapse,
   NDrawer,
   NDrawerContent,
-  NCollapseItem,
   NLayoutContent,
-  NMenu,
   NIcon,
   useMessage,
   useModal,
   NGi,
   NGrid,
+  NTable,
   useDialog,
+  NForm,
+  NFormItem
 } from "naive-ui";
 import {
-  VideocamOutline as BookIcon,
   DownloadOutline as Download,
 } from "@vicons/ionicons5";
 import PromptModal from "./components/prompt-modal.vue";
@@ -213,7 +289,7 @@ import WhisperConvertModal from "./components/whisperconvert-modal.vue";
 import { get, all, run } from "../../sqlite3";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { useStorage } from "@vueuse/core";
-import { getUserSelf, getToutiaoVideoUrl } from "../../utils/request";
+import { getUserSelf } from "../../utils/request";
 import { MdEditor } from "md-editor-v3";
 import "md-editor-v3/lib/style.css";
 import packageInfo from "../../../package.json";
@@ -238,7 +314,8 @@ const source = ref(null);
 const target = ref<any>(null);
 const intervalId = ref<any>();
 const selectedKey = ref("");
-
+const formRef = ref();
+const showForm = ref(false)
 const state = reactive<any>({
   rightMenuList: [],
   rightGroupLevel: false, //右键菜单是否显示
@@ -266,33 +343,41 @@ const state = reactive<any>({
     y: 200,
     theme: "mac dark",
   },
+  openApiList: []
+});
+
+const dynamicForm = reactive({
+  id: "",
+  model: "",
+  baseUrl: "",
+  apiKey: "",
+  remark: "",
+  isDefault: 0,
 });
 
 const isDownloadVideo = computed(() => {
   console.log("isDownloadVideo", state.currentVideoData);
   return Object.keys(state.currentVideoData).length === 0
     ? false
-    : (state.currentVideoData as any).HasVideo === 1
-    ? false
-    : true;
+    : (state.currentVideoData as any).HasVideo !== 1;
 });
 
-const downloadVideoClick = () => {
-  dialog.warning({
-    title: "视频下载",
-    content: "请确认是否下载该视频？",
-    positiveText: "确定",
-    negativeText: "取消",
-    onPositiveClick: async () => {
-      showPin.value = true;
-      state.loadingText = "正在下载视频请稍后...";
-      ipcRenderer.send("call-yt-dlp-video", state.currentVideoData.Path);
-    },
-    onNegativeClick: () => {
-      // message.error('不确定')
-    },
-  });
-};
+// const downloadVideoClick = () => {
+//   dialog.warning({
+//     title: "视频下载",
+//     content: "请确认是否下载该视频？",
+//     positiveText: "确定",
+//     negativeText: "取消",
+//     onPositiveClick: async () => {
+//       showPin.value = true;
+//       state.loadingText = "正在下载视频请稍后...";
+//       ipcRenderer.send("call-yt-dlp-video", state.currentVideoData.Path);
+//     },
+//     onNegativeClick: () => {
+//       // message.error('不确定')
+//     },
+//   });
+// };
 
 const testApi = async () => {
   const code = "gemini";
@@ -474,7 +559,7 @@ const backClick = () => {
 };
 
 const saveClick = async () => {
-  console.log("保存按钮");
+  console.log("保存按钮888888888888888888888");
 
   if ((state.currentVideoData as any).Id) {
     const updateSql = `
@@ -496,10 +581,100 @@ const saveClick = async () => {
   }
 };
 
-const setClick = () => {
+const setClick = async() => {
   active.value = true;
+  showForm.value = false;
+  await getOpenApiList();
   state.showMenu = true;
 };
+
+const getOpenApiList = async() =>  {
+  const rows = await all(
+      "select * from OpenAPI",
+      []
+  );
+  console.log(rows, "openapi----")
+  state.openApiList = rows;
+}
+/**
+ * 修改状态
+ */
+const changeStatus = (item: any) => {
+  console.log("item", item);
+}
+
+/**
+ * 编辑
+ * @param item
+ */
+const editOpenApiClick = (item: any) => {
+  showForm.value = true;
+  dynamicForm.id = item.Id;
+  dynamicForm.model = item.Model;
+  dynamicForm.remark = item.Remark;
+  dynamicForm.apiKey = item.ApiKey;
+  dynamicForm.baseUrl = item.BaseUrl;
+}
+
+const saveOpenApiClick = async(e: any) => {
+  e.preventDefault();
+
+  formRef.value?.validate(async(errors: any) => {
+    if (!errors) {
+
+      // 修改
+      if(dynamicForm.id) {
+        const updateSql = `
+          UPDATE OpenAPI
+          SET Model = $1, BaseUrl = $2, ApiKey = $3, Remark = $4
+          WHERE Id = $5
+        `;
+        const result = await run(updateSql, [dynamicForm.model, dynamicForm.baseUrl, dynamicForm.apiKey, dynamicForm.remark, dynamicForm.id]);
+        if(!result) {
+          console.log(result, "修改成功")
+          message.success("修改成功")
+          setTimeout(() => {
+            showForm.value = false;
+          }, 500)
+        }
+      }
+      // 新增
+      else {
+        const insertSql = `insert into OpenAPI (Id, Model, BaseUrl, ApiKey, Remark, IsDefault)
+                     values ($Id, $Model, $BaseUrl, $ApiKey, $Remark, $IsDefault)`;
+        let data = toRaw(dynamicForm);
+        console.log(data, "data---bew")
+        const result =  await run(insertSql, {
+          $Id: 10,
+          $Model: data.model,
+          $BaseUrl: data.baseUrl,
+          $ApiKey: data.apiKey,
+          $Remark: data.remark,
+          $IsDefault: 0
+        } );
+        if(!result) {
+          console.log(result, "新增成功")
+          message.success("新增成功")
+          setTimeout(() => {
+            showForm.value = false;
+          }, 500)
+        }
+      }
+    }
+    else {
+      console.log('errors', errors)
+    }
+  })
+}
+
+const addOpenApiClick = () => {
+  showForm.value = true;
+  dynamicForm.id = "";
+  dynamicForm.model = "";
+  dynamicForm.remark = "";
+  dynamicForm.apiKey = "";
+  dynamicForm.baseUrl = "";
+}
 
 const modalClick = async () => {
   await getWhisperModelList();
@@ -525,60 +700,30 @@ const showPin = ref(false);
 const outputSource = ref("");
 const outputTarget = ref("");
 const outputTitle = ref("");
-const checkedValue = ref(true);
 
-// const getAll = async (input: string) => {
-//   menuOptions.value = [];
 
-//   let env = import.meta.env.MODE;
-
-//   const rows: any[] = await all(
-//     "select * From ParsingVideo where Env = ? order by CreateTime desc",
-//     [env]
+// const getWhisperModelList = async () => {
+//   const rows = await all(
+//     "select Id, Title, Name, Type, Size, IsDownLoad from WhisperModel",
+//     []
 //   );
-
-//   console.log(rows, "home页面获取数据");
-
-//   rows.forEach((item: any) => {
-//     console.log(item, input, "item-input");
-//     if (input === item.Path) {
-//       selectedKey.value = item.Id;
-//       state.currentVideoData = item;
-//       outputTarget.value = item.TargetSubtitles;
-//     }
-//     const data = {
-//       key: item.Id,
-//       label: item.Title,
-//       icon: renderIcon(BookIcon),
-//     };
-//     console.log(data, "data");
-//     menuOptions.value.push(data);
-//     console.log(menuOptions.value, "menuOptions.value");
-//   });
+//   console.log(rows, "whisperList");
+//   modelList.value = rows;
 // };
 
-const getWhisperModelList = async () => {
-  const rows = await all(
-    "select Id, Title, Name, Type, Size, IsDownLoad from WhisperModel",
-    []
-  );
-  console.log(rows, "whisperList");
-  modelList.value = rows;
-};
-
 // getAll("");
-const onMenuChange = async (key: string, item: any) => {
-  console.log("onMenuChange", key, item);
-  const row: any = await get(
-    `select * from ParsingVideo where Id = ? and Env = ?`,
-    [key, import.meta.env.MODE]
-  );
-  console.log(row, "row", row.FolderDate);
-  outputSource.value = row.SourceSubtitles;
-  outputTarget.value = row.TargetSubtitles;
-  outputTitle.value = row.Title;
-  state.currentVideoData = row;
-};
+// const onMenuChange = async (key: string, item: any) => {
+//   console.log("onMenuChange", key, item);
+//   const row: any = await get(
+//     `select * from ParsingVideo where Id = ? and Env = ?`,
+//     [key, import.meta.env.MODE]
+//   );
+//   console.log(row, "row", row.FolderDate);
+//   outputSource.value = row.SourceSubtitles;
+//   outputTarget.value = row.TargetSubtitles;
+//   outputTitle.value = row.Title;
+//   state.currentVideoData = row;
+// };
 
 onMounted( async() => {
   // getAll("");
@@ -596,41 +741,6 @@ onMounted( async() => {
 
   state.currentVideoData = row;
 });
-
-// 点击获取字幕
-// const subtitleClick = async () => {
-//   console.log("rrrrrr-engligsh")
-//
-//   console.log(input.value.indexOf("toutiao"), "dddddddd")
-//   //先检查一下url是否为空
-//   console.log(input.value, "inputValue");
-//   if (input.value === "" || input.value === null) {
-//     message.warning("请输入视频链接");
-//     return;
-//   }
-//
-//   const row: any = await get(
-//     `select * from ParsingVideo where Path = ? and Env = ? `,
-//     [input.value, import.meta.env.MODE]
-//   );
-//
-//   console.log(row, "row===row==input");
-//   if (row && row.Id) {
-//     console.log(row, "row-input", row.FolderDate);
-//     outputSource.value = row.SourceSubtitles;
-//     outputTarget.value = row.TargetSubtitles;
-//
-//     state.currentVideoData = row;
-//     selectedKey.value = row.Id;
-//     message.success("此链接视频已被下载，已跳转到该视频");
-//   } else {
-//     showPin.value = true;
-//     state.loadingText = "正在下载请稍后...";
-//
-//     console.log("准备下载");
-//     ipcRenderer.send("call-yt-dlp", input.value, checkedValue.value);
-//   }
-// };
 
 // 子进程定义方法
 ipcRenderer.on("reply-output", (event: any, isSupport: boolean, text) => {
@@ -666,20 +776,20 @@ ipcRenderer.on("reply-duration", (event: any, duration: number) => {
   ];
 });
 
-ipcRenderer.on("reply-download-video", async (event: any, text: string) => {
-  showPin.value = false;
-  const updateSql = `
-                UPDATE ParsingVideo
-                SET HasVideo = $1
-                WHERE Id = $3
-              `;
-  const result = await run(updateSql, [1, state.currentVideoData.Id]);
-  if (!result) {
-    getAll(state.currentVideoData.Id);
-    console.log(result, "result");
-    message.success("视频下载完毕");
-  }
-});
+// ipcRenderer.on("reply-download-video", async (event: any, text: string) => {
+//   showPin.value = false;
+//   const updateSql = `
+//                 UPDATE ParsingVideo
+//                 SET HasVideo = $1
+//                 WHERE Id = $3
+//               `;
+//   const result = await run(updateSql, [1, state.currentVideoData.Id]);
+//   if (!result) {
+//     getAll(state.currentVideoData.Id);
+//     console.log(result, "result");
+//     message.success("视频下载完毕");
+//   }
+// });
 </script>
 <style scoped>
 .logo {
