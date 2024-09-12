@@ -1,10 +1,11 @@
 <template>
   <n-modal
     style="width: 300px;height: 300px"
-    :show = "showQrCodeModal" 
+    :show = "showQrCodeModal"
     preset="dialog"
     :show-icon="false"
     :title="'墨滴第三方平台扫码登录'"
+    @close="cancelClick"
   >
     <div class="modal-center">
       <img :src="qrCodeUrl" style="width: 200px; height: 200px;" />
@@ -18,6 +19,14 @@
     showQrCodeModal: Boolean,
     qrCodeUrl: String
   })
+
+  const emit = defineEmits(["update:showQrCodeModal"])
+
+  const cancelClick = () => {
+    console.log("cancelCallback")
+    // state.showImageModal = false
+    emit("update:showQrCodeModal", false)
+  }
 </script>
 <style scoped>
   .modal-center {
