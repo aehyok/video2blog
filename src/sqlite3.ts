@@ -28,7 +28,7 @@ export function run(sql: string, params: any) {
     database.run(sql, params, (err: any, data: any) => {
       if (err === null) {
         console.log(err, "run-resolve-redner");
-        resolve(err);
+        resolve(data);
       } else {
         console.log(err, "run-reject-redner");
         reject(err);

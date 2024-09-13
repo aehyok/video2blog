@@ -109,10 +109,8 @@ onMounted(async() => {
   ipcRenderer.send("call-execute-path");
   await getAll();
 
-
   console.log(videoPlayer, "videoPlayer");
 });
-
 
 // 子进程定义方法
 ipcRenderer.on("reply-execute-path", (event: any, executePath: string) => {
@@ -138,7 +136,7 @@ const selectItemClick = (item: any) => {
 
   item.isSelected = true;
   model.currentSelected = item;
-  ipcRenderer.send("call-videoPath", item.FolderDate,item.Id);
+  ipcRenderer.send("call-videoPath", item.FolderDate);
 };
 
 const getPlatform = (path: string) => {

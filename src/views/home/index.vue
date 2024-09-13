@@ -57,16 +57,16 @@
       <n-layout-footer :inverted="inverted" bordered class="footer">
         Powered by aehyok v{{ version }} Copyright © 2024 - All right reserved.
       </n-layout-footer>
-      <div
-        style="left: 260px; top: 200px; position: absolute; z-index: 1"
-        v-if="isDownloadVideo"
-      >
-        <n-button circle color="#8a2be2" @click="downloadVideoClick">
-          <template #icon>
-            <n-icon><Download /></n-icon>
-          </template>
-        </n-button>
-      </div>
+<!--      <div-->
+<!--        style="left: 260px; top: 200px; position: absolute; z-index: 1"-->
+<!--        v-if="isDownloadVideo"-->
+<!--      >-->
+<!--        <n-button circle color="#8a2be2" @click="downloadVideoClick">-->
+<!--          <template #icon>-->
+<!--            <n-icon><Download /></n-icon>-->
+<!--          </template>-->
+<!--        </n-button>-->
+<!--      </div>-->
     </n-layout>
   </n-spin>
 
@@ -255,7 +255,7 @@ export default defineComponent({
 });
 </script>
 <script setup lang="ts">
-import { ref, h, reactive, computed, onMounted, toRaw  } from "vue";
+import { ref, reactive, onMounted, toRaw  } from "vue";
 import { ipcRenderer } from "electron";
 import {
   NButton,
@@ -269,7 +269,6 @@ import {
   NLayoutContent,
   NIcon,
   useMessage,
-  useModal,
   NGi,
   NGrid,
   NTable,
@@ -278,9 +277,9 @@ import {
   NFormItem,
   NSpace
 } from "naive-ui";
-import {
-  DownloadOutline as Download,
-} from "@vicons/ionicons5";
+// import {
+//   DownloadOutline as Download,
+// } from "@vicons/ionicons5";
 import PromptModal from "./components/prompt-modal.vue";
 import AIModal from "./components/ai-modal.vue";
 import ImageListModal from "./components/imagelist-modal.vue";
@@ -288,7 +287,6 @@ import QrcodeModal from "./components/qrcode-modal.vue";
 import WhisperModal from "./components/whisper-modal.vue";
 import WhisperConvertModal from "./components/whisperconvert-modal.vue";
 import { get, all, run } from "../../sqlite3";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { useStorage } from "@vueuse/core";
 import { getUserSelf } from "../../utils/request";
 import { MdEditor } from "md-editor-v3";
@@ -309,7 +307,6 @@ version.value = packageInfo.version;
 const cacheState: any = useStorage("token", {});
 
 const message = useMessage();
-const modal = useModal();
 const active = ref(false);
 const source = ref(null);
 const target = ref<any>(null);
@@ -356,12 +353,12 @@ const dynamicForm = reactive({
   isDefault: 0,
 });
 
-const isDownloadVideo = computed(() => {
-  console.log("isDownloadVideo", state.currentVideoData);
-  return Object.keys(state.currentVideoData).length === 0
-    ? false
-    : (state.currentVideoData as any).HasVideo !== 1;
-});
+// const isDownloadVideo = computed(() => {
+//   console.log("isDownloadVideo", state.currentVideoData);
+//   return Object.keys(state.currentVideoData).length === 0
+//     ? false
+//     : (state.currentVideoData as any).HasVideo !== 1;
+// });
 
 // const downloadVideoClick = () => {
 //   dialog.warning({
@@ -380,25 +377,25 @@ const isDownloadVideo = computed(() => {
 //   });
 // };
 
-const testApi = async () => {
-  const code = "gemini";
-  const geminiInfo: any = await get(
-    `select apiKey from OpenAPI where code = ?`,
-    code
-  );
-  console.log(geminiInfo, "geminiInfo");
-  const genAI = new GoogleGenerativeAI(geminiInfo.apiKey);
-
-  const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-
-  const prompt =
-    "请使用中文回答我，中国所有的省份，并列举每个省份至少一个好玩的地方";
-
-  const result = await model.generateContent(prompt);
-  const response = await result.response;
-  const text = response.text();
-  console.log(text, "response");
-};
+// const testApi = async () => {
+//   const code = "gemini";
+//   const geminiInfo: any = await get(
+//     `select apiKey from OpenAPI where code = ?`,
+//     code
+//   );
+//   console.log(geminiInfo, "geminiInfo");
+//   const genAI = new GoogleGenerativeAI(geminiInfo.apiKey);
+//
+//   const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+//
+//   const prompt =
+//     "请使用中文回答我，中国所有的省份，并列举每个省份至少一个好玩的地方";
+//
+//   const result = await model.generateContent(prompt);
+//   const response = await result.response;
+//   const text = response.text();
+//   console.log(text, "response");
+// };
 
 const rightContextMenuClick = async (item: any) => {
   console.log(item, "右键点击菜单时触发的事件");
@@ -677,24 +674,23 @@ const addOpenApiClick = () => {
   dynamicForm.baseUrl = "";
 }
 
-const modalClick = async () => {
-  await getWhisperModelList();
-  showModal.value = true;
-  modal.create({
-    title: "模态框",
-    content: "内容",
-    preset: "dialog",
-  });
-};
+// const modalClick = async () => {
+//   await getWhisperModelList();
+//   showModal.value = true;
+//   modal.create({
+//     title: "模态框",
+//     content: "内容",
+//     preset: "dialog",
+//   });
+// };
 
-const input = ref("https://www.toutiao.com/video/7381383248930144794");
 
-function renderIcon(icon: any) {
-  return () => h(NIcon, null, { default: () => h(icon) });
-}
-
-const menuOptions = ref<any[]>([]);
-const modelList = ref<any[]>([]);
+// function renderIcon(icon: any) {
+//   return () => h(NIcon, null, { default: () => h(icon) });
+// }
+//
+// const menuOptions = ref<any[]>([]);
+// const modelList = ref<any[]>([]);
 
 const inverted = ref(false);
 const showPin = ref(false);

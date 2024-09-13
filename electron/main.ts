@@ -84,8 +84,10 @@ function createWindow() {
 
   // 重写electron-log的日志方法
   ['error', 'warn', 'info', 'verbose', 'debug', 'silly'].forEach(level => {
-    const originalLog = electronLog[level];
-    electronLog[level] = (...args) => {
+    let originalLog: any;
+    let consoleLog: any = electronLog;
+    originalLog = consoleLog[level];
+    consoleLog[level] = (...args: any[]) => {
       originalLog(...args);
       win?.webContents.send('main-process-log', [level, ...args]);
     };
@@ -194,8 +196,7 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
     );
 
     // 一个字幕一个字幕的进行判断下载
-    let cmd = "";
-    cmd = isDownloadVideo
+    let cmd = isDownloadVideo
       ? `${ytDlpPath} -P "${locationPath}" ${videoUrl} -o "%(id)s.%(ext)s" --write-subs --sub-lang "zh.*,en.*,danmaku.xml"`
       : `${ytDlpPath} --dump-json -P "${locationPath}" ${videoUrl} -o "%(id)s.%(ext)s" --skip-download --write-subs --sub-lang "zh.*,en.*,danmaku.xml"`;
 
@@ -203,6 +204,7 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
     console.log(cmd, "download");
     exec(cmd, { encoding: "utf8" }, async (error, stdout, stderr) => {
       if (error) {
+        console.error(`执行出错: ${stderr}`)
         console.error(`执行出错: ${error}`);
         return;
       }
@@ -252,7 +254,7 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
 /**
  * 通过folderDate和id来获取视频路径
  */
-ipcMain.on("call-videoPath", async (event, folderDate, id) => {
+ipcMain.on("call-videoPath", async (event, folderDate) => {
   let type = ".mp4";
   let videoPath = getFolderDatePath(folderDate, type);
   if(!videoPath) {
@@ -414,7 +416,7 @@ const findJsonFilesInDirectorySync = (
       // 匹配符合模式的字符串
       let pattern = new RegExp(type + '.*\\.vtt');
       // 循环检查每个字符串是否匹配模式
-      for (var i = 0; i < files.length; i++) {
+      for (let i = 0; i < files.length; i++) {
         if (pattern.test(files[i])) {
           jsonFile = files[i];
           break; // 找到第一个匹配后退出循环
@@ -474,10 +476,10 @@ const createMetadata = (url: string) => {
 /**
  * 根据folderDate来获取文件夹中的字幕
  */
-const getFolderDateJson = (folderDate: string, prefix: string = ".vtt") => {
+const getFolderDateJson = (folderDate: string) => {
   const locationPath = path.join(templateFilePath, folderDate);
 
-  var vttFileName = findJsonFilesInDirectorySync(locationPath, "zh");
+  let vttFileName = findJsonFilesInDirectorySync(locationPath, "zh");
   if(!vttFileName) {
     vttFileName = findJsonFilesInDirectorySync(locationPath, "en");
   }
@@ -496,7 +498,7 @@ const getFolderDateJson = (folderDate: string, prefix: string = ".vtt") => {
 const getFolderDatePath = (folderDate: string, prefix: string = ".vtt") => {
   const locationPath = path.join(templateFilePath, folderDate);
 
-  var fileName = findJsonFilesInDirectorySync(locationPath, prefix);
+  let fileName = findJsonFilesInDirectorySync(locationPath, prefix);
   console.log(fileName, "fileName=========");
   if (fileName) {
     const url = path.join(locationPath, fileName);

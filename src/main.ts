@@ -16,6 +16,7 @@ ipcRenderer.invoke("local-sqlite3-db").then(async (dbPath) => {
 });
 
 ipcRenderer.on('main-process-log', (event, args) => {
+  console.log("electron主进程事件：", event);
   console.log('electron主进程日志:', ...args);
 });
 
