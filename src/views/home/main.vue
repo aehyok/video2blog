@@ -75,7 +75,7 @@ import type { FormInst } from "naive-ui";
 import { reactive, ref, onMounted } from "vue";
 import Player from "xgplayer";
 import 'xgplayer/dist/index.min.css';
-import { all, get } from "../../sqlite3";
+import { all, get } from "@/sqlite3.ts";
 import { ipcRenderer } from "electron";
 import { useRouter } from "vue-router";
 
@@ -155,7 +155,7 @@ const getPlatform = (path: string) => {
 
 const getAll = async () => {
   let env = import.meta.env.MODE;
-  const rows: any[] = await all(
+  const rows: unknown = await all(
     "select * From ParsingVideo where Env = ? order by CreateTime desc",
     [env]
   );
@@ -192,9 +192,8 @@ const subtitleClick = async () => {
 };
 
 ipcRenderer.on("reply-videoPath", async(event: any, type: string) => {
-  console.log(type, "event-ipcRenderer");
+  console.log(event, "event-ipcRenderer");
   console.log(model.currentSelected, "model.currentSelected");
-
 
   if(type) {
     videoPlayer.value = new Player({
@@ -249,9 +248,6 @@ ipcRenderer.on("reply-output", async(event: any, isSupport: boolean, text) => {
   margin-right: 10px;
   margin-left: 5px;
   text-align: left;
-}
-
-.flex-video {
 }
 
 .flex-right {

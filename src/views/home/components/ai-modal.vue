@@ -77,10 +77,6 @@
       }
   }
 
-  const setApiKeyClick = () => {
-    message.success("待实现")
-  }
-
   const getApiModel = async() => {
     const aiApi: any = await get(`select * from OpenAPI where IsDefault = 1`, [])
     console.log(aiApi, "AiApi------------")
@@ -110,7 +106,7 @@
       model: state.model,
     });
     console.log(chatCompletion, "chatCompletion")
-    reWriteContent.value = chatCompletion.choices[0].message.content;
+    reWriteContent.value = chatCompletion.choices[0].message.content as string;
     showReWrite.value = false
   }
 
@@ -122,17 +118,18 @@
     emit("update:showAIModal", false);
 
     (props.target as any).insert((selectedContent: any) => {
-          const content =  `${reWriteContent.value}`;
+        console.log(selectedContent, "selectedContent")
+        const content =  `${reWriteContent.value}`;
 
-          console.log(content, "content")
-          return {
-            // 要插入的文本
-            targetValue: ` ${content}`,
-            select: true,
-            deviationStart: 0,
-            deviationEnd: 0
-          };
-        })
+        console.log(content, "content")
+        return {
+          // 要插入的文本
+          targetValue: ` ${content}`,
+          select: true,
+          deviationStart: 0,
+          deviationEnd: 0
+        };
+      })
   }
 
   const cancelPromptCallback = () => {

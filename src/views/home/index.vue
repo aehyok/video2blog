@@ -189,12 +189,6 @@
     :qrCodeUrl="state.qrCodeUrl"
   />
 
-  <!-----whisper模型下载模态框------>
-  <WhisperModal v-model:showWhisperModal="state.showWhisperModal" />
-
-  <WhisperConvertModal
-    v-model:showWhisperConvertModal="state.showWhisperConvertModal"
-  />
   <context-menu
     v-model:show="state.showMenu"
     :options="state.menuOptions"
@@ -284,16 +278,14 @@ import PromptModal from "./components/prompt-modal.vue";
 import AIModal from "./components/ai-modal.vue";
 import ImageListModal from "./components/imagelist-modal.vue";
 import QrcodeModal from "./components/qrcode-modal.vue";
-import WhisperModal from "./components/whisper-modal.vue";
-import WhisperConvertModal from "./components/whisperconvert-modal.vue";
-import { get, all, run } from "../../sqlite3";
+import { get, all, run } from "@/sqlite3.ts";
 import { useStorage } from "@vueuse/core";
-import { getUserSelf } from "../../utils/request";
+import { getUserSelf } from "@/utils/request.ts";
 import { MdEditor } from "md-editor-v3";
 import "md-editor-v3/lib/style.css";
 import packageInfo from "../../../package.json";
 import { createQrCode, checkLogin } from "@/utils/request";
-import { secondsToTime } from "@/utils/index";
+import { secondsToTime } from "@/utils";
 import { Camera } from "lucide-vue-next"
 import { useRoute, useRouter } from "vue-router";
 
@@ -318,13 +310,11 @@ const state = reactive<any>({
   rightMenuList: [],
   rightGroupLevel: false, //右键菜单是否显示
   showMenu: false,
-  showWhisperModal: false,
   showImageModal: false,
   showPromptModal: false,
   showAIModal: false,
   selectCode: "",
   selectInput: "",
-  showWhisperConvertModal: false,
   qrCodeUrl: "",
   sceneStr: "",
   showQrCodeModal: false,
@@ -404,12 +394,12 @@ const rightContextMenuClick = async (item: any) => {
       state.showPromptModal = true;
       state.selectCode = "srt2blog";
       break;
-    case "whisperset":
-      state.showWhisperModal = true;
-      break;
-    case "convertset":
-      state.showWhisperConvertModal = true;
-      break;
+    // case "whisperset":
+    //   state.showWhisperModal = true;
+    //   break;
+    // case "convertset":
+    //   state.showWhisperConvertModal = true;
+    //   break;
     case "tochinese": 
     case "toenglish":
     case "srt2blog-more":  // 多人对话视频（字幕转博客）
@@ -789,12 +779,6 @@ ipcRenderer.on("reply-duration", (event: any, duration: number) => {
 // });
 </script>
 <style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);
 }
