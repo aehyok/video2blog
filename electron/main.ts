@@ -49,8 +49,8 @@ let win: BrowserWindow | null;
 
 function createWindow() {
   win = new BrowserWindow({
-    minWidth: 800,
-    minHeight: 600,
+    minWidth: 1280,
+    minHeight: 768,
     icon: path.join(process.env.VITE_PUBLIC, "logo.svg"),
     webPreferences: {
       preload: path.join(__dirname, ".", "preload.js"),
@@ -63,9 +63,9 @@ function createWindow() {
   });
 
   // Test active push message to Renderer-process.
-  win.webContents.on("did-finish-load", () => {
-    win?.webContents.send("main-process-message", new Date().toLocaleString());
-  });
+  // win.webContents.on("did-finish-load", () => {
+  //   win?.webContents.send("main-process-message", new Date().toLocaleString());
+  // });
 
   if (process.env.VITE_DEV_SERVER_URL) {
     win.loadURL(process.env.VITE_DEV_SERVER_URL);

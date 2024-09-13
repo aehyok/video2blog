@@ -55,8 +55,7 @@
                   <n-ellipsis :line-clamp="2" style="text-align: left;">
                     {{ item.Title }}
                   </n-ellipsis>
-              </div>
-              <div style="text-align: left; font-size: 11px;">下载时间：{{ item.CreateTime }}</div>
+              </div><div style="text-align: left; font-size: 11px;">下载时间：{{ item.CreateTime }}</div>
               <div style="text-align: left; display: flex; justify-content: space-between; align-items: center; ">
                 <div style="font-size: 11px;">所属平台：{{ getPlatform(item.Path) }}</div> 
                 <div style="font-size: 11px;color: greenyellow;text-align: right; margin-right: 10px;" @click="jumpDetail(item)">详情</div></div>
@@ -72,7 +71,7 @@
 </template>
 <script setup lang="ts">
 import { NCard, NForm, NFormItem, NInput, NSwitch, NButton, NDivider, NImage, useMessage, NSpin,NEllipsis } from "naive-ui";
-import type { FormInst, FormItemRule } from "naive-ui";
+import type { FormInst } from "naive-ui";
 import { reactive, ref, onMounted } from "vue";
 import Player from "xgplayer";
 import 'xgplayer/dist/index.min.css';
@@ -119,14 +118,6 @@ onMounted(async() => {
 ipcRenderer.on("reply-execute-path", (event: any, executePath: string) => {
   console.log(event, "event-ipcRenderer");
   state.executePath = executePath;
-
-  videoPlayer.value = new Player({
-    id: "videoPlayer",
-    // url: "http://s2.pstatp.com/cdn/expire-1-M/byted-player-videos/1.0.0/xgplayer-demo.mp4",
-    url: state.executePath + state.middlePath +"/command/2024-06-10-08-52-18/QxjzF9kt5Z0.webm",
-    height: "300px",
-    width: "100%",
-  });
 });
 
 const jumpDetail = (item: any) => {
@@ -149,8 +140,6 @@ const selectItemClick = (item: any) => {
   model.currentSelected = item;
   ipcRenderer.send("call-videoPath", item.FolderDate,item.Id);
 };
-
-
 
 const getPlatform = (path: string) => {
   if (path.includes("bilibili")) {

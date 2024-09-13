@@ -275,7 +275,8 @@ import {
   NTable,
   useDialog,
   NForm,
-  NFormItem
+  NFormItem,
+  NSpace
 } from "naive-ui";
 import {
   DownloadOutline as Download,
