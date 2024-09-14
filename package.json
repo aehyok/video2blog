@@ -16,7 +16,6 @@
     "build": "vite build --mode production && electron-builder"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.1.3",
     "@imengyu/vue3-context-menu": "^1.4.0",
     "@lucide/lab": "^0.1.2",
     "@vicons/ionicons5": "^0.12.0",

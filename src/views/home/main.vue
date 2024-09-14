@@ -28,6 +28,9 @@
               </n-form-item>
             </n-form>
             <div style="display: flex; justify-content: flex-end">
+              <n-button round type="info" @click="addLocalClick" style="margin-right: 10px;">
+                添加本地视频
+              </n-button>
               <n-button round type="primary" @click="subtitleClick" style="margin-right: 10px;">
                 获取视频字幕文件
               </n-button>
@@ -127,6 +130,10 @@ const jumpDetail = (item: any) => {
     },
   })
 };
+
+const addLocalClick = () => {
+  message.warning("添加本地视频待实现")
+}
 
 const selectItemClick = (item: any) => {
   console.log("selectItemClick", item);
