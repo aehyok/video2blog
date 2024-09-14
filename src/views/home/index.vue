@@ -3,7 +3,7 @@
     <n-layout content-style="position:relative;">
       <n-layout-header class="header">
         
-          <div><span style="color: red;">标题：</span><span style="text-decoration: underline;margin-right: 10px;">{{ outputTitle }}</span><n-button type="info" size="small">改写标题</n-button></div>
+          <div><span style="color: red;">标题：</span><span style="text-decoration: underline;margin-right: 10px;">{{ outputTitle }}</span><n-button type="info" size="small" @click="changTitleClick">改写标题</n-button></div>
           <div><n-button
             @click="backClick"
             size="small"
@@ -342,6 +342,10 @@ const dynamicForm = reactive({
   remark: "",
   isDefault: 0,
 });
+
+const changTitleClick = () => {
+  message.warning("AI改写标题暂未实现")
+}
 
 // const isDownloadVideo = computed(() => {
 //   console.log("isDownloadVideo", state.currentVideoData);
