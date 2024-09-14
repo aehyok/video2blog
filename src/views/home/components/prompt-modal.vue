@@ -16,9 +16,11 @@
   </n-modal>
 </template>
 <script setup lang="ts">
-  import { run, get } from '../../../sqlite3';
+  import { get, run } from "@/sqlite3.ts";
   import { useMessage, NInput, NModal } from 'naive-ui';
   import { ref, watchEffect } from 'vue';
+
+  const message = useMessage()
 
   defineProps({
     showPromptModal: Boolean,
@@ -28,7 +30,6 @@
   const emit = defineEmits(["update:showPromptModal"]);
 
   const formPrompt = ref<string>("")
-  const message = useMessage()
   const submitPromptCallback = async() => {
     const updateSql = `
         UPDATE PromptList

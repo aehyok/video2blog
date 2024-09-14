@@ -70,7 +70,7 @@
     </n-layout>
   </n-spin>
 
-  <n-drawer v-model:show="active" :width="502" :placement="'right'">
+  <!-- <n-drawer v-model:show="active" :width="502" :placement="'right'">
     <n-drawer-content title="系统设置">
       <p style="color: #bbee53; font-size: 16px;">One-Api平台对接：https://github.com/songquanpeng/one-api</p>
       <n-table :bordered="false" :single-line="false">
@@ -155,7 +155,7 @@
         </n-form-item>
       </n-form>
     </n-drawer-content>
-  </n-drawer>
+  </n-drawer> -->
 
   <!-----prompt设置----->
   <PromptModal
@@ -189,6 +189,8 @@
     v-model:showQrCodeModal="state.showQrCodeModal"
     :qrCodeUrl="state.qrCodeUrl"
   />
+
+  <SystemSettingDrawer v-model:showActive="state.showActive" />
 
   <context-menu
     v-model:show="state.showMenu"
@@ -259,18 +261,12 @@ import {
   NLayoutHeader,
   NLayoutFooter,
   NSpin,
-  NDrawer,
-  NDrawerContent,
   NLayoutContent,
   NIcon,
   useMessage,
   NGi,
   NGrid,
-  NTable,
   useDialog,
-  NForm,
-  NFormItem,
-  NSpace
 } from "naive-ui";
 // import {
 //   DownloadOutline as Download,
@@ -279,6 +275,7 @@ import PromptModal from "./components/prompt-modal.vue";
 import AIModal from "./components/ai-modal.vue";
 import ImageListModal from "./components/imagelist-modal.vue";
 import QrcodeModal from "./components/qrcode-modal.vue";
+import SystemSettingDrawer from "./components/systemset-drawer.vue"
 import { get, all, run } from "@/sqlite3.ts";
 import { useStorage } from "@vueuse/core";
 import { getUserSelf } from "@/utils/request.ts";
@@ -300,13 +297,10 @@ version.value = packageInfo.version;
 const cacheState: any = useStorage("token", {});
 
 const message = useMessage();
-const active = ref(false);
 const source = ref(null);
 const target = ref<any>(null);
 const intervalId = ref<any>();
 const selectedKey = ref("");
-const formRef = ref();
-const showForm = ref(false)
 const state = reactive<any>({
   rightMenuList: [],
   rightGroupLevel: false, //右键菜单是否显示
@@ -314,6 +308,7 @@ const state = reactive<any>({
   showImageModal: false,
   showPromptModal: false,
   showAIModal: false,
+  showActive: false,
   selectCode: "",
   selectInput: "",
   qrCodeUrl: "",
@@ -335,14 +330,14 @@ const state = reactive<any>({
   openApiList: []
 });
 
-const dynamicForm = reactive({
-  id: "",
-  model: "",
-  baseUrl: "",
-  apiKey: "",
-  remark: "",
-  isDefault: 0,
-});
+// const dynamicForm = reactive({
+//   id: "",
+//   model: "",
+//   baseUrl: "",
+//   apiKey: "",
+//   remark: "",
+//   isDefault: 0,
+// });
 
 const changTitleClick = () => {
   message.warning("AI改写标题暂未实现")
@@ -552,8 +547,6 @@ const backClick = () => {
 };
 
 const saveClick = async () => {
-  console.log("保存按钮888888888888888888888");
-
   if ((state.currentVideoData as any).Id) {
     const updateSql = `
         UPDATE ParsingVideo
@@ -575,117 +568,118 @@ const saveClick = async () => {
 };
 
 const setClick = async() => {
-  active.value = true;
-  showForm.value = false;
-  await getOpenApiList();
-  state.showMenu = true;
+  // active.value = true;
+  state.showActive = true;
+  // showForm.value = false;
+  // await getOpenApiList();
+  // state.showMenu = true;
 };
 
-const getOpenApiList = async() =>  {
-  const rows = await all(
-      "select * from OpenAPI",
-      []
-  );
-  console.log(rows, "openapi----")
-  state.openApiList = rows;
-}
+// const getOpenApiList = async() =>  {
+//   const rows = await all(
+//       "select * from OpenAPI",
+//       []
+//   );
+//   console.log(rows, "openapi----")
+//   state.openApiList = rows;
+// }
 /**
  * 修改状态
  */
-const changeStatus = async(item: any) => {
-  console.log("item", item);//0变1，启用
-    if( item.IsDefault === 0 ) {
-      if (state.openApiList.some((openItem: any) => openItem.IsDefault === 1)) {
-        message.warning("请先将当前的启用记录[禁用]");
-        return;
-      }
-    }
+// const changeStatus = async(item: any) => {
+//   console.log("item", item);//0变1，启用
+//     if( item.IsDefault === 0 ) {
+//       if (state.openApiList.some((openItem: any) => openItem.IsDefault === 1)) {
+//         message.warning("请先将当前的启用记录[禁用]");
+//         return;
+//       }
+//     }
 
-    const updateSql = `
-          UPDATE OpenAPI
-          SET IsDefault = $1
-          WHERE Id = $2
-        `;
-    const result = await run(updateSql, [item.IsDefault === 0 ? 1 : 0,item.Id]);
-    if(!result) {
-      console.log(result, "状态变更成功")
-      message.success("状态变更成功")
-      await getOpenApiList();
-    }
-}
+//     const updateSql = `
+//           UPDATE OpenAPI
+//           SET IsDefault = $1
+//           WHERE Id = $2
+//         `;
+//     const result = await run(updateSql, [item.IsDefault === 0 ? 1 : 0,item.Id]);
+//     if(!result) {
+//       console.log(result, "状态变更成功")
+//       message.success("状态变更成功")
+//       await getOpenApiList();
+//     }
+// }
 
 /**
  * 编辑
  * @param item
  */
-const editOpenApiClick = (item: any) => {
-  showForm.value = true;
-  dynamicForm.id = item.Id;
-  dynamicForm.model = item.Model;
-  dynamicForm.remark = item.Remark;
-  dynamicForm.apiKey = item.ApiKey;
-  dynamicForm.baseUrl = item.BaseUrl;
-}
+// const editOpenApiClick = (item: any) => {
+//   showForm.value = true;
+//   dynamicForm.id = item.Id;
+//   dynamicForm.model = item.Model;
+//   dynamicForm.remark = item.Remark;
+//   dynamicForm.apiKey = item.ApiKey;
+//   dynamicForm.baseUrl = item.BaseUrl;
+// }
 
-const saveOpenApiClick = async(e: any) => {
-  e.preventDefault();
+// const saveOpenApiClick = async(e: any) => {
+//   e.preventDefault();
 
-  formRef.value?.validate(async(errors: any) => {
-    if (!errors) {
+//   formRef.value?.validate(async(errors: any) => {
+//     if (!errors) {
 
-      // 修改
-      if(dynamicForm.id) {
-        const updateSql = `
-          UPDATE OpenAPI
-          SET Model = $1, BaseUrl = $2, ApiKey = $3, Remark = $4
-          WHERE Id = $5
-        `;
-        const result = await run(updateSql, [dynamicForm.model, dynamicForm.baseUrl, dynamicForm.apiKey, dynamicForm.remark, dynamicForm.id]);
-        if(!result) {
-          console.log(result, "修改成功")
-          message.success("修改成功")
-          setTimeout(() => {
-            showForm.value = false;
-          }, 500)
-        }
-      }
-      // 新增
-      else {
-        const insertSql = `insert into OpenAPI (Id, Model, BaseUrl, ApiKey, Remark, IsDefault)
-                     values ($Id, $Model, $BaseUrl, $ApiKey, $Remark, $IsDefault)`;
-        let data = toRaw(dynamicForm);
-        console.log(data, "data---bew")
-        const result =  await run(insertSql, {
-          $Id: 10,
-          $Model: data.model,
-          $BaseUrl: data.baseUrl,
-          $ApiKey: data.apiKey,
-          $Remark: data.remark,
-          $IsDefault: 0
-        } );
-        if(!result) {
-          console.log(result, "新增成功")
-          message.success("新增成功")
-          setTimeout(() => {
-            showForm.value = false;
-          }, 500)
-        }
-      }
-    }
-    else {
-      console.log('errors', errors)
-    }
-  })
-}
+//       // 修改
+//       if(dynamicForm.id) {
+//         const updateSql = `
+//           UPDATE OpenAPI
+//           SET Model = $1, BaseUrl = $2, ApiKey = $3, Remark = $4
+//           WHERE Id = $5
+//         `;
+//         const result = await run(updateSql, [dynamicForm.model, dynamicForm.baseUrl, dynamicForm.apiKey, dynamicForm.remark, dynamicForm.id]);
+//         if(!result) {
+//           console.log(result, "修改成功")
+//           message.success("修改成功")
+//           setTimeout(() => {
+//             showForm.value = false;
+//           }, 500)
+//         }
+//       }
+//       // 新增
+//       else {
+//         const insertSql = `insert into OpenAPI (Id, Model, BaseUrl, ApiKey, Remark, IsDefault)
+//                      values ($Id, $Model, $BaseUrl, $ApiKey, $Remark, $IsDefault)`;
+//         let data = toRaw(dynamicForm);
+//         console.log(data, "data---bew")
+//         const result =  await run(insertSql, {
+//           $Id: 10,
+//           $Model: data.model,
+//           $BaseUrl: data.baseUrl,
+//           $ApiKey: data.apiKey,
+//           $Remark: data.remark,
+//           $IsDefault: 0
+//         } );
+//         if(!result) {
+//           console.log(result, "新增成功")
+//           message.success("新增成功")
+//           setTimeout(() => {
+//             showForm.value = false;
+//           }, 500)
+//         }
+//       }
+//     }
+//     else {
+//       console.log('errors', errors)
+//     }
+//   })
+// }
 
-const addOpenApiClick = () => {
-  showForm.value = true;
-  dynamicForm.id = "";
-  dynamicForm.model = "";
-  dynamicForm.remark = "";
-  dynamicForm.apiKey = "";
-  dynamicForm.baseUrl = "";
-}
+// const addOpenApiClick = () => {
+//   showForm.value = true;
+//   dynamicForm.id = "";
+//   dynamicForm.model = "";
+//   dynamicForm.remark = "";
+//   dynamicForm.apiKey = "";
+//   dynamicForm.baseUrl = "";
+// }
 
 // const modalClick = async () => {
 //   await getWhisperModelList();
