@@ -37,7 +37,6 @@
       `;
      const result = await run(updateSql, [formPrompt.value, "srt2blog"]);
      if(!result) {
-      console.log(result, "prompt保存成功")
       message.success("保存成功")
       emit("update:showPromptModal", false)
      }

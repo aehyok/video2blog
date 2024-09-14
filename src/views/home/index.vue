@@ -72,6 +72,7 @@
 
   <n-drawer v-model:show="active" :width="502" :placement="'right'">
     <n-drawer-content title="系统设置">
+      <p style="color: #bbee53; font-size: 16px;">One-Api平台对接：https://github.com/songquanpeng/one-api</p>
       <n-table :bordered="false" :single-line="false">
         <thead>
         <tr>

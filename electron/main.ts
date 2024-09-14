@@ -166,10 +166,12 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
       return videoUrl.includes(matchString);
     });
 
+    let toutiaoTitle = "";
     // 头条专属
     if(videoUrl.indexOf("toutiao.com") > 0) {
-      let jsonString = await getHtml(videoUrl);
-      let json = JSON.parse(jsonString);
+      let obj = await getHtml(videoUrl);
+      let json = JSON.parse(obj.json);
+      toutiaoTitle = obj.title;
       console.log(json.data.initialVideo.videoPlayInfo.video_list, "----------------json")
       let listLength = json.data.initialVideo.videoPlayInfo.video_list.length;
       console.log(listLength, "list-Length-------------")
@@ -230,6 +232,15 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
         sourceSubtitles= "此视频无字幕文件。\n\n 可通过访问: \n\n https://tongyi.aliyun.com/efficiency/home \n\n 中的《上传音视频》功能, 上传视频文件, 生成字幕文件。"
       }
       const dateTime = format(new Date(), "yyyy-MM-dd HH:mm:ss");
+
+
+      console.log('toutiao-change title----start',videoUrl)
+      // 重新设置头条title
+      if(videoUrl.indexOf("toutiao") > 0) {
+        createInfo.title = toutiaoTitle;
+        console.log('toutiao-change title')
+      }
+
       record = {
         $Id: createInfo.id,
         $Title: createInfo.title,
@@ -244,6 +255,8 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
         $HasVideo: isDownloadVideo,
         $CoverImage: createInfo.coverImage
       };
+
+      console.log(record, "insert-record");
       await insertRecord(record);
       console.log("视频下载完毕");
       event.reply("reply-output", true, sourceSubtitles);

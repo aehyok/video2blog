@@ -1,5 +1,4 @@
 <template>
-  <n-spin :show="showReWrite" :description="loadingText">
     <n-modal
       style="width: 1000px;"
       :show = "showAIModal" 
@@ -13,13 +12,14 @@
       @positive-click="submitPromptCallback"
       @negative-click="cancelPromptCallback"
     >
-      <div style="display: flex; flex-direction: row;">
-        <div style="width: 49%;padding: 10px;">提示词<n-input v-model:value="formPrompt" type="textarea"  rows="10"/>
-          </div>
-        <div style="width: 49%;padding: 10px;">选中要重写的内容<n-input v-model:value="props.selectInput" type="textarea"  rows="10"/></div>
-      </div>
-      <div>重写后的内容<n-input v-model:value="reWriteContent" type="textarea"  rows="10" placeholder="请点击重写，进行内容重写"/></div>
-
+      <n-spin :show="showReWrite" :description="loadingText">
+        <div style="display: flex; flex-direction: row;">
+          <div style="width: 49%;padding: 10px;">提示词<n-input v-model:value="formPrompt" type="textarea"  rows="10"/>
+            </div>
+          <div style="width: 49%;padding: 10px;">选中要重写的内容<n-input v-model:value="props.selectInput" type="textarea"  rows="10"/></div>
+        </div>
+        <div>重写后的内容<n-input v-model:value="reWriteContent" type="textarea"  rows="10" placeholder="请点击重写，进行内容重写"/></div>
+      </n-spin>
       <template #action>
         <div style="display: flex; justify-content: space-between;width: 100%; ">
           <div style="display: flex; gap: 10px;">
@@ -33,8 +33,9 @@
           </div>
         </div>
       </template>
+    
     </n-modal>
-  </n-spin>
+  
 </template>
 <script setup lang="ts">
   import { run, get } from '../../../sqlite3';
@@ -82,6 +83,7 @@
     console.log(aiApi, "AiApi------------")
     if(!aiApi) {
       message.warning("请先设置或者启用AI模型")
+      showReWrite.value = false;
       return;
     }
     state.model = aiApi?.Model

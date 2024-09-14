@@ -29,3 +29,40 @@ export const insertRecord = async (data: any) => {
                      values ($Id, $Title, $Path, $SourceSubtitles, $TargetSubtitles, $CreateTime, $LocationVideoPath, $FolderDate, $Env, $HasVtt, $HasVideo, $CoverImage)`;
   return await run(insertSql, data);
 };
+
+
+
+/**
+ * 插入键值对
+ * @param data
+ */
+export const insertKeyValues = async (data: any) => {
+  const insertSql = `insert into KeyValues (Id, Code, Value) 
+                     values ($Id, $Code, $Value)`;
+  return await run(insertSql, data);
+};
+
+/**
+ * 修改键值对
+ * @param data
+ */
+export const updateKeyValues = async (code: string, value: string) => {
+  const updateSql = `
+    UPDATE KeyValues
+    SET Value = $1
+    WHERE Id = $2
+  `;
+  return await run(updateSql, [value, code]);
+};
+
+/**
+ * 通过Code来查找键值对
+ * @param url
+ */
+export const findKeyValues = async (code: string) => {
+  const record = await get(
+    `select * from KeyValues s where s.Code = ?`,
+    [code]
+  );
+  return record;
+};
