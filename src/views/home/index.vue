@@ -587,8 +587,26 @@ const getOpenApiList = async() =>  {
 /**
  * 修改状态
  */
-const changeStatus = (item: any) => {
-  console.log("item", item);
+const changeStatus = async(item: any) => {
+  console.log("item", item);//0变1，启用
+    if( item.IsDefault === 0 ) {
+      if (state.openApiList.some((openItem: any) => openItem.IsDefault === 1)) {
+        message.warning("请先将当前的启用记录[禁用]");
+        return;
+      }
+    }
+
+    const updateSql = `
+          UPDATE OpenAPI
+          SET IsDefault = $1
+          WHERE Id = $2
+        `;
+    const result = await run(updateSql, [item.IsDefault === 0 ? 1 : 0,item.Id]);
+    if(!result) {
+      console.log(result, "状态变更成功")
+      message.success("状态变更成功")
+      await getOpenApiList();
+    }
 }
 
 /**

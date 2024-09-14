@@ -80,6 +80,10 @@
   const getApiModel = async() => {
     const aiApi: any = await get(`select * from OpenAPI where IsDefault = 1`, [])
     console.log(aiApi, "AiApi------------")
+    if(!aiApi) {
+      message.warning("请先设置或者启用AI模型")
+      return;
+    }
     state.model = aiApi?.Model
     state.baseUrl = aiApi?.BaseUrl
     state.apiKey = aiApi?.ApiKey

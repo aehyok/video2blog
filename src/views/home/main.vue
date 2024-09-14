@@ -221,8 +221,6 @@ ipcRenderer.on("reply-output", async(event: any, isSupport: boolean, text) => {
   model.showPin = false;
   await getAll();
 });
-
-
 </script>
 <style scoped>
 .container {
@@ -280,7 +278,6 @@ ipcRenderer.on("reply-output", async(event: any, isSupport: boolean, text) => {
   border-radius: 10px;
   cursor: pointer;
 }
-
 
 .flex-item:focus, .flex-item:hover {
     background-color: #233633;
