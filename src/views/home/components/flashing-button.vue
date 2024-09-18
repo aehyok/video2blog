@@ -39,7 +39,7 @@ const handleClick = () => {
 
 .flashing-button {
   font-size: 12px;
-  background-color: #4CAF50;
+  background-color: #4098fc;
   color: white;
   border: none;
   border-radius: 50%;
