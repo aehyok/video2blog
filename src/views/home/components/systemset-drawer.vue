@@ -1,5 +1,5 @@
 <template>
-    <n-drawer :show="showActive" :width="502" :placement="'right'">
+    <n-drawer :show="showActive" :width="502" :placement="'right'" >
     <n-drawer-content title="系统设置">
       <p style="color: #bbee53; font-size: 16px;">One-Api平台对接：https://github.com/songquanpeng/one-api</p>
       <n-table :bordered="false" :single-line="false">
@@ -83,12 +83,15 @@
           </n-space>
         </n-form-item>
       </n-form>
+      <template #footer>
+        <n-button @click="closeClick">关闭</n-button>
+      </template>
     </n-drawer-content>
   </n-drawer>
 </template>
 <script lang="ts" setup>
-import { reactive, ref, toRaw, watchEffect } from 'vue';
-import { get, all, run } from "@/sqlite3.ts";
+import { onMounted, reactive, ref, toRaw, watchEffect } from 'vue';
+import { all, run } from "@/sqlite3.ts";
 import { 
   useMessage,
   NDrawer,
@@ -101,10 +104,18 @@ import {
   NTable
 } from "naive-ui";
 
+const emit = defineEmits(["update:showActive"])
 const props = defineProps({
   showActive: Boolean,
 })
 
+onMounted(() => {
+  console.log("systemset.vue onMouted加载成功","error")
+})
+
+const closeClick = ()=> {
+  emit("update:showActive", false)
+}
 const message = useMessage();
 const showForm = ref(false)
 const formRef = ref();

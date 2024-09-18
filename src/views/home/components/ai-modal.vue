@@ -82,7 +82,7 @@
     const aiApi: any = await get(`select * from OpenAPI where IsDefault = 1`, [])
     console.log(aiApi, "AiApi------------")
     if(!aiApi) {
-      message.warning("请先设置或者启用AI模型")
+      message.warning("请先点击左下角设置或者启用AI模型")
       showReWrite.value = false;
       return;
     }

@@ -1,6 +1,6 @@
 <template>
   <n-spin :show="showPin" :description="state.loadingText">
-    <n-layout content-style="position:relative;">
+    <n-layout content-style="position:relative;height: 100vh">
       <n-layout-header class="header">
         
           <div><span style="color: red;">标题：</span><span style="text-decoration: underline;margin-right: 10px;">{{ outputTitle }}</span><n-button type="info" size="small" @click="changTitleClick">改写标题</n-button></div>
@@ -17,145 +17,39 @@
             style="margin-left: 10px; margin-right: 10px;"
             >保存</n-button
           >
-            <n-button
-                @click="setClick"
-                size="small"
-                type="info"
-                style="margin-left: 10px; margin-right: 10px;"
-            >设置</n-button
-            >
           </div>
       </n-layout-header>
-      <n-layout has-sider content-style="padding: 24px;">
-        <n-layout-content content-style="margin-left:20px;">
-          <n-grid :cols="24" x-gap="12">
-            <n-gi :span="6">
-              <n-input
-                v-model:value="outputSource"
-                type="textarea"
-                ref="source"
-                class="textarea"
-                placeholder="这里是原始字幕"
-                @contextmenu="onContextMenu($event, 'textarea')"
-              >
-              </n-input>
-            </n-gi>
-            <n-gi :span="18">
-              <MdEditor
-                v-model="outputTarget"
-                theme="dark"
-                ref="target"
-                class="textarea"
-                placeholder="这里将是AI生成的文章（右侧区域为预览区）..."
-                @contextmenu="onContextMenu($event, 'editor')"
-              />
-            </n-gi>
-          </n-grid>
-
-        </n-layout-content>
-      </n-layout>
+      <n-layout-content content-style="margin-left:20px;">
+        <n-grid :cols="24" x-gap="12">
+          <n-gi :span="6">
+            <n-input
+              v-model:value="outputSource"
+              type="textarea"
+              ref="source"
+              class="textarea"
+              placeholder="这里是原始字幕"
+              @contextmenu="onContextMenu($event, 'textarea')"
+            >
+            </n-input>
+          </n-gi>
+          <n-gi :span="18">
+            <MdEditor
+              v-model="outputTarget"
+              theme="dark"
+              ref="target"
+              class="textarea"
+              placeholder="这里将是AI生成的文章（右侧区域为预览区）..."
+              @contextmenu="onContextMenu($event, 'editor')"
+            />
+          </n-gi>
+        </n-grid>
+      </n-layout-content>
       <n-layout-footer :inverted="inverted" bordered class="footer">
-        Powered by aehyok v{{ version }} Copyright © 2024 - All right reserved.
+        <p>Powered by aehyok v{{ version }} Copyright © 2024 - All right reserved.</p>
       </n-layout-footer>
-<!--      <div-->
-<!--        style="left: 260px; top: 200px; position: absolute; z-index: 1"-->
-<!--        v-if="isDownloadVideo"-->
-<!--      >-->
-<!--        <n-button circle color="#8a2be2" @click="downloadVideoClick">-->
-<!--          <template #icon>-->
-<!--            <n-icon><Download /></n-icon>-->
-<!--          </template>-->
-<!--        </n-button>-->
-<!--      </div>-->
     </n-layout>
   </n-spin>
-
-  <!-- <n-drawer v-model:show="active" :width="502" :placement="'right'">
-    <n-drawer-content title="系统设置">
-      <p style="color: #bbee53; font-size: 16px;">One-Api平台对接：https://github.com/songquanpeng/one-api</p>
-      <n-table :bordered="false" :single-line="false">
-        <thead>
-        <tr>
-          <th>model</th>
-          <th>baseURL</th>
-          <th>状态</th>
-          <th>操作</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr v-for="item in state.openApiList ">
-          <td>{{ item.Model }}</td>
-          <td>{{ item.BaseUrl }}</td>
-          <td>
-            <NButton size="tiny" :type="item.IsDefault ==1 ? 'primary': 'warning'">
-              {{ item.IsDefault ==1 ? "启用": "禁用" }}
-            </NButton>
-          </td>
-          <td>
-            <NButton type="tertiary" size="tiny" @click="editOpenApiClick(item)">编辑</NButton>
-            <NButton size="tiny" type="tertiary" @click="changeStatus(item)" >{{item.IsDefault == 1 ? "禁用" : "启用"}}</NButton>
-          </td>
-        </tr>
-        </tbody>
-      </n-table>
-      <div style="display: flex; justify-content: flex-end; margin: 20px;">
-        <NButton style="margin-right: 20px" type="primary" size="tiny" color="#bbee53" @click="addOpenApiClick">新增</NButton>
-      </div>
-      <n-form v-if="showForm" ref="formRef" label-placement="top" :model="dynamicForm" :style="{ maxWidth: '440px' }">
-        <n-form-item
-            label="model"
-            path="model"
-            :rule="{
-                required: true,
-                message: '请输入model',
-                trigger: ['input', 'blur'],
-              }"
-        >
-          <n-input v-model:value="dynamicForm.model" placeholder="请输入model" clearable />
-        </n-form-item>
-        <n-form-item
-            label="baseUrl"
-            path="baseUrl"
-            :rule="{
-                required: true,
-                message: '请输入baseUrl',
-                trigger: ['input', 'blur'],
-              }"
-        >
-          <n-input v-model:value="dynamicForm.baseUrl" placeholder="请输入baseUrl" clearable />
-        </n-form-item>
-        <n-form-item
-            label="apiKey"
-            path="apiKey"
-            :rule="{
-                required: true,
-                message: '请输入apiKey',
-                trigger: ['input', 'blur'],
-              }"
-        >
-          <n-input v-model:value="dynamicForm.apiKey" placeholder="请输入apiKey"  clearable />
-        </n-form-item>
-        <n-form-item
-            label="remark"
-            path="remark"
-            :rule="{
-                required: false,
-                message: '请输入remark',
-                trigger: ['input', 'blur'],
-              }"
-        >
-          <n-input v-model:value="dynamicForm.remark" placeholder="请输入remark" clearable />
-        </n-form-item>
-        <n-form-item>
-          <n-space>
-            <n-button attr-type="button" @click="saveOpenApiClick">
-              保存
-            </n-button>
-          </n-space>
-        </n-form-item>
-      </n-form>
-    </n-drawer-content>
-  </n-drawer> -->
+  <FlashingButton />
 
   <!-----prompt设置----->
   <PromptModal
@@ -190,7 +84,7 @@
     :qrCodeUrl="state.qrCodeUrl"
   />
 
-  <SystemSettingDrawer v-model:showActive="state.showActive" />
+  <!-- <SystemSettingDrawer v-model:showActive="state.showActive" /> -->
 
   <context-menu
     v-model:show="state.showMenu"
@@ -232,7 +126,6 @@
 </template>
 <script lang="ts">
 import { defineComponent } from "vue";
-
 //导入组件
 import {
   ContextMenu,
@@ -252,7 +145,7 @@ export default defineComponent({
 });
 </script>
 <script setup lang="ts">
-import { ref, reactive, onMounted, toRaw  } from "vue";
+import { ref, reactive, onMounted, toRaw, defineAsyncComponent  } from "vue";
 import { ipcRenderer } from "electron";
 import {
   NButton,
@@ -268,15 +161,11 @@ import {
   NGrid,
   useDialog,
 } from "naive-ui";
-// import {
-//   DownloadOutline as Download,
-// } from "@vicons/ionicons5";
 import PromptModal from "./components/prompt-modal.vue";
 import AIModal from "./components/ai-modal.vue";
 import ImageListModal from "./components/imagelist-modal.vue";
 import QrcodeModal from "./components/qrcode-modal.vue";
-import SystemSettingDrawer from "./components/systemset-drawer.vue"
-import { get, all, run } from "@/sqlite3.ts";
+import { get, run } from "@/sqlite3.ts";
 import { useStorage } from "@vueuse/core";
 import { getUserSelf } from "@/utils/request.ts";
 import { MdEditor } from "md-editor-v3";
@@ -286,6 +175,10 @@ import { createQrCode, checkLogin } from "@/utils/request";
 import { secondsToTime } from "@/utils";
 import { Camera } from "lucide-vue-next"
 import { useRoute, useRouter } from "vue-router";
+
+let FlashingButton = defineAsyncComponent({
+  loader: () => import('./components/flashing-button.vue')
+})
 
 const route = useRoute();
 const router = useRouter();
@@ -330,62 +223,10 @@ const state = reactive<any>({
   openApiList: []
 });
 
-// const dynamicForm = reactive({
-//   id: "",
-//   model: "",
-//   baseUrl: "",
-//   apiKey: "",
-//   remark: "",
-//   isDefault: 0,
-// });
-
 const changTitleClick = () => {
   message.warning("AI改写标题暂未实现")
 }
 
-// const isDownloadVideo = computed(() => {
-//   console.log("isDownloadVideo", state.currentVideoData);
-//   return Object.keys(state.currentVideoData).length === 0
-//     ? false
-//     : (state.currentVideoData as any).HasVideo !== 1;
-// });
-
-// const downloadVideoClick = () => {
-//   dialog.warning({
-//     title: "视频下载",
-//     content: "请确认是否下载该视频？",
-//     positiveText: "确定",
-//     negativeText: "取消",
-//     onPositiveClick: async () => {
-//       showPin.value = true;
-//       state.loadingText = "正在下载视频请稍后...";
-//       ipcRenderer.send("call-yt-dlp-video", state.currentVideoData.Path);
-//     },
-//     onNegativeClick: () => {
-//       // message.error('不确定')
-//     },
-//   });
-// };
-
-// const testApi = async () => {
-//   const code = "gemini";
-//   const geminiInfo: any = await get(
-//     `select apiKey from OpenAPI where code = ?`,
-//     code
-//   );
-//   console.log(geminiInfo, "geminiInfo");
-//   const genAI = new GoogleGenerativeAI(geminiInfo.apiKey);
-//
-//   const model = genAI.getGenerativeModel({ model: "gemini-pro" });
-//
-//   const prompt =
-//     "请使用中文回答我，中国所有的省份，并列举每个省份至少一个好玩的地方";
-//
-//   const result = await model.generateContent(prompt);
-//   const response = await result.response;
-//   const text = response.text();
-//   console.log(text, "response");
-// };
 
 const rightContextMenuClick = async (item: any) => {
   console.log(item, "右键点击菜单时触发的事件");
@@ -567,170 +408,14 @@ const saveClick = async () => {
   }
 };
 
-const setClick = async() => {
-  // active.value = true;
-  state.showActive = true;
-  // showForm.value = false;
-  // await getOpenApiList();
-  // state.showMenu = true;
-};
-
-// const getOpenApiList = async() =>  {
-//   const rows = await all(
-//       "select * from OpenAPI",
-//       []
-//   );
-//   console.log(rows, "openapi----")
-//   state.openApiList = rows;
-// }
-/**
- * 修改状态
- */
-// const changeStatus = async(item: any) => {
-//   console.log("item", item);//0变1，启用
-//     if( item.IsDefault === 0 ) {
-//       if (state.openApiList.some((openItem: any) => openItem.IsDefault === 1)) {
-//         message.warning("请先将当前的启用记录[禁用]");
-//         return;
-//       }
-//     }
-
-//     const updateSql = `
-//           UPDATE OpenAPI
-//           SET IsDefault = $1
-//           WHERE Id = $2
-//         `;
-//     const result = await run(updateSql, [item.IsDefault === 0 ? 1 : 0,item.Id]);
-//     if(!result) {
-//       console.log(result, "状态变更成功")
-//       message.success("状态变更成功")
-//       await getOpenApiList();
-//     }
-// }
-
-/**
- * 编辑
- * @param item
- */
-// const editOpenApiClick = (item: any) => {
-//   showForm.value = true;
-//   dynamicForm.id = item.Id;
-//   dynamicForm.model = item.Model;
-//   dynamicForm.remark = item.Remark;
-//   dynamicForm.apiKey = item.ApiKey;
-//   dynamicForm.baseUrl = item.BaseUrl;
-// }
-
-// const saveOpenApiClick = async(e: any) => {
-//   e.preventDefault();
-
-//   formRef.value?.validate(async(errors: any) => {
-//     if (!errors) {
-
-//       // 修改
-//       if(dynamicForm.id) {
-//         const updateSql = `
-//           UPDATE OpenAPI
-//           SET Model = $1, BaseUrl = $2, ApiKey = $3, Remark = $4
-//           WHERE Id = $5
-//         `;
-//         const result = await run(updateSql, [dynamicForm.model, dynamicForm.baseUrl, dynamicForm.apiKey, dynamicForm.remark, dynamicForm.id]);
-//         if(!result) {
-//           console.log(result, "修改成功")
-//           message.success("修改成功")
-//           setTimeout(() => {
-//             showForm.value = false;
-//           }, 500)
-//         }
-//       }
-//       // 新增
-//       else {
-//         const insertSql = `insert into OpenAPI (Id, Model, BaseUrl, ApiKey, Remark, IsDefault)
-//                      values ($Id, $Model, $BaseUrl, $ApiKey, $Remark, $IsDefault)`;
-//         let data = toRaw(dynamicForm);
-//         console.log(data, "data---bew")
-//         const result =  await run(insertSql, {
-//           $Id: 10,
-//           $Model: data.model,
-//           $BaseUrl: data.baseUrl,
-//           $ApiKey: data.apiKey,
-//           $Remark: data.remark,
-//           $IsDefault: 0
-//         } );
-//         if(!result) {
-//           console.log(result, "新增成功")
-//           message.success("新增成功")
-//           setTimeout(() => {
-//             showForm.value = false;
-//           }, 500)
-//         }
-//       }
-//     }
-//     else {
-//       console.log('errors', errors)
-//     }
-//   })
-// }
-
-// const addOpenApiClick = () => {
-//   showForm.value = true;
-//   dynamicForm.id = "";
-//   dynamicForm.model = "";
-//   dynamicForm.remark = "";
-//   dynamicForm.apiKey = "";
-//   dynamicForm.baseUrl = "";
-// }
-
-// const modalClick = async () => {
-//   await getWhisperModelList();
-//   showModal.value = true;
-//   modal.create({
-//     title: "模态框",
-//     content: "内容",
-//     preset: "dialog",
-//   });
-// };
-
-
-// function renderIcon(icon: any) {
-//   return () => h(NIcon, null, { default: () => h(icon) });
-// }
-//
-// const menuOptions = ref<any[]>([]);
-// const modelList = ref<any[]>([]);
-
 const inverted = ref(false);
 const showPin = ref(false);
 const outputSource = ref("");
 const outputTarget = ref("");
 const outputTitle = ref("");
 
-
-// const getWhisperModelList = async () => {
-//   const rows = await all(
-//     "select Id, Title, Name, Type, Size, IsDownLoad from WhisperModel",
-//     []
-//   );
-//   console.log(rows, "whisperList");
-//   modelList.value = rows;
-// };
-
-// getAll("");
-// const onMenuChange = async (key: string, item: any) => {
-//   console.log("onMenuChange", key, item);
-//   const row: any = await get(
-//     `select * from ParsingVideo where Id = ? and Env = ?`,
-//     [key, import.meta.env.MODE]
-//   );
-//   console.log(row, "row", row.FolderDate);
-//   outputSource.value = row.SourceSubtitles;
-//   outputTarget.value = row.TargetSubtitles;
-//   outputTitle.value = row.Title;
-//   state.currentVideoData = row;
-// };
-
 onMounted( async() => {
-  // getAll("");
+  console.log("index.vue onMouted加载成功","error")
   const id = route.query.id as string;
   console.log(id, "id");
 
@@ -760,7 +445,6 @@ ipcRenderer.on("reply-output", (event: any, isSupport: boolean, text) => {
   }
   outputSource.value = text;
   showPin.value = false;
-  // getAll(input.value);
 });
 
 ipcRenderer.on("reply-json", (event: any, text: string) => {
@@ -779,21 +463,6 @@ ipcRenderer.on("reply-duration", (event: any, duration: number) => {
     { label: "AI改写", code: "rewrite-ai" }
   ];
 });
-
-// ipcRenderer.on("reply-download-video", async (event: any, text: string) => {
-//   showPin.value = false;
-//   const updateSql = `
-//                 UPDATE ParsingVideo
-//                 SET HasVideo = $1
-//                 WHERE Id = $3
-//               `;
-//   const result = await run(updateSql, [1, state.currentVideoData.Id]);
-//   if (!result) {
-//     getAll(state.currentVideoData.Id);
-//     console.log(result, "result");
-//     message.success("视频下载完毕");
-//   }
-// });
 </script>
 <style scoped>
 .logo:hover {
@@ -810,7 +479,7 @@ ipcRenderer.on("reply-duration", (event: any, duration: number) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  line-height: 1.5;
+  height: 50px;
 }
 
 .right {
@@ -826,28 +495,10 @@ ipcRenderer.on("reply-duration", (event: any, duration: number) => {
 }
 
 .textarea {
-  height: calc(100vh - 120px);
+  height: calc(100vh - 100px);
   margin-right: 40px;
   position: relative;
   background-color: #18181c;
-}
-
-.render-html {
-  height: calc(100vh - 120px);
-  position: relative;
-  overflow: auto;
-}
-
-:deep(.ql-toolbar.ql-snow) {
-  border: 1px solid #28282c;
-}
-:deep(.ql-container) {
-  border: 1px solid grey;
-  height: calc(100vh - 165px);
-}
-
-:deep(.ql-editor) {
-  min-width: 400px;
 }
 
 .editor:hover {
@@ -868,7 +519,7 @@ ipcRenderer.on("reply-duration", (event: any, duration: number) => {
 }
 
 .menu-sider {
-  height: calc(100vh - 120px);
+  height: calc(100vh - 100px);
 }
 
 .menu-sider:hover {
@@ -878,24 +529,10 @@ ipcRenderer.on("reply-duration", (event: any, duration: number) => {
 
 .footer {
   display: flex;
-  justify-content: center;
   align-items: center;
-  padding-top: 4px;
+  justify-content: center;
+  height: 35px;
 }
-
-/* .download-modal {
-  display: flex;
-  justify-content: space-between;
-}
-
-.font-downloaded {
-  color: grey;
-}
-
-.font-download {
-  color: green;
-  cursor: pointer;
-} */
 
 :deep(.w-e-bar) {
   background-color: #28282c;

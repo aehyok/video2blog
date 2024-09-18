@@ -29,7 +29,7 @@
             </n-form>
             <div style="display: flex; justify-content: flex-end">
               <n-button round type="info" @click="addLocalClick" style="margin-right: 10px;">
-                添加本地视频
+                 添加本地视频
               </n-button>
               <n-button round type="primary" @click="subtitleClick" style="margin-right: 10px;">
                 获取视频字幕文件
@@ -71,16 +71,21 @@
       </div>
     </div>
 </n-spin>
+<FlashingButton />
 </template>
 <script setup lang="ts">
 import { NCard, NForm, NFormItem, NInput, NSwitch, NButton, NDivider, NImage, useMessage, NSpin,NEllipsis } from "naive-ui";
 import type { FormInst } from "naive-ui";
-import { reactive, ref, onMounted } from "vue";
+import { reactive, ref, onMounted, defineAsyncComponent } from "vue";
 import Player from "xgplayer";
 import 'xgplayer/dist/index.min.css';
 import { all, get } from "@/sqlite3.ts";
 import { ipcRenderer } from "electron";
 import { useRouter } from "vue-router";
+
+let FlashingButton = defineAsyncComponent({
+  loader: () => import('./components/flashing-button.vue')
+})
 
 const message = useMessage();
 const router = useRouter();
@@ -98,14 +103,17 @@ const model = reactive<any>({
   isSelected: false,
   currentSelected: {},
 });
+
 const state = reactive({
   checkedValue: false,
   rule: {},
   executePath: "",
-  middlePath: ""
+  middlePath: "",
+  showActive: false,
 });
 
 onMounted(async() => {
+  console.log("main.vue onMouted加载成功","error")
   let env = import.meta.env.MODE;
   state.middlePath = env == "development" ? "": "/resources";
 
