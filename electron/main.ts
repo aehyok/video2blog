@@ -5,7 +5,7 @@ import fs from "fs-extra";
 import { app, BrowserWindow, ipcMain } from "electron";
 import { format } from "date-fns";
 import { getHtml ,getAuthCmd, getExecuteFile, getExecutePath } from "./utils";
-import { connectDataBase, findRecord, insertRecord } from "./sqlHelper";
+import { connectDataBase, findRecord, insertRecord, getKeyValue } from "./sqlHelper";
 import sharp from 'sharp'
 process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 
@@ -169,7 +169,17 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
     let toutiaoTitle = "";
     // 头条专属
     if(videoUrl.indexOf("toutiao.com") > 0) {
-      let obj = await getHtml(videoUrl);
+
+      let cookie: any = await getKeyValue("toutiao");
+      if(!cookie || !cookie.Value) {
+        event.reply("reply-toutiao-output", "请点击左下角设置今日头条的cookie");
+        return;
+      }
+      let obj = await getHtml(videoUrl, cookie.Value);
+      if(!obj.json) {
+        event.reply("reply-toutiao-output", "今日头条的cookie失效或过期，请点击左下角重新设置");
+        return;
+      }
       let json = JSON.parse(obj.json);
       toutiaoTitle = obj.title;
       console.log(json.data.initialVideo.videoPlayInfo.video_list, "----------------json")
@@ -186,7 +196,7 @@ ipcMain.on("call-yt-dlp", async (event, videoUrl, isDownloadVideo) => {
 
     if (!isMatched) {
       // false则不支持该视频链接的转换
-      event.reply("reply-render-output", false, "");
+      event.reply("reply-output", false, "");
       return;
     }
 

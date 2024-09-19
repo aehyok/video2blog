@@ -21,6 +21,19 @@ export const findRecord = async (url: string) => {
 };
 
 /**
+ * 通过code查看Value
+ * @param code 
+ * @returns 
+ */
+export const getKeyValue = async (code: string) => {
+  const record = await get(
+    `select * from KeyValues s where s.Code = ?`,
+    [code]
+  );
+  return record;
+};
+
+/**
  * 插入数据库记录
  * @param data
  */

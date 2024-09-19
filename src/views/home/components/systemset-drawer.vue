@@ -83,6 +83,10 @@
           </n-space>
         </n-form-item>
       </n-form>
+      <p style="color: #bbee53; font-size: 16px;">头条Cookie设置</p>
+      <div style="display: flex; justify-content: center;align-items: center; ">
+        <n-input v-model:value="keyValues.touTiaoValue" placeholder="请输入头条Cookies设置" clearable /><n-button @click="saveKeyValuesClick">保存</n-button>
+      </div>
       <template #footer>
         <n-button @click="closeClick">关闭</n-button>
       </template>
@@ -121,7 +125,8 @@ const showForm = ref(false)
 const formRef = ref();
 
 const state = reactive<any>({
-  openApiList: []
+  openApiList: [],
+  keyValueList: []
 });
 
 const dynamicForm = reactive({
@@ -133,6 +138,10 @@ const dynamicForm = reactive({
   isDefault: 0,
 });
 
+const keyValues = reactive({
+  touTiaoValue: ""
+})
+
 const getOpenApiList = async() =>  {
   const rows = await all(
       "select * from OpenAPI",
@@ -140,6 +149,20 @@ const getOpenApiList = async() =>  {
   );
   console.log(rows, "openapi----")
   state.openApiList = rows;
+}
+
+const getKeyValues = async () => {
+  const rows = await all(
+    "select * from KeyValues", []
+  )
+  state.keyValueList = rows;
+
+  if(state.keyValueList.length > 0) {
+    let toutiaoItem = state.keyValueList.find((item: any) => item.Code == 'toutiao');
+    if(toutiaoItem) {
+      keyValues.touTiaoValue = toutiaoItem.Value;
+    }
+  }
 }
 
 /**
@@ -185,7 +208,6 @@ const saveOpenApiClick = async(e: any) => {
 
   formRef.value?.validate(async(errors: any) => {
     if (!errors) {
-
       // 修改
       if(dynamicForm.id) {
         const updateSql = `
@@ -240,10 +262,25 @@ const addOpenApiClick = () => {
   dynamicForm.baseUrl = "";
 }
 
+const saveKeyValuesClick = async() => {
+  console.log("save key values")
+  const updateSql = `
+          UPDATE KeyValues
+          SET Value = $1
+          WHERE Code = $2
+        `;
+  const result = await run(updateSql, [keyValues.touTiaoValue, "toutiao"]);
+  if(!result) {
+    console.log(result, "修改今日头条Cookie成功")
+    message.success("修改今日头条Cookie成功")
+  }
+}
+
 watchEffect(async() => {
   if(props.showActive) {
     showForm.value = false;
     await getOpenApiList();
+    await getKeyValues();
     state.showMenu = true;
   }
 });

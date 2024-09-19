@@ -221,7 +221,6 @@ ipcRenderer.on("reply-videoPath", async(event: any, type: string) => {
 });
 
 // 子进程定义方法
-
 ipcRenderer.on("reply-output", async(event: any, isSupport: boolean, text) => {
   console.log(event, "event-ipcRenderer");
   if (!isSupport) {
@@ -235,6 +234,11 @@ ipcRenderer.on("reply-output", async(event: any, isSupport: boolean, text) => {
   }
   model.showPin = false;
   await getAll();
+});
+
+ipcRenderer.on("reply-toutiao-output", async(event: any, text: string) => {
+  message.warning(text);
+  model.showPin = false;
 });
 </script>
 <style scoped>
