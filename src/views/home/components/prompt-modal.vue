@@ -1,5 +1,5 @@
 <template>
-    <n-modal
+  <n-modal
     style="width: 600px;"
     :show = "showPromptModal" 
     preset="dialog"

@@ -4,8 +4,8 @@ import { createApp } from "vue";
 import "./style.css";
 import App from "./App.vue";
 import router from "./router";
-import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css'
-import ContextMenu from '@imengyu/vue3-context-menu'
+// import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css'
+// import ContextMenu from '@imengyu/vue3-context-menu'
 
 /**
  * 获取主进程中sqlite3数据库的本地路径
@@ -23,7 +23,7 @@ ipcRenderer.on('main-process-log', (event, args) => {
 // Remove Preload scripts loading
 const app = createApp(App);
 app.use(router);
-app.use(ContextMenu);
+// app.use(ContextMenu);
 app.mount("#app")
     // .$nextTick(() => {
   // Remove Preload scripts loading

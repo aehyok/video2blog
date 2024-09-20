@@ -4,7 +4,7 @@
       <n-layout-header class="header">
         
           <div><span style="color: red;">标题：</span><span style="text-decoration: underline;margin-right: 10px;">{{ outputTitle }}</span><n-button type="info" size="small" @click="changTitleClick">改写标题</n-button></div>
-          <div><n-button
+          <div style="width: 120px;"><n-button
             @click="backClick"
             size="small"
             style="margin-left: 10px"
@@ -126,6 +126,7 @@
 </template>
 <script lang="ts">
 import { defineComponent } from "vue";
+import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css'
 //导入组件
 import {
   ContextMenu,
@@ -161,10 +162,9 @@ import {
   NGrid,
   useDialog,
 } from "naive-ui";
-import PromptModal from "./components/prompt-modal.vue";
-import AIModal from "./components/ai-modal.vue";
-import ImageListModal from "./components/imagelist-modal.vue";
-import QrcodeModal from "./components/qrcode-modal.vue";
+
+
+
 import { get, run } from "@/sqlite3.ts";
 import { useStorage } from "@vueuse/core";
 import { getUserSelf } from "@/utils/request.ts";
@@ -175,6 +175,22 @@ import { createQrCode, checkLogin } from "@/utils/request";
 import { secondsToTime } from "@/utils";
 import { Camera } from "lucide-vue-next"
 import { useRoute, useRouter } from "vue-router";
+
+let QrcodeModal =  defineAsyncComponent({
+  loader: () => import('./components/qrcode-modal.vue')
+})
+
+let ImageListModal =  defineAsyncComponent({
+  loader: () => import('./components/imagelist-modal.vue')
+})
+
+let AIModal =  defineAsyncComponent({
+  loader: () => import('./components/ai-modal.vue')
+})
+
+let PromptModal =  defineAsyncComponent({
+  loader: () => import('./components/prompt-modal.vue')
+})
 
 let FlashingButton = defineAsyncComponent({
   loader: () => import('./components/flashing-button.vue')

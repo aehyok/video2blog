@@ -9,7 +9,7 @@ function pathResolve(dir: string) {
 
 export default defineConfig({
   build: {
-    minify: false,
+    minify: true,
   },
   plugins: [
     vue(),
