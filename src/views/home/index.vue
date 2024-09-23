@@ -4,7 +4,7 @@
       <n-layout-header class="header">
         
           <div><span style="color: red;">标题：</span><span style="text-decoration: underline;margin-right: 10px;">{{ outputTitle }}</span><n-button type="info" size="small" @click="changTitleClick">改写标题</n-button></div>
-          <div style="width: 120px;"><n-button
+          <div style="width: 140px;"><n-button
             @click="backClick"
             size="small"
             style="margin-left: 10px"
