@@ -42,7 +42,9 @@
           <div id="videoPlayer" class="flex-video"></div>
         </n-card></div>
       </div>
-      <div class="flex-right">
+      <div style="background-color: #18181c;">
+        <div style="width: 60vw;color: greenyellow; height: 50px; font-size: 16px; display: flex; align-items: center; justify-content: flex-end;">您当前已处理的视频总个数为：（{{ state.videoCount }}个）&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+        <div class="flex-right">
         <template v-for="item in model.list">
           <div class="flex-item" @click="selectItemClick(item)" :class="{ 'flex-select': item.isSelected }">
             <div style="width:90px;height: 100%;object-fit: contain;display: flex; align-items: center; justify-content: flex-start; ">
@@ -68,6 +70,7 @@
         <div style="width: 100px;height:160px;">
 
         </div>
+      </div>
       </div>
     </div>
 </n-spin>
@@ -110,6 +113,7 @@ const state = reactive({
   executePath: "",
   middlePath: "",
   showActive: false,
+  videoCount: 0,
 });
 
 onMounted(async() => {
@@ -170,7 +174,7 @@ const getPlatform = (path: string) => {
 
 const getAll = async () => {
   let env = import.meta.env.MODE;
-  const rows: unknown = await all(
+  const rows: any = await all(
     "select * From ParsingVideo where Env = ? order by CreateTime desc",
     [env]
   );
@@ -178,6 +182,7 @@ const getAll = async () => {
   console.log(rows, "home页面获取数据");
 
   model.list = rows;
+  state.videoCount = rows.length;
 };
 
 // 点击获取字幕
@@ -246,6 +251,7 @@ ipcRenderer.on("reply-toutiao-output", async(event: any, text: string) => {
   display: flex;
   justify-content: center;
   align-items: center;
+  background-color: #18181c;
 }
 
 .flex-left {
@@ -269,7 +275,7 @@ ipcRenderer.on("reply-toutiao-output", async(event: any, text: string) => {
 
 .flex-right {
   width: 60vw;
-  height: calc(100vh - 10px);
+  height: calc(100vh - 60px);
   overflow: auto;
   padding-top: 10px;
   background-color: #18181c;
